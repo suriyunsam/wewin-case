@@ -6,38 +6,43 @@ require('dotenv').config();
 
 const express = require('express');
 const axios = require('axios');
+const cors = require('cors'); // ✅ เพิ่ม: Import cors package
 const app = express();
 
 // Render/Heroku จะกำหนด PORT ให้เอง
 const port = process.env.PORT || 3000; 
 
-// 0. Root Route: ใช้สำหรับทดสอบว่า Server ทำงานได้
+// 0. Root Route: ใช้สำหรับทดสอบว่า Server ทำงานได้ (ตอบกลับเป็น JSON)
 app.get('/', (req, res) => {
-    res.send('WeWin Case Status API is running! Access /api/casestatus for data.');
+    res.json({ 
+        status: 'WeWin Case Status API is running!', 
+        message: 'Access the data at /api/casestatus endpoint.',
+        data_endpoint: '/api/casestatus'
+    });
 });
 
-// 1. CORS Middleware: อนุญาตให้ Frontend ของคุณเข้าถึง API นี้ได้
-app.use((req, res, next) => {
-    // ✅ แก้ไขกลับไปใช้โดเมนจริงของคุณเพื่อความปลอดภัย
-    const allowedOrigins = [
-        'http://localhost:8080', 
-        'http://127.0.0.1', 
-        'https://suriyunsam.github.io' // 👈 โดเมน GitHub Pages ที่ปลอดภัยของคุณ
-    ]; 
-    
-    const origin = req.headers.origin;
+// 1. CORS Middleware: ใช้ cors package เพื่อจัดการ Header และ Pre-flight Request 
+const allowedOrigins = [
+    'http://localhost:8080', 
+    'http://127.0.0.1', 
+    'https://suriyunsam.github.io' // 👈 โดเมน GitHub Pages ที่ปลอดภัยของคุณ
+]; 
 
-    if (origin && allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    } else if (!origin) {
-        // อนุญาตคำขอที่ไม่มี Origin Header (เช่น การเข้าถึงโดยตรงจากเบราว์เซอร์)
-        res.setHeader('Access-Control-Allow-Origin', '*'); 
-    }
-    
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-});
+const corsOptions = {
+    origin: (origin, callback) => {
+        // อนุญาต origin ที่อยู่ในรายการ หรืออนุญาตถ้าไม่มี origin (เช่น Postman/Direct Access)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'), false);
+        }
+    },
+    methods: 'GET',
+    allowedHeaders: ['Content-Type'],
+    optionsSuccessStatus: 200 // สำหรับ Legacy Browsers
+};
+
+app.use(cors(corsOptions)); // ✅ ใช้ cors package แทน Middleware ที่เขียนเอง
 
 // 2. API Endpoint: สำหรับดึงข้อมูลสถานะคดี
 app.get('/api/casestatus', async (req, res) => {

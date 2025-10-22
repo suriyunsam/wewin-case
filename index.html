@@ -239,11 +239,8 @@
   </div>
 
   <script type="module">
-    // --- กำหนดค่า API ---
-    // หมายเหตุ: ID ที่ให้มาดูผิดปกติ (สั้นเกินไป) หากการโหลดล้มเหลว โปรดตรวจสอบให้แน่ใจว่าเป็น ID ที่ถูกต้อง
     const SPREADSHEET_ID = '1xkexhCplurn2koS1Gj8ahzpFs2wRfIWUFbFypmGcm3g'; 
     const API_KEY = 'AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw';
-    // ใช้ Range 'Sheet1!A:Z' โดยสมมติว่าชีตแรกมีชื่อว่า 'Sheet1'
     const RANGE = 'Sheet1!A:Z'; 
     
     const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${API_KEY}`;
@@ -251,13 +248,6 @@
     const loadingMessage = document.getElementById('loadingMessage');
     const mainDashboard = document.getElementById('mainDashboard');
     const mainContent = document.getElementById('mainContent');
-
-    /**
-     * แปลงข้อมูลที่ได้จาก Google Sheets API (Array of Arrays) 
-     * ให้เป็น Array of Objects ที่เข้าถึงด้วยชื่อ Header
-     * @param {Array<Array<string>>} data - ข้อมูลแถวและคอลัมน์
-     * @returns {Array<Object>} Array of case objects
-     */
     function arrayToObjects(data) {
         if (!data || data.length === 0) return [];
         
@@ -381,8 +371,6 @@
             mainContent.style.display = 'none';
         }
     }
-
-    // เริ่มโหลดข้อมูลเมื่อ Script โหลดเสร็จ
     fetchGoogleSheetData();
   </script>
 </body>

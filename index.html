@@ -193,10 +193,7 @@
   </div>
 
   <script>
-    // ✅ ตั้งค่า Google Sheets API (⚠️ โปรดพิจารณาใช้ Backend Server เพื่อซ่อน API Key ตามที่ได้แนะนำก่อนหน้านี้)
-    const SPREADSHEET_ID = "1xkexhCplurn2koS1Gj8ahzpFs2wRfIWUFbFypmGcm3g";
-    const RANGE = "Sheet1!A:Z";
-    const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?key=AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw`;
+    const API_URL = `https://wewin-case-api.onrender.com/api/casestatus`;
 
     const el = {
       loading: document.getElementById("loadingMessage"),
@@ -209,7 +206,7 @@
 
     let allCases = [];
 
-    // 🔹 แปลงข้อมูลจาก Google Sheets เป็น Object
+    // 🔹 แปลงข้อมูลเป็น Object
     const arrayToObjects = (data) => {
       const headers = data[0];
       return data.slice(1).map((row) => {

@@ -83,6 +83,16 @@
         color: var(--primary-color);
         font-weight: 600;
     }
+    
+    /* Error message display */
+    #errorMessage {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 1.1rem;
+        color: red;
+        font-weight: 600;
+        display: none;
+    }
 
     /* Content Area Grid (Chart + Table) */
     .content-area {
@@ -151,7 +161,8 @@
 <body>
   <h1>สถานะคดีปกครองโครงการเราชนะ</h1>
   
-  <div id="loadingMessage">กำลังโหลดข้อมูล...</div>
+  <div id="loadingMessage">กำลังโหลดข้อมูลจาก Google Sheet ผ่านช่องทางที่ปลอดภัย...</div>
+  <div id="errorMessage" style="display: none;"></div>
 
   <div class="dashboard" id="mainDashboard" style="display: none;">
     <div class="card card-total"><h2>คดีทั้งหมด</h2><p id="totalCases">0</p></div>
@@ -195,14 +206,12 @@
   </div>
 
   <script type="module">
-    // *** ค่าการเชื่อมต่อ Google Sheets (ไม่สามารถลบได้) ***
-    const SPREADSHEET_ID = '1xkexhCplurn2koS1Gj8ahzpFs2wRfIWUFbFypmGcm3g'; 
-    const API_KEY = 'AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw';
-    const RANGE = 'Sheet1!A:Z'; 
-    const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${API_KEY}`;
+    const SECURE_API_URL = 'https://script.google.com/macros/s/AKfycbxZUd-Qr3Z8D12-DMD3Yr8pNIRCmG4B5ubLlg3suSy-UFQO8UVAz68oSQlKQGNSNmvDJA/exec'; 
     
+    // DOM Elements
     const elements = {
         loadingMessage: document.getElementById('loadingMessage'),
+        errorMessage: document.getElementById('errorMessage'),
         mainDashboard: document.getElementById('mainDashboard'),
         mainContent: document.getElementById('mainContent'),
         caseSearchInput: document.getElementById('caseSearch'),
@@ -211,22 +220,15 @@
     };
     
     let allCasesData = []; 
-
-    /** แปลงข้อมูลจาก Array of Arrays เป็น Array of Objects */
-    function arrayToObjects(data) {
-        if (!data || data.length < 2) return [];
-        const headers = data[0].map(h => h.trim());
-        const cases = [];
-        for (let i = 1; i < data.length; i++) {
-            const row = data[i];
-            if (row.filter(cell => cell.trim() !== '').length === 0) continue;
-            const item = {};
-            headers.forEach((header, j) => { item[header] = row[j] || ''; });
-            cases.push(item);
-        }
-        return cases;
+    
+    // Utility to show errors
+    function showError(message) {
+        elements.loadingMessage.style.display = 'none';
+        elements.errorMessage.innerText = `ข้อผิดพลาด: ${message}`;
+        elements.errorMessage.style.display = 'block';
+        console.error(message);
     }
-
+    
     /** สร้างแถวตาราง HTML จากข้อมูลคดีที่ถูกกรองแล้ว */
     function renderCasesTable(cases) {
         elements.casesTableBody.innerHTML = ''; 
@@ -254,13 +256,15 @@
         let filteredCases = [];
         
         if (searchTerm.length === 0) {
+            // แสดง 10 คดีล่าสุดหากไม่มีคำค้นหา
             filteredCases = allCasesData.slice(-10).reverse();
             elements.tableTitle.innerText = "10 คดีล่าสุดที่อัปเดต";
         } else {
+            // กรองตามเลขคดีดำ
             filteredCases = allCasesData.filter(c => 
                 c["เลขคดีดำ"] && c["เลขคดีดำ"].toString().includes(searchTerm)
             );
-            elements.tableTitle.innerText = "ผลการค้นหาคดี";
+            elements.tableTitle.innerText = `ผลการค้นหาคดี (${filteredCases.length} รายการ)`;
         }
 
         renderCasesTable(filteredCases);
@@ -268,93 +272,99 @@
     
     elements.caseSearchInput.addEventListener('input', filterAndRenderCases);
 
-    /** ดึงข้อมูลจาก Google Sheets และอัปเดต Dashboard + Chart */
-    async function fetchGoogleSheetData() {
+
+    /** อัปเดต UI ด้วยข้อมูลคดีที่ได้รับจาก Proxy */
+    function updateDashboardAndChart(cases) {
+        allCasesData = cases; 
+
+        // 1. คำนวณสถานะคดี (ใช้ logic เดิม)
+        const totalCases = cases.length;
+        const finalCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ถึงที่สุด")).length;
+        const firstCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ชั้นต้น")).length;
+        const supremeCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("สูงสุด")).length;
+        const executionCompleteCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
+        const inExecutionCases = cases.filter(c => c["สถานะคดี"] && (c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี"))).length;
+
+        // 2. อัปเดตตัวเลขในการ์ด
+        document.getElementById("totalCases").innerText = totalCases;
+        document.getElementById("finalCases").innerText = finalCases;
+        document.getElementById("firstCourtCases").innerText = firstCourtCases;
+        document.getElementById("supremeCourtCases").innerText = supremeCourtCases;
+        document.getElementById("executionCompleteCases").innerText = executionCompleteCases;
+        document.getElementById("inExecutionCases").innerText = inExecutionCases;
+
+        // 3. สร้าง/อัปเดต Pie Chart
+        const ctx = document.getElementById("caseStatusChart");
+        // ทำลาย Chart เก่าก่อนสร้างใหม่ เพื่อป้องกัน Chart ซ้อนกัน
+        if (ctx.chart) { ctx.chart.destroy(); }
+
+        const chartData = {
+          labels: ["คำพิพากษาถึงที่สุด", "อยู่ระหว่างพิจารณาชั้นต้น", "อยู่ระหว่างพิจารณาสูงสุด", "อยู่ในขั้นตอนบังคับคดี", "บังคับคดีเสร็จสิ้น"],
+          datasets: [{
+            label: "จำนวนคดี",
+            data: [finalCases, firstCourtCases, supremeCourtCases, inExecutionCases, executionCompleteCases],
+            backgroundColor: ["#4CAF50", "#2196F3", "#FFC107", "#FF8C00", "#008080"],
+            borderColor: "white",
+            borderWidth: 2
+          }]
+        };
+        
+        ctx.chart = new Chart(ctx, {
+          type: "pie",
+          data: chartData,
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { 
+                    display: true, 
+                    position: 'right', 
+                    labels: { font: { family: "Sarabun" } }
+                },
+                tooltip: {
+                    titleFont: { family: "Sarabun", size: 14 },
+                    bodyFont: { family: "Sarabun", size: 12 }
+                }
+            },
+          }
+        });
+
+        // 4. แสดงผลตารางเริ่มต้น (10 รายการล่าสุด)
+        filterAndRenderCases(); 
+
+        // 5. แสดง Dashboard
+        elements.loadingMessage.style.display = 'none';
+        elements.mainDashboard.style.display = 'grid';
+        elements.mainContent.style.display = 'grid';
+    }
+
+
+    /** ดึงข้อมูลผ่าน Serverless Function/Proxy (เพื่อความปลอดภัย) และอัปเดต Dashboard */
+    async function fetchData() {
         try {
-            const response = await fetch(API_URL);
+            // โค้ดนี้จะเรียกไปยัง Proxy Endpoint ที่คุณตั้งค่าไว้
+            const response = await fetch(SECURE_API_URL); 
+            
             if (!response.ok) {
-                const errorText = await response.text();
-                let message = `Google Sheets API Error: ${response.status}`;
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    message += ` - ${errorJson.error.message}`;
-                } catch (e) { /* ignore JSON parsing error */ }
-                throw new Error(message);
+                throw new Error(`การเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว (HTTP Status: ${response.status}).`);
             }
 
-            const result = await response.json();
-            if (!result.values) { throw new Error("ไม่พบข้อมูล 'values' ในการตอบกลับ"); }
-
-            const cases = arrayToObjects(result.values);
-            allCasesData = cases; 
-
-            // 1. คำนวณสถานะคดี
-            const totalCases = cases.length;
-            const finalCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ถึงที่สุด")).length;
-            const firstCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ชั้นต้น")).length;
-            const supremeCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("สูงสุด")).length;
-            const executionCompleteCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
-            const inExecutionCases = cases.filter(c => c["สถานะคดี"] && (c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี"))).length;
-
-            // 2. อัปเดตตัวเลขในการ์ด
-            document.getElementById("totalCases").innerText = totalCases;
-            document.getElementById("finalCases").innerText = finalCases;
-            document.getElementById("firstCourtCases").innerText = firstCourtCases;
-            document.getElementById("supremeCourtCases").innerText = supremeCourtCases;
-            document.getElementById("executionCompleteCases").innerText = executionCompleteCases;
-            document.getElementById("inExecutionCases").innerText = inExecutionCases;
-
-            // 3. สร้าง Pie Chart
-            const ctx = document.getElementById("caseStatusChart");
-            if (ctx.chart) { ctx.chart.destroy(); }
-
-            const chartData = {
-              labels: ["คำพิพากษาถึงที่สุด", "อยู่ระหว่างพิจารณาชั้นต้น", "อยู่ระหว่างพิจารณาสูงสุด", "อยู่ในขั้นตอนบังคับคดี", "บังคับคดีเสร็จสิ้น"],
-              datasets: [{
-                label: "จำนวนคดี",
-                data: [finalCases, firstCourtCases, supremeCourtCases, inExecutionCases, executionCompleteCases],
-                backgroundColor: ["#4CAF50", "#2196F3", "#FFC107", "#FF8C00", "#008080"],
-                borderColor: "white",
-                borderWidth: 2
-              }]
-            };
+            // สมมติว่า Serverless Function/Proxy ส่ง JSON ที่เป็น Array of Case Objects กลับมา
+            const cases = await response.json(); 
             
-            ctx.chart = new Chart(ctx, {
-              type: "pie",
-              data: chartData,
-              options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                plugins: { 
-                    legend: { 
-                        display: true, 
-                        position: 'right', // Legend อยู่ด้านขวา
-                        labels: { font: { family: "Sarabun" } }
-                    },
-                    tooltip: {
-                        titleFont: { family: "Sarabun", size: 14 },
-                        bodyFont: { family: "Sarabun", size: 12 }
-                    }
-                },
-              }
-            });
+            if (!Array.isArray(cases)) {
+                throw new Error("โครงสร้างข้อมูลที่ได้รับจากเซิร์ฟเวอร์ไม่ถูกต้อง (ต้องเป็น Array)");
+            }
 
-            // 4. แสดงผลตารางเริ่มต้น
-            filterAndRenderCases(); 
-
-            // 5. แสดง Dashboard
-            elements.loadingMessage.style.display = 'none';
-            elements.mainDashboard.style.display = 'grid';
-            elements.mainContent.style.display = 'grid';
-
+            // อัปเดต UI
+            updateDashboardAndChart(cases);
+            
         } catch (error) {
-            console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
-            elements.loadingMessage.innerText = `การโหลดข้อมูลล้มเหลว: ${error.message}`;
-            elements.loadingMessage.style.color = 'red';
+            showError(`การโหลดข้อมูลล้มเหลว: ${error.message}. โปรดตรวจสอบว่าได้ตั้งค่าและ Deploy Proxy Endpoint แล้ว`);
         }
     }
 
-    fetchGoogleSheetData();
+    fetchData();
   </script>
 </body>
 </html>

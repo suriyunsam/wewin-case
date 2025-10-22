@@ -367,10 +367,10 @@
             }
         }
         
-        function showLoading() {
+        function showLoading(message = 'กำลังโหลดข้อมูล...') { // รับ parameter message เพื่อแสดงสถานะการโหลด
             loginContainer.style.display = 'none';
             dataDisplayContainer.style.display = 'block';
-            loadingMessage.textContent = 'กำลังโหลดข้อมูล...';
+            loadingMessage.textContent = message;
             loadingMessage.style.display = 'block';
             mainDashboard.style.display = 'none';
             mainContent.style.display = 'none';
@@ -415,47 +415,86 @@
             loadData(password, true); 
         });
 
+        // ----------------------------------------------------
+        // 2.1 Core Fetch Logic (แยกจาก Retry Loop)
+        // ----------------------------------------------------
+        async function fetchCaseData(password) {
+            const res = await fetch(API_URL, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${password}`, // ส่งรหัสผ่านผ่าน Header
+                    'Content-Type': 'application/json',
+                }
+            });
 
+            if (res.status === 401) {
+                throw new Error("Unauthorized");
+            }
+            
+            if (!res.ok) {
+                throw new Error(`API Error: ${res.status} ${res.statusText}`);
+            }
+
+            return res.json();
+        }
+
+
+        // 2.2 Retry Logic (เพื่อจัดการปัญหา Server Cold Start/Network ชั่วคราว)
         async function loadData(password, isLoginAttempt = false) {
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${password}`, // ส่งรหัสผ่านผ่าน Header
-                        'Content-Type': 'application/json',
+            const MAX_RETRIES = 3;
+            let attempt = 0;
+
+            while (attempt < MAX_RETRIES) {
+                attempt++;
+                // Exponential backoff delay: 0s (initial), 2s, 4s (if needed)
+                const delay = attempt === 1 ? 0 : Math.pow(2, attempt) * 500; 
+
+                try {
+                    if (attempt > 1) {
+                         // หน่วงเวลาตาม backoff และแจ้งสถานะการ retry
+                         showLoading(`กำลังพยายามเชื่อมต่อใหม่... (ครั้งที่ ${attempt}/${MAX_RETRIES})`);
+                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
-                });
+                    
+                    const data = await fetchCaseData(password);
 
-                if (res.status === 401) {
-                    sessionStorage.removeItem(AUTH_KEY);
-                    showLogin("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");
-                    return;
+                    if (isLoginAttempt) {
+                        // ถ้าเป็นการล็อกอินครั้งแรกและสำเร็จ ให้บันทึกรหัสผ่านไว้
+                        sessionStorage.setItem(AUTH_KEY, password);
+                    }
+
+                    // Success: Process data and show dashboard
+                    setTimeout(() => {
+                        processAndRenderDashboard(data.values); 
+                        showDashboard(); 
+                    }, 50); 
+                    return; // สำเร็จ, ออกจากลูป
+                    
+                } catch (error) {
+                    if (error.message === "Unauthorized") {
+                        // รหัสผ่านผิดพลาด (401) ไม่ต้อง retry
+                        sessionStorage.removeItem(AUTH_KEY);
+                        showLogin("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");
+                        return;
+                    }
+                    if (error.message.startsWith("API Error")) {
+                        // Server ตอบกลับด้วยโค้ด Error อื่นๆ (เช่น 500) ไม่ต้อง retry
+                        sessionStorage.removeItem(AUTH_KEY);
+                        showLogin(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${error.message}. โปรดตรวจสอบ Server Log.`);
+                        return;
+                    }
+                    
+                    // Network/Fetch error (e.g., server asleep or temporary network issue)
+                    console.warn(`Fetch attempt ${attempt} failed (network issue or server cold start). Retrying...`, error);
+
+                    if (attempt === MAX_RETRIES) {
+                        // พยายามซ้ำครบจำนวนแล้ว
+                        console.error("Fetch failed after all retries.");
+                        sessionStorage.removeItem(AUTH_KEY);
+                        showLogin(`ไม่สามารถเชื่อมต่อกับ Server ได้ (พยายาม ${MAX_RETRIES} ครั้ง) กรุณาตรวจสอบ Console Log และสถานะ Server.`);
+                        return;
+                    }
                 }
-                
-                if (!res.ok) {
-                    sessionStorage.removeItem(AUTH_KEY);
-                    showLogin(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${res.status} ${res.statusText}. โปรดตรวจสอบ Server Log.`);
-                    return;
-                }
-
-                const data = await res.json();
-
-                if (isLoginAttempt) {
-                    // ถ้าเป็นการล็อกอินครั้งแรกและสำเร็จ ให้บันทึกรหัสผ่านไว้
-                    sessionStorage.setItem(AUTH_KEY, password);
-                }
-
-                // FIX: ใช้ setTimeout เพื่อให้เบราว์เซอร์มีเวลาเรนเดอร์ UI ที่แสดงก่อน Chart.js จะทำงาน 
-                setTimeout(() => {
-                    processAndRenderDashboard(data.values); 
-                    showDashboard(); // แสดง Dashboard
-                }, 50); 
-
-                
-            } catch (error) {
-                console.error("Fetch Error:", error);
-                sessionStorage.removeItem(AUTH_KEY);
-                showLogin(`ไม่สามารถเชื่อมต่อกับ Server ได้ กรุณาตรวจสอบ Console Log.`);
             }
         }
 

@@ -13,68 +13,79 @@
   
   <style>
     :root {
-      --primary-color: #1b365d; /* น้ำเงินเข้ม */
-      --secondary-color: #007bff; /* น้ำเงินสว่าง */
-      --background-color: #f7f9fb;
-      --card-bg: white;
+      /* สีตามแนวทาง macOS Minimalist / Neumorphism Light */
+      --primary-color: #1a1a1d; /* Dark Text */
+      --secondary-color: #007aff; /* Apple Blue */
+      --background-color: #f0f2f5; /* Very Light Gray */
+      --card-bg: #ffffff;
+      --shadow-light: 4px 4px 8px rgba(0, 0, 0, 0.08), -4px -4px 8px rgba(255, 255, 255, 0.8); /* Soft Neumorphism */
+      --shadow-dark: 5px 5px 15px rgba(0, 0, 0, 0.15); /* Deeper Shadow for Charts/Tables */
+      --radius: 16px; /* Larger, smoother rounded corners */
     }
 
     body {
       font-family: "Sarabun", sans-serif;
       background-color: var(--background-color);
       margin: 0;
-      padding: 20px;
-      color: #333;
+      padding: 30px;
+      color: var(--primary-color);
+      transition: background-color 0.3s;
     }
-    @media (max-width: 600px) { body { padding: 10px; } }
+    @media (max-width: 600px) { body { padding: 15px; } }
 
     h1 {
       color: var(--primary-color);
       text-align: center;
-      margin-bottom: 30px;
-      font-weight: 600;
-      font-size: 1.8rem;
+      margin-bottom: 40px;
+      font-weight: 700;
+      font-size: 2.2rem;
+      letter-spacing: -0.5px;
     }
 
     /* Dashboard Grid (Card Section) */
     .dashboard {
       display: grid;
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 15px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+      gap: 20px;
+      margin-bottom: 40px;
     }
-    @media (max-width: 992px) { .dashboard { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 576px) { .dashboard { grid-template-columns: 1fr; } }
-    
+   
     .card {
       background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      padding: 25px 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-light); /* ใช้เงาแบบนุ่มนวล */
       text-align: center;
+      border: 1px solid rgba(0, 0, 0, 0.05); /* เส้นขอบบางๆ เพื่อความชัดเจน */
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
     }
 
     .card h2 {
       margin: 5px 0 15px 0;
       color: var(--primary-color);
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 400;
-      white-space: nowrap;
+      opacity: 0.7;
     }
 
     .card p {
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 700;
-      color: var(--secondary-color);
+      letter-spacing: -1px;
     }
     
-    /* สีของตัวเลขในการ์ด */
-    .card-total p { color: #5cb85c; }
-    .card-final p { color: #4CAF50; }
-    .card-first p { color: #2196F3; }
-    .card-supreme p { color: #FFC107; }
-    .card-complete p { color: #008080; } 
-    .card-enforcement p { color: #FF8C00; } 
+    /* สีของตัวเลขในการ์ด (เน้นความสดใสสไตล์ Apple) */
+    .card-total p { color: #5AC8FA; } /* Light Blue */
+    .card-final p { color: #34C759; } /* Green */
+    .card-first p { color: #007AFF; } /* Blue */
+    .card-supreme p { color: #FF9500; } /* Orange */
+    .card-complete p { color: #5856D6; } /* Indigo/Purple */ 
+    .card-enforcement p { color: #FF3B30; } /* Red */ 
 
     #loadingMessage {
         text-align: center;
@@ -83,17 +94,17 @@
         color: var(--primary-color);
         font-weight: 600;
     }
-    
-    .api-warning {
-        background-color: #fee2e2;
-        color: #b91c1c;
-        padding: 15px;
-        border: 1px solid #fca5a5;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: 600;
-    }
+
+    .api-warning {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        padding: 15px;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+    }
 
     /* Content Area Grid (Chart + Table) */
     .content-area {
@@ -105,34 +116,56 @@
 
     .chart-container, .table-container {
       background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-dark); /* ใช้เงาที่คมกว่าสำหรับการ์ดใหญ่ */
+      border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .chart-container h2, .table-container h2 {
       color: var(--primary-color);
       margin-top: 0;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
       font-size: 1.5rem;
       font-weight: 600;
+      opacity: 0.9;
     }
-    
+
+    /* Chart Container adjustment for aspect ratio */
+    .chart-wrapper {
+      max-width: 400px; 
+      margin: 0 auto; 
+      aspect-ratio: 1 / 1; /* ทำให้ Pie Chart เป็นสี่เหลี่ยมจัตุรัส */
+    }
+
     /* Search Bar Style */
     .search-bar {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 10px;
     }
-    .search-bar label { font-weight: 600; color: var(--primary-color); white-space: nowrap; }
+    .search-bar label { 
+      font-weight: 600; 
+      color: var(--primary-color); 
+      opacity: 0.8;
+      white-space: nowrap; 
+    }
     .search-bar input[type="text"] {
-        padding: 10px;
+        padding: 10px 15px;
         border: 1px solid #ddd;
-        border-radius: 8px;
+        border-radius: 12px; /* โค้งมน */
         width: 100%;
         font-size: 1rem;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* เงาด้านใน */
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .search-bar input[type="text"]:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2); /* Focus Ring สไตล์ macOS */
+        outline: none;
     }
 
     /* Table Style */
@@ -140,22 +173,32 @@
     table {
       width: 100%;
       min-width: 800px; 
-      border-collapse: collapse;
+      border-collapse: separate; /* แยกเส้นขอบเพื่อใช้ border-radius ที่ tbody */
+      border-spacing: 0;
     }
 
     table th, table td {
-      padding: 12px 15px;
+      padding: 15px 20px;
       text-align: left;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #eee;
     }
     
     table th {
-      background-color: #f0f4f8;
+      background-color: #f8f9fa; /* Light header background */
       color: var(--primary-color);
       font-weight: 600;
       white-space: nowrap; 
+      font-size: 0.95rem;
+      opacity: 0.85;
     }
-    table tbody tr:hover { background-color: #f5f5f5; }
+    /* Rounded corners for header */
+    table thead tr th:first-child { border-top-left-radius: 8px; }
+    table thead tr th:last-child { border-top-right-radius: 8px; }
+    
+    table tbody tr:hover { background-color: #f7f9fb; }
+    table tbody tr:last-child td { border-bottom: none; } /* ลบเส้นขอบล่างสุด */
+
+    table td { font-size: 0.95rem; }
     
   </style>
 </head>
@@ -171,8 +214,8 @@
   <div class="dashboard" id="mainDashboard" style="display: none;">
     <div class="card card-total"><h2>คดีทั้งหมด</h2><p id="totalCases">0</p></div>
     <div class="card card-first"><h2>อยู่ระหว่างพิจารณาชั้นต้น</h2><p id="firstCourtCases">0</p></div>
-    <div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
     <div class="card card-supreme"><h2>อยู่ระหว่างพิจารณาสูงสุด</h2><p id="supremeCourtCases">0</p></div>
+    <div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
     <div class="card card-enforcement"><h2>อยู่ในขั้นตอนบังคับคดี</h2><p id="inExecutionCases">0</p></div>
     <div class="card card-complete"><h2>บังคับคดีเสร็จสิ้น</h2><p id="executionCompleteCases">0</p></div>
   </div>
@@ -180,7 +223,7 @@
   <div class="content-area" id="mainContent" style="display: none;">
     <div class="chart-container">
       <h2>สัดส่วนสถานะคดีทั้งหมด</h2>
-      <div style="max-width: 400px; width: 100%; height: 350px;">
+      <div class="chart-wrapper">
         <canvas id="caseStatusChart"></canvas>
       </div>
     </div>
@@ -249,7 +292,7 @@
         // 3. อยู่ระหว่างพิจารณาของศาลปกครองสูงสุด
         if (s.includes("สูงสุด")) return 'SupremeCourt';
         
-        // 4. คำพิพากษาถึงที่สุดแล้ว (ต้องมาก่อนชั้นต้น เพราะอาจมีสถานะอื่น ๆ ที่ยังไม่เข้าข่ายบังคับคดี)
+        // 4. คำพิพากษาถึงที่สุดแล้ว 
         if (s.includes("ถึงที่สุด")) return 'Final';
         
         // 5. อยู่ระหว่างพิจารณาของศาลชั้นต้น
@@ -285,7 +328,7 @@
     function renderCasesTable(cases) {
         elements.casesTableBody.innerHTML = ''; 
         if (cases.length === 0) {
-            const noResultsRow = `<tr class="no-results"><td colspan="5">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
+            const noResultsRow = `<tr class="no-results"><td colspan="5" style="text-align: center; color: #777;">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
             elements.casesTableBody.insertAdjacentHTML("beforeend", noResultsRow);
             return;
         }
@@ -369,6 +412,10 @@
 
             // 3. สร้าง Pie Chart
             const ctx = document.getElementById("caseStatusChart");
+            
+            // ใช้สีที่สอดคล้องกับสีในการ์ด
+            const chartColors = ["#34C759", "#007AFF", "#FF9500", "#FF3B30", "#5856D6"];
+
             if (ctx.chart) { ctx.chart.destroy(); }
 
             const chartData = {
@@ -376,9 +423,9 @@
               datasets: [{
                 label: "จำนวนคดี",
                 data: [finalCases, firstCourtCases, supremeCourtCases, inExecutionCases, executionCompleteCases],
-                backgroundColor: ["#4CAF50", "#2196F3", "#FFC107", "#FF8C00", "#008080"],
-                borderColor: "white",
-                borderWidth: 2
+                backgroundColor: chartColors,
+                borderColor: var(--card-bg), // ใช้สีพื้นหลังการ์ดเป็นเส้นขอบ
+                borderWidth: 4
               }]
             };
             
@@ -391,14 +438,22 @@
                 plugins: { 
                     legend: { 
                         display: true, 
-                        position: 'right', // Legend อยู่ด้านขวา
-                        labels: { font: { family: "Sarabun" } }
+                        position: 'right', 
+                        labels: { 
+                            font: { 
+                                family: "Sarabun" 
+                            },
+                            padding: 20
+                        }
                     },
                     tooltip: {
                         titleFont: { family: "Sarabun", size: 14 },
                         bodyFont: { family: "Sarabun", size: 12 }
                     }
                 },
+                layout: {
+                    padding: 10
+                }
               }
             });
 
@@ -414,7 +469,7 @@
             console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
             elements.loadingMessage.innerText = `การโหลดข้อมูลล้มเหลว: ${error.message}`;
             elements.loadingMessage.style.color = 'red';
-            elements.apiWarning.style.display = 'none'; // ซ่อนคำเตือน API key เมื่อแสดง Error ที่ใหญ่กว่า
+            elements.apiWarning.style.display = 'none'; 
         }
     }
 

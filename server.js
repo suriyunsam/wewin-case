@@ -11,18 +11,28 @@ const app = express();
 // Render/Heroku จะกำหนด PORT ให้เอง
 const port = process.env.PORT || 3000; 
 
+// 0. Root Route: ใช้สำหรับทดสอบว่า Server ทำงานได้
+app.get('/', (req, res) => {
+    res.send('WeWin Case Status API is running! Access /api/casestatus for data.');
+});
+
 // 1. CORS Middleware: อนุญาตให้ Frontend ของคุณเข้าถึง API นี้ได้
 app.use((req, res, next) => {
-    // ⚠️ **สำคัญ:** แทนที่ 'https://your-github-username.github.io' ด้วย Domain จริงของเว็บไซต์คุณ
+    // ⚠️ **สำคัญ:** Domain ของ GitHub Pages ต้องไม่มีเครื่องหมาย / ปิดท้าย
     const allowedOrigins = [
         'http://localhost:8080', 
         'http://127.0.0.1', 
-        'https://suriyunsam.github.io/' // Domain ของ GitHub Pages หรือ Custom Domain
+        'https://suriyunsam.github.io' // ✅ แก้ไข: ลบ / ปิดท้ายออกแล้ว
     ]; 
     const origin = req.headers.origin;
     
-    if (allowedOrigins.includes(origin)) {
+    // หาก origin ถูกกำหนดและอยู่ในรายการที่อนุญาต
+    if (origin && allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
+    } else if (!origin) {
+        // อนุญาตคำขอที่ไม่มี Origin Header (เช่น การเรียกจาก Postman หรือการเข้าถึงโดยตรง)
+        // เพื่อให้การทดสอบตรงๆ บน Render URL ทำงานได้
+        res.setHeader('Access-Control-Allow-Origin', '*'); 
     }
     
     res.setHeader('Access-Control-Allow-Methods', 'GET');
@@ -57,7 +67,9 @@ app.get('/api/casestatus', async (req, res) => {
         res.json(response.data); 
 
     } catch (error) {
+        // บันทึก Error เต็มรูปแบบใน Log ของ Render
         console.error("Google Sheets API Error:", error.response?.data || error.message);
+        // ส่งข้อความ Error ทั่วไปกลับไป Frontend
         res.status(500).json({ error: "Failed to fetch data from Google Sheets API." });
     }
 });

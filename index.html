@@ -7,31 +7,46 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* ใช้ Tailwind/Custom CSS สำหรับความสวยงามและการปรับตามอุปกรณ์ */
     body {
       font-family: "Sarabun", sans-serif;
       background-color: #f7f9fb;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      padding: 10px;
     }
     h1 {
       color: #1b365d;
       text-align: center;
       margin-bottom: 25px;
+      font-size: 1.8rem;
     }
     .dashboard {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-      gap: 15px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+      gap: 12px;
+      margin-bottom: 25px;
     }
     .card {
       background: white;
       padding: 15px;
       border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       text-align: center;
-      border-left: 5px solid; 
+      border-left: 6px solid; 
+      transition: transform 0.2s;
     }
+    .card:hover {
+      transform: translateY(-3px);
+    }
+    
     /* สี Border ตามสถานะ */
     #totalCasesCard { border-color: #1b365d; }
     #firstCourtCasesCard { border-color: #2196F3; }
@@ -41,25 +56,30 @@
     #enforcementCompleteCasesCard { border-color: #009688; }
 
     .card h3 {
-      font-size: 0.9em;
-      margin: 5px 0 0;
-      color: #1b365d;
+      font-size: 0.85em;
+      margin: 0 0 5px;
+      color: #6b7280; /* Gray-500 */
     }
     .card h2 {
-      font-size: 1.8em;
+      font-size: 1.7em;
       margin: 5px 0;
       color: #1b365d;
+      font-weight: 700;
     }
     .chart-container {
       background: white;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       margin-bottom: 30px;
     }
     h2 {
       color: #1b365d;
       margin-top: 0;
+      font-size: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
     }
     table {
       width: 100%;
@@ -67,12 +87,13 @@
       background: white;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
     th, td {
       padding: 12px 10px;
       border-bottom: 1px solid #eee;
       text-align: left;
+      font-size: 0.9em;
     }
     th {
       background: #1b365d;
@@ -91,85 +112,104 @@
         border-radius: 8px;
         font-weight: bold;
     }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 600px) {
+        .dashboard {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        h1 {
+            font-size: 1.5rem;
+        }
+        th, td {
+            padding: 8px 5px;
+            font-size: 0.8em;
+        }
+    }
   </style>
 </head>
 <body>
-  <h1>📊 ระบบติดตามสถานะคดีปกครอง</h1>
-  <div id="statusMessage"></div> <!-- ใช้แสดงข้อความแจ้งเตือน/ข้อผิดพลาด -->
+  <div class="container">
+    <h1>📊 ระบบติดตามสถานะคดีปกครอง</h1>
+    <div id="statusMessage"></div> <!-- ใช้แสดงข้อความแจ้งเตือน/ข้อผิดพลาด -->
 
-  <div class="dashboard">
-    <div class="card" id="totalCasesCard">
-      <h3>คดีรวมทั้งหมด</h3>
-      <h2 id="totalCases">-</h2>
+    <div class="dashboard">
+      <div class="card" id="totalCasesCard">
+        <h3>คดีรวมทั้งหมด</h3>
+        <h2 id="totalCases">-</h2>
+      </div>
+      <div class="card" id="firstCourtCasesCard">
+        <h3>ระหว่างพิจารณา (ศาลชั้นต้น)</h3>
+        <h2 id="firstCourtCases">-</h2>
+      </div>
+      <div class="card" id="supremeCourtCasesCard">
+        <h3>ระหว่างพิจารณา (ศาลสูงสุด)</h3>
+        <h2 id="supremeCourtCases">-</h2>
+      </div>
+      <div class="card" id="finalJudgementCasesCard">
+        <h3>คำพิพากษาถึงที่สุดแล้ว</h3>
+        <h2 id="finalJudgementCases">-</h2>
+      </div>
+      <div class="card" id="enforcementInProgressCasesCard">
+        <h3>ระหว่างขั้นตอนการบังคับคดี</h3>
+        <h2 id="enforcementInProgressCases">-</h2>
+      </div>
+      <div class="card" id="enforcementCompleteCasesCard">
+        <h3>บังคับคดีเสร็จสิ้น</h3>
+        <h2 id="enforcementCompleteCases">-</h2>
+      </div>
     </div>
-    <div class="card" id="firstCourtCasesCard">
-      <h3>ระหว่างพิจารณา (ศาลชั้นต้น)</h3>
-      <h2 id="firstCourtCases">-</h2>
+
+    <div class="chart-container">
+      <h2>สรุปสถานะคดี</h2>
+      <canvas id="caseStatusChart"></canvas>
     </div>
-    <div class="card" id="supremeCourtCasesCard">
-      <h3>ระหว่างพิจารณา (ศาลสูงสุด)</h3>
-      <h2 id="supremeCourtCases">-</h2>
-    </div>
-    <div class="card" id="finalJudgementCasesCard">
-      <h3>คำพิพากษาถึงที่สุดแล้ว</h3>
-      <h2 id="finalJudgementCases">-</h2>
-    </div>
-    <div class="card" id="enforcementInProgressCasesCard">
-      <h3>ระหว่างขั้นตอนการบังคับคดี</h3>
-      <h2 id="enforcementInProgressCases">-</h2>
-    </div>
-    <div class="card" id="enforcementCompleteCasesCard">
-      <h3>บังคับคดีเสร็จสิ้น</h3>
-      <h2 id="enforcementCompleteCases">-</h2>
+
+    <h2>📁 รายการคดีล่าสุด (10 คดี)</h2>
+    <div style="overflow-x: auto;">
+      <table id="casesTable">
+        <thead>
+          <tr>
+            <th>เลขคดีดำ</th>
+            <th>ศาล</th>
+            <th>ผู้ฟ้องคดี</th>
+            <th>สถานะคดี</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
-
-  <div class="chart-container">
-    <canvas id="caseStatusChart"></canvas>
-  </div>
-
-  <h2>📁 รายการคดีล่าสุด (10 คดี)</h2>
-  <table id="casesTable">
-    <thead>
-      <tr>
-        <th>เลขคดีดำ</th>
-        <th>ศาล</th>
-        <th>ผู้ฟ้องคดี</th>
-        <th>สถานะคดี</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
 
   <script>
     // **********************************************
-    // ⚠️ ตรวจสอบค่าเหล่านี้ก่อนใช้งานจริง ⚠️
+    // ⚠️ กำหนดค่า Google Sheet API ⚠️
     // **********************************************
-    // 1. **SHEET ID**: ID ของ Google Sheet
-    const sheetId = "wewin-case"; 
+    // 1. **SHEET ID**: ID ของ Google Sheet (จาก URL)
+    const sheetId = "wewin-case";  // ตัวอย่างของคุณ
     
-    // 2. **API KEY**: Google Cloud API Key
-    // ⚠️ กรุณาใส่ API Key ของคุณที่นี่ ⚠️
+    // 2. **API KEY**: Google Cloud API Key (ต้องเปิด Sheets API และอนุญาต Referrer)
     const API_KEY_PLACEHOLDER = "AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw";
+    // ⚠️ กรุณาแทนที่ YOUR_API_KEY_HERE ด้วยคีย์จริงของคุณ ⚠️
     const apiKey = API_KEY_PLACEHOLDER; 
     
-    // 3. **Range**: ช่วงของข้อมูล
-    const range = "A1:N500";
+    // 3. **Range**: ช่วงของข้อมูล (ใช้ A:M เพื่อครอบคลุมทั้งคอลัมน์)
+    const range = "A:M";
     
-    // 4. ชื่อ Sheet: ถ้าไม่ใช่ 'Sheet1' ให้เปลี่ยน
+    // 4. ชื่อ Sheet: ต้องตรงกับชื่อชีตในไฟล์ Google Sheet (ค่าเริ่มต้นคือ Sheet1)
     const sheetName = "Sheet1"; 
     
-    // ✅ จุดที่ 2: แก้ไขการสร้าง URL ให้ถูกต้องแล้ว
-    const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${wewin-case}/values/${wewin-case}!${A1:N500}?key=${AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw}`;
+    // URL สำหรับเรียก Google Sheets API
+    const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${wewin-case}/values/${"ฐานข้อมูลสถานะคดีปกครอง"}!${A:M}?key=${AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw}`;
 
     // ฟังก์ชันแสดงข้อความผิดพลาดบน UI
     const displayError = (message) => {
-        document.getElementById("statusMessage").innerHTML = `<div class="error-box">เกิดข้อผิดพลาด: ${message}</div>`;
-        // ล้างข้อมูลเก่า
-        document.getElementById("totalCases").innerText = "Error";
+        document.getElementById("statusMessage").innerHTML = `<div class="error-box">⚠️ ${message} </div>`;
+        // ตั้งค่าการ์ดเป็น Error
+        document.getElementById("totalCases").innerText = "---";
     }
 
-    // ✅ จุดที่ 1: แก้ไขการตรวจสอบ API Key ไม่ให้บล็อกการทำงาน
+    // ตรวจสอบ API Key Placeholder
     if (apiKey === API_KEY_PLACEHOLDER) {
         displayError("กรุณาแทนที่ 'YOUR_API_KEY_HERE' ด้วย API Key จริงของคุณ");
     } else {
@@ -178,13 +218,14 @@
 
     // ฟังก์ชันหลักในการดึงข้อมูลและแสดงผล
     function fetchDataAndRenderDashboard() {
-        console.log("Attempting to fetch data from URL:", sheetUrl);
+        // console.log("Attempting to fetch data from URL:", sheetUrl);
 
         // ฟังก์ชันสำหรับคำนวณสรุปข้อมูล
         const calculateCaseSummary = (cases) => {
             const statusMap = {
+                // ใช้ toUpperCase() เพื่อความมั่นใจในการเปรียบเทียบ
                 firstCourtCases: (status) => status && status.includes("ชั้นต้น") && !status.includes("สูงสุด") && !status.includes("ถึงที่สุด"),
-                supremeCourtCases: (status) => status && status.includes("สูงสุด") && !status.includes("ถึงที่สุด"),
+                supremeCourtCases: (status) => status && status.includes("สูงสุด") && !status.includes("ถึงที่สุด") && !status.includes("บังคับคดี"),
                 finalJudgementCases: (status) => status && status.includes("ถึงที่สุด") && !status.includes("บังคับคดี"),
                 enforcementInProgressCases: (status) => status && status.includes("ระหว่างบังคับคดี") && !status.includes("เสร็จสิ้น"),
                 enforcementCompleteCases: (status) => status && status.includes("บังคับคดีเสร็จสิ้น")
@@ -193,7 +234,10 @@
             const summary = { totalCases: cases.length };
 
             for (const key in statusMap) {
-                summary[key] = cases.filter(c => statusMap[key](c["สถานะคดี"] ? c["สถานะคดี"].toUpperCase() : "")).length;
+                summary[key] = cases.filter(c => {
+                    const status = c["สถานะคดี"] ? c["สถานะคดี"].toLowerCase() : "";
+                    return statusMap[key](status);
+                }).length;
             }
             return summary;
         }
@@ -245,30 +289,40 @@
         fetch(sheetUrl)
           .then(res => {
             if (!res.ok) {
-                // ถ้า HTTP status ไม่ใช่ 200 (OK) ให้ throw error เพื่อไปที่ .catch()
-                throw new Error(`HTTP Error Status: ${res.status}. Check API Key and Sheet Sharing Permissions.`);
+                // อ่านข้อความผิดพลาดจาก body เพื่อให้ข้อความละเอียดขึ้น
+                return res.json().then(error => {
+                    const errorMessage = error.error?.message || `HTTP Status: ${res.status}`;
+                    throw new Error(errorMessage);
+                });
             }
             return res.json();
           })
           .then(data => {
             const rows = data.values;
-            if (!rows || rows.length < 2 || !rows[0].includes("สถานะคดี")) {
-                displayError("โครงสร้างข้อมูลผิดพลาด: ตรวจสอบว่าคอลัมน์แรกคือหัวข้อ ('สถานะคดี' อยู่ในแถวแรก)");
+            if (!rows || rows.length < 2) {
+                displayError("ไม่พบข้อมูล หรือมีข้อมูลไม่เพียงพอ โปรดตรวจสอบช่วงข้อมูล (Range)");
+                return;
+            }
+            if (!rows[0].includes("สถานะคดี") || !rows[0].includes("เลขคดีดำ")) {
+                displayError("โครงสร้างข้อมูลผิดพลาด: ตรวจสอบว่ามีหัวข้อ 'สถานะคดี', 'เลขคดีดำ' ในแถวแรก");
                 return;
             }
 
             const headers = rows[0];
-            const cases = rows.slice(1).map(r => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
+            // เปลี่ยนชื่อตัวแปร 'cases' เป็น 'caseRecords' เพื่อหลีกเลี่ยง Syntax Error 'Unexpected token case'
+            const caseRecords = rows.slice(1)
+              .filter(r => r.some(cell => cell)) // กรองแถวที่ว่างทั้งหมด
+              .map(r => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
             
-            const caseSummary = calculateCaseSummary(cases);
+            const caseSummary = calculateCaseSummary(caseRecords);
             
             updateDashboard(caseSummary);
             renderChart(caseSummary);
 
-            // ตารางคดีล่าสุด
+            // ตารางคดีล่าสุด (10 คดีสุดท้าย)
             const tbody = document.querySelector("#casesTable tbody");
             tbody.innerHTML = "";
-            cases.slice(-10).reverse().forEach(c => {
+            caseRecords.slice(-10).reverse().forEach(c => {
               const row = `<tr>
                 <td>${c["เลขคดีดำ"] || "-"}</td>
                 <td>${c["ศาล"] || "-"}</td>
@@ -280,7 +334,7 @@
           })
           .catch(err => {
               console.error("Fetch Data Failed:", err);
-              displayError(`การเชื่อมต่อล้มเหลว: ${err.message}. โปรดตรวจสอบ Console Log เพื่อดูรายละเอียด (F12)`);
+              displayError(`การเชื่อมต่อล้มเหลว: ${err.message}. โปรดตรวจสอบ Console Log (F12) เพื่อดูรายละเอียด`);
           });
     }
   </script>

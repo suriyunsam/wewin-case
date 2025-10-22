@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>สถานะคดีปกครองโครงการเราชนะ</title>
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- ฟอนต์ Sarabun -->
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <style>
@@ -37,7 +35,8 @@
     /* Dashboard cards */
     .dashboard {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      /* ✅ DESKTOP (3x2): ค่าเริ่มต้นให้แสดง 3 คอลัมน์ */
+      grid-template-columns: repeat(3, 1fr);
       gap: 15px;
       margin-bottom: 30px;
     }
@@ -70,8 +69,24 @@
       gap: 20px;
     }
 
-    @media (max-width: 900px) { .content-area { grid-template-columns: 1fr; } }
+    /* ✅ MOBILE (2x3): เมื่อหน้าจอแคบลง */
+    @media (max-width: 900px) { 
+        .content-area { 
+            grid-template-columns: 1fr; /* Content area เป็น 1 คอลัมน์ */
+        } 
+        
+        .dashboard {
+            grid-template-columns: repeat(2, 1fr); /* Dashboard เป็น 2 คอลัมน์ */
+        }
+    }
 
+    /* MOBILE (1x6): เมื่อหน้าจอแคบมาก ๆ */
+    @media (max-width: 550px) {
+        .dashboard {
+            grid-template-columns: 1fr; /* Dashboard เป็น 1 คอลัมน์ */
+        }
+    }
+    
     .chart-container, .table-container {
       background: var(--card-bg);
       padding: 20px;
@@ -178,7 +193,7 @@
   </div>
 
   <script>
-    // ✅ ตั้งค่า Google Sheets API
+    // ✅ ตั้งค่า Google Sheets API (⚠️ โปรดพิจารณาใช้ Backend Server เพื่อซ่อน API Key ตามที่ได้แนะนำก่อนหน้านี้)
     const SPREADSHEET_ID = "1xkexhCplurn2koS1Gj8ahzpFs2wRfIWUFbFypmGcm3g";
     const RANGE = "Sheet1!A:Z";
     const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?key=AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw`;
@@ -230,9 +245,11 @@
       const term = el.search.value.trim();
       let filtered = [];
       if (term === "") {
+        // แสดง 10 คดีล่าสุด
         filtered = allCases.slice(-10).reverse();
         el.tableTitle.innerText = "10 คดีล่าสุด";
       } else {
+        // ค้นหาตามเลขคดีดำ
         filtered = allCases.filter((c) =>
           (c["เลขคดีดำ"] || "").toString().includes(term)
         );
@@ -252,6 +269,7 @@
 
         allCases = arrayToObjects(json.values);
 
+        // คำนวณจำนวนคดีตามสถานะ
         const total = allCases.length;
         const first = allCases.filter((x) => x["สถานะคดี"].includes("ชั้นต้น")).length;
         const supreme = allCases.filter((x) => x["สถานะคดี"].includes("สูงสุด")).length;
@@ -259,6 +277,7 @@
         const exec = allCases.filter((x) => x["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี")).length;
         const done = allCases.filter((x) => x["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
 
+        // อัปเดตตัวเลขบน Dashboard
         document.getElementById("totalCases").innerText = total;
         document.getElementById("firstCourtCases").innerText = first;
         document.getElementById("supremeCourtCases").innerText = supreme;
@@ -266,6 +285,7 @@
         document.getElementById("inExecutionCases").innerText = exec;
         document.getElementById("executionCompleteCases").innerText = done;
 
+        // สร้างแผนภูมิวงกลม
         const ctx = document.getElementById("caseStatusChart").getContext("2d");
         new Chart(ctx, {
           type: "pie",
@@ -287,13 +307,14 @@
           options: { plugins: { legend: { position: "right" } } },
         });
 
+        // ซ่อนข้อความโหลด และแสดง Dashboard/Content
         el.loading.style.display = "none";
         el.dashboard.style.display = "grid";
         el.content.style.display = "grid";
         filterCases();
       } catch (err) {
         console.error(err);
-        el.loading.innerText = `⚠️ เกิดข้อผิดพลาด: ${err.message}`;
+        el.loading.innerText = `⚠️ เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}`;
         el.loading.style.color = "red";
       }
     }

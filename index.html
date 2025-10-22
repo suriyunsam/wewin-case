@@ -142,6 +142,35 @@
       font-size: 1.5rem;
       font-weight: 600;
     }
+    
+    .search-bar {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .search-bar label {
+        font-weight: 600;
+        color: var(--primary-color);
+        white-space: nowrap;
+    }
+    
+    .search-bar input[type="text"] {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        width: 100%;
+        font-size: 1rem;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        transition: border-color 0.3s;
+    }
+
+    .search-bar input[type="text"]:focus {
+        border-color: var(--secondary-color);
+        outline: none;
+    }
+
 
     .table-container {
         /* สำคัญมากสำหรับ Responsive Table: อนุญาตให้เลื่อนในแนวนอนได้ */
@@ -150,7 +179,7 @@
 
     table {
       width: 100%;
-      min-width: 700px; /* เพิ่มขนาดขั้นต่ำของตารางเพื่อให้รองรับคอลัมน์ที่เพิ่มขึ้น */
+      min-width: 800px; /* เพิ่มขนาดขั้นต่ำของตารางเพื่อให้รองรับคอลัมน์ที่เพิ่มขึ้น */
       border-collapse: collapse;
     }
 
@@ -158,6 +187,13 @@
       padding: 12px 15px;
       text-align: left;
       border-bottom: 1px solid #ddd;
+    }
+    
+    /* ให้คอลัมน์ เลขคดีดำ และ ปีคดีดำ แคบลง */
+    table th:nth-child(1), table td:nth-child(1),
+    table th:nth-child(2), table td:nth-child(2) {
+        width: 10%;
+        text-align: center;
     }
 
     table th {
@@ -169,6 +205,14 @@
 
     table tbody tr:hover {
       background-color: #f5f5f5;
+    }
+    
+    /* สไตล์สำหรับแถวที่ค้นหาไม่พบ */
+    #casesTable tbody tr.no-results td {
+        text-align: center;
+        padding: 20px;
+        font-style: italic;
+        color: #888;
     }
 
   </style>
@@ -221,15 +265,21 @@
     </div>
     
     <div class="table-container">
-      <h2>10 คดีล่าสุดที่อัปเดต</h2>
+      <h2>ข้อมูลคดี</h2>
+      
+      <!-- ช่องค้นหาที่เพิ่มเข้ามา -->
+      <div class="search-bar">
+          <label for="caseSearch">ค้นหาเลขคดีดำ:</label>
+          <input type="text" id="caseSearch" placeholder="พิมพ์เลขคดีดำที่ต้องการค้นหา..." />
+      </div>
+      
       <table id="casesTable">
         <thead>
           <tr>
-            <!-- เพิ่ม 'ปีคดีดำ' และจัดลำดับใหม่เพื่อความชัดเจน -->
             <th>เลขคดีดำ</th>
             <th>ปีคดีดำ</th> 
             <th>ผู้ฟ้องคดี</th>
-            <th>ศาล</th>
+            <th>ผลของคำพิพากษา</th>
             <th>สถานะคดี</th>
           </tr>
         </thead>
@@ -242,9 +292,7 @@
 
   <script type="module">
     // *** ค่าการเชื่อมต่อ Google Sheets ***
-    // SPREADSHEET_ID ที่ปรับปรุงแล้ว
     const SPREADSHEET_ID = '1xkexhCplurn2koS1Gj8ahzpFs2wRfIWUFbFypmGcm3g'; 
-    // API_KEY ที่ยังคงใช้ตัวเดิม (คุณต้องแก้ไข API Key Restriction ภายนอกเพื่อแก้ปัญหา 403)
     const API_KEY = 'AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw';
     const RANGE = 'Sheet1!A:Z'; 
     
@@ -253,6 +301,10 @@
     const loadingMessage = document.getElementById('loadingMessage');
     const mainDashboard = document.getElementById('mainDashboard');
     const mainContent = document.getElementById('mainContent');
+    const caseSearchInput = document.getElementById('caseSearch');
+    
+    // เก็บข้อมูลคดีทั้งหมดไว้ในตัวแปร Global เพื่อใช้ในการค้นหาโดยไม่ต้องโหลดใหม่
+    let allCasesData = []; 
 
     /**
      * แปลงข้อมูลที่ได้จาก Google Sheets API (Array of Arrays) 
@@ -278,6 +330,66 @@
         }
         return cases;
     }
+
+    /**
+     * สร้างแถวตาราง HTML จากข้อมูลคดี
+     * @param {Array<Object>} cases - ข้อมูลคดีที่จะนำมาแสดง
+     */
+    function renderCasesTable(cases) {
+        const tbody = document.querySelector("#casesTable tbody");
+        tbody.innerHTML = ''; 
+        
+        if (cases.length === 0) {
+            const noResultsRow = `<tr class="no-results"><td colspan="5">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
+            tbody.insertAdjacentHTML("beforeend", noResultsRow);
+            return;
+        }
+
+        cases.forEach(c => {
+            // ดึงข้อมูลตามคอลัมน์ที่ต้องการแสดง
+            const caseBlackNo = c["เลขคดีดำ"] || "-";
+            const caseBlackYear = c["ปีคดีดำ"] || "-"; 
+            const plaintiff = c["ผู้ฟ้องคดี"] || "-";
+            const judgmentResult = c["ผลของคำพิพากษา"] || "-"; 
+            const status = c["สถานะคดี"] || "-";
+
+            const row = `<tr>
+                <td>${caseBlackNo}</td>
+                <td>${caseBlackYear}</td>
+                <td>${plaintiff}</td>
+                <td>${judgmentResult}</td>
+                <td>${status}</td>
+            </tr>`;
+            tbody.insertAdjacentHTML("beforeend", row);
+        });
+    }
+
+    /**
+     * กรองข้อมูลคดีตามเลขคดีดำและแสดงผลในตาราง
+     */
+    function filterAndRenderCases() {
+        const searchTerm = caseSearchInput.value.trim();
+        let filteredCases = [];
+        
+        // ถ้าไม่มีคำค้นหา หรือคำค้นหาสั้นกว่า 1 ตัวอักษร ให้แสดง 10 คดีล่าสุด
+        if (searchTerm.length === 0) {
+            // แสดง 10 คดีล่าสุด (ย้อนกลับ)
+            filteredCases = allCasesData.slice(-10).reverse();
+            document.querySelector(".table-container h2").innerText = "10 คดีล่าสุดที่อัปเดต";
+        } else {
+            // กรองคดีทั้งหมดที่ "เลขคดีดำ" มีคำค้นหา
+            filteredCases = allCasesData.filter(c => 
+                c["เลขคดีดำ"] && c["เลขคดีดำ"].toString().includes(searchTerm)
+            );
+            document.querySelector(".table-container h2").innerText = "ผลการค้นหาคดี";
+        }
+
+        renderCasesTable(filteredCases);
+    }
+    
+    // ผูก Event Listener สำหรับช่องค้นหา
+    caseSearchInput.addEventListener('input', filterAndRenderCases);
+
 
     /**
      * ดึงข้อมูลจาก Google Sheets และอัปเดต Dashboard
@@ -307,6 +419,7 @@
             }
 
             const cases = arrayToObjects(result.values);
+            allCasesData = cases; // บันทึกข้อมูลทั้งหมดไว้ในตัวแปร global
 
             // คำนวณสถานะคดีทั้งหมด
             const totalCases = cases.length;
@@ -364,27 +477,8 @@
               }
             });
 
-            // ตารางคดีล่าสุด (10 คดีล่าสุด)
-            const tbody = document.querySelector("#casesTable tbody");
-            tbody.innerHTML = ''; 
-            
-            cases.slice(-10).reverse().forEach(c => {
-              // ดึงข้อมูลตามคอลัมน์ที่ต้องการแสดง
-              const caseBlackNo = c["เลขคดีดำ"] || "-";
-              const caseBlackYear = c["ปีคดีดำ"] || "-"; // เพิ่มคอลัมน์ปีคดีดำ
-              const plaintiff = c["ผู้ฟ้องคดี"] || "-";
-              const court = c["ศาล"] || "-";
-              const status = c["สถานะคดี"] || "-";
-
-              const row = `<tr>
-                <td>${caseBlackNo}</td>
-                <td>${caseBlackYear}</td>
-                <td>${plaintiff}</td>
-                <td>${court}</td>
-                <td>${status}</td>
-              </tr>`;
-              tbody.insertAdjacentHTML("beforeend", row);
-            });
+            // แสดง 10 คดีล่าสุดในตารางเริ่มต้น
+            filterAndRenderCases(); 
 
             // ซ่อนข้อความโหลดและแสดง Dashboard
             loadingMessage.style.display = 'none';

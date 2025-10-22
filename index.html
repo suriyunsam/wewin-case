@@ -1,342 +1,389 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard สถานะคดีปกครอง</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    /* ใช้ Tailwind/Custom CSS สำหรับความสวยงามและการปรับตามอุปกรณ์ */
-    body {
-      font-family: "Sarabun", sans-serif;
-      background-color: #f7f9fb;
-      margin: 0;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container {
-      max-width: 1200px;
-      width: 100%;
-      padding: 10px;
-    }
-    h1 {
-      color: #1b365d;
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 1.8rem;
-    }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-      gap: 12px;
-      margin-bottom: 25px;
-    }
-    .card {
-      background: white;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      border-left: 6px solid; 
-      transition: transform 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-3px);
-    }
-    
-    /* สี Border ตามสถานะ */
-    #totalCasesCard { border-color: #1b365d; }
-    #firstCourtCasesCard { border-color: #2196F3; }
-    #supremeCourtCasesCard { border-color: #FFC107; }
-    #finalJudgementCasesCard { border-color: #4CAF50; }
-    #enforcementInProgressCasesCard { border-color: #FF9800; }
-    #enforcementCompleteCasesCard { border-color: #009688; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard สถานะคดีปกครอง</title>
+  <!-- Chart.js สำหรับการแสดงแผนภูมิ -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- นำเข้าฟอนต์ Sarabun สำหรับการแสดงผลภาษาไทย -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #1b365d;
+      --secondary-color: #007bff;
+      --background-color: #f7f9fb;
+      --card-bg: white;
+    }
 
-    .card h3 {
-      font-size: 0.85em;
-      margin: 0 0 5px;
-      color: #6b7280; /* Gray-500 */
-    }
-    .card h2 {
-      font-size: 1.7em;
-      margin: 5px 0;
-      color: #1b365d;
-      font-weight: 700;
-    }
-    .chart-container {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 30px;
-    }
-    h2 {
-      color: #1b365d;
-      margin-top: 0;
-      font-size: 1.5rem;
-      border-bottom: 2px solid #e5e7eb;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    th, td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-      font-size: 0.9em;
-    }
-    th {
-      background: #1b365d;
-      color: white;
-      font-weight: 700;
-    }
-    tbody tr:hover {
-        background-color: #f0f4f8;
-    }
-    .error-box {
-        background-color: #fee2e2;
-        color: #b91c1c;
-        border: 1px solid #fca5a5;
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 8px;
-        font-weight: bold;
-    }
+    body {
+      font-family: "Sarabun", sans-serif;
+      background-color: var(--background-color);
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
 
-    /* Mobile Responsiveness */
-    @media (max-width: 600px) {
-        .dashboard {
-            grid-template-columns: repeat(2, 1fr);
-        }
-        h1 {
-            font-size: 1.5rem;
-        }
-        th, td {
-            padding: 8px 5px;
-            font-size: 0.8em;
-        }
-    }
-  </style>
+    /* ปรับ padding สำหรับมือถือ */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+    }
+
+    h1 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+      font-size: 1.8rem;
+    }
+
+    .dashboard {
+      /* กำหนด Layout: 3 คอลัมน์ (สำหรับจอใหญ่) */
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    /* Responsive adjustment: แท็บเล็ตและหน้าจอขนาดกลาง (น้อยกว่า 992px) */
+    @media (max-width: 992px) {
+      .dashboard {
+        grid-template-columns: repeat(2, 1fr); /* ลดเหลือ 2 คอลัมน์ */
+      }
+    }
+
+    /* Responsive adjustment: มือถือ (น้อยกว่า 576px) */
+    @media (max-width: 576px) {
+      .dashboard {
+        grid-template-columns: 1fr; /* ลดเหลือ 1 คอลัมน์ */
+      }
+    }
+    
+    .card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+    }
+
+    .card h2 {
+      margin: 5px 0 15px 0;
+      color: var(--primary-color);
+      font-size: 1rem;
+      font-weight: 400;
+      white-space: nowrap; /* ป้องกันข้อความยาวๆ ขึ้นบรรทัดใหม่ */
+    }
+
+    .card p {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--secondary-color);
+    }
+    
+    /* สไตล์สีของการ์ด */
+    .card-total p { color: #5cb85c; }
+    .card-final p { color: #4CAF50; }
+    .card-first p { color: #2196F3; }
+    .card-supreme p { color: #FFC107; }
+    .card-complete p { color: #008080; } 
+    .card-enforcement p { color: #FF8C00; } 
+
+    #loadingMessage {
+        text-align: center;
+        margin-top: 50px;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .content-area {
+      display: grid;
+      grid-template-columns: 1fr 2fr; /* แผนภูมิ 1 ส่วน, ตาราง 2 ส่วน */
+      gap: 20px;
+    }
+
+    /* ปรับ Layout สำหรับมือถือ: ให้แผนภูมิและตารางเรียงต่อกัน */
+    @media (max-width: 900px) {
+      .content-area {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-container, .table-container {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chart-container h2, .table-container h2 {
+      color: var(--primary-color);
+      margin-top: 0;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 10px;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .table-container {
+        /* สำคัญมากสำหรับ Responsive Table: อนุญาตให้เลื่อนในแนวนอนได้ */
+        overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 600px; /* กำหนดขนาดขั้นต่ำของตารางเพื่อให้แสดงผลได้ดีบนมือถือเมื่อมีการเลื่อน */
+      border-collapse: collapse;
+    }
+
+    table th, table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+      background-color: #f0f4f8;
+      color: var(--primary-color);
+      font-weight: 600;
+      white-space: nowrap; /* ป้องกันไม่ให้หัวข้อตารางขึ้นบรรทัดใหม่ */
+    }
+
+    table tbody tr:hover {
+      background-color: #f5f5f5;
+    }
+
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📊 ระบบติดตามสถานะคดีปกครอง</h1>
-    <div id="statusMessage"></div> <!-- ใช้แสดงข้อความแจ้งเตือน/ข้อผิดพลาด -->
+  <h1>Dashboard สถานะคดีปกครอง [Image of Scales of justice]</h1>
+  
+  <div id="loadingMessage">กำลังโหลดข้อมูลจาก Google Sheet...</div>
 
-    <div class="dashboard">
-      <div class="card" id="totalCasesCard">
-        <h3>คดีรวมทั้งหมด</h3>
-        <h2 id="totalCases">-</h2>
-      </div>
-      <div class="card" id="firstCourtCasesCard">
-        <h3>ระหว่างพิจารณา (ศาลชั้นต้น)</h3>
-        <h2 id="firstCourtCases">-</h2>
-      </div>
-      <div class="card" id="supremeCourtCasesCard">
-        <h3>ระหว่างพิจารณา (ศาลสูงสุด)</h3>
-        <h2 id="supremeCourtCases">-</h2>
-      </div>
-      <div class="card" id="finalJudgementCasesCard">
-        <h3>คำพิพากษาถึงที่สุดแล้ว</h3>
-        <h2 id="finalJudgementCases">-</h2>
-      </div>
-      <div class="card" id="enforcementInProgressCasesCard">
-        <h3>ระหว่างขั้นตอนการบังคับคดี</h3>
-        <h2 id="enforcementInProgressCases">-</h2>
-      </div>
-      <div class="card" id="enforcementCompleteCasesCard">
-        <h3>บังคับคดีเสร็จสิ้น</h3>
-        <h2 id="enforcementCompleteCases">-</h2>
-      </div>
-    </div>
+  <div class="dashboard" id="mainDashboard" style="display: none;">
+    <!-- 1. คดีทั้งหมด -->
+    <div class="card card-total">
+      <h2>คดีทั้งหมด</h2>
+      <p id="totalCases">0</p>
+    </div>
+    <!-- 2. อยู่ระหว่างพิจารณาชั้นต้น -->
+    <div class="card card-first">
+      <h2>อยู่ระหว่างพิจารณาชั้นต้น</h2>
+      <p id="firstCourtCases">0</p>
+    </div>
+    <!-- 3. คำพิพากษาถึงที่สุด -->
+    <div class="card card-final">
+      <h2>คำพิพากษาถึงที่สุด</h2>
+      <p id="finalCases">0</p>
+    </div>
+    <!-- 4. อยู่ระหว่างพิจารณาสูงสุด -->
+    <div class="card card-supreme">
+      <h2>อยู่ระหว่างพิจารณาสูงสุด</h2>
+      <p id="supremeCourtCases">0</p>
+    </div>
+    <!-- 5. อยู่ในขั้นตอนบังคับคดี -->
+    <div class="card card-enforcement">
+      <h2>อยู่ในขั้นตอนบังคับคดี</h2>
+      <p id="inExecutionCases">0</p>
+    </div>
+    <!-- 6. บังคับคดีเสร็จสิ้น -->
+    <div class="card card-complete">
+      <h2>บังคับคดีเสร็จสิ้น</h2>
+      <p id="executionCompleteCases">0</p>
+    </div>
+  </div>
 
-    <div class="chart-container">
-      <h2>สรุปสถานะคดี</h2>
-      <canvas id="caseStatusChart"></canvas>
-    </div>
+  <div class="content-area" id="mainContent" style="display: none;">
+    <div class="chart-container">
+      <h2>สถิติสถานะคดี</h2>
+      <!-- ปรับความกว้างสูงสุดของ Canvas สำหรับ Responsive -->
+      <div style="max-width: 400px; width: 100%; height: 350px;">
+        <canvas id="caseStatusChart"></canvas>
+      </div>
+    </div>
+    
+    <div class="table-container">
+      <h2>10 คดีล่าสุดที่อัปเดต</h2>
+      <table id="casesTable">
+        <thead>
+          <tr>
+            <th>เลขคดีดำ</th>
+            <th>ศาล</th>
+            <th>ผู้ฟ้องคดี</th>
+            <th>สถานะคดี</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- ข้อมูลจะถูกเพิ่มที่นี่ด้วย JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <h2>📁 รายการคดีล่าสุด (10 คดี)</h2>
-    <div style="overflow-x: auto;">
-      <table id="casesTable">
-        <thead>
-          <tr>
-            <th>เลขคดีดำ</th>
-            <th>ศาล</th>
-            <th>ผู้ฟ้องคดี</th>
-            <th>สถานะคดี</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
+  <script type="module">
+    // --- กำหนดค่า API ---
+    // หมายเหตุ: ID ที่ให้มาดูผิดปกติ (สั้นเกินไป) หากการโหลดล้มเหลว โปรดตรวจสอบให้แน่ใจว่าเป็น ID ที่ถูกต้อง
+    const SPREADSHEET_ID = 'wewin-case'; 
+    const API_KEY = 'AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw';
+    // ใช้ Range 'Sheet1!A:Z' โดยสมมติว่าชีตแรกมีชื่อว่า 'Sheet1'
+    const RANGE = 'Sheet1!A:Z'; 
+    
+    const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${API_KEY}`;
+    
+    const loadingMessage = document.getElementById('loadingMessage');
+    const mainDashboard = document.getElementById('mainDashboard');
+    const mainContent = document.getElementById('mainContent');
 
-  <script>
-    // **********************************************
-    // ⚠️ กำหนดค่า Google Sheet API ⚠️
-    // **********************************************
-    // 1. **SHEET ID**: ID ของ Google Sheet (จาก URL)
-    const sheetId = "wewin-case";  // ตัวอย่างของคุณ
-    
-    // 2. **API KEY**: Google Cloud API Key (ต้องเปิด Sheets API และอนุญาต Referrer)
-    const API_KEY_PLACEHOLDER = "AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw";
-    // ⚠️ กรุณาแทนที่ YOUR_API_KEY_HERE ด้วยคีย์จริงของคุณ ⚠️
-    const apiKey = API_KEY_PLACEHOLDER; 
-    
-    // 3. **Range**: ช่วงของข้อมูล (ใช้ A:M เพื่อครอบคลุมทั้งคอลัมน์)
-    const range = "A:M";
-    
-    // 4. ชื่อ Sheet: ต้องตรงกับชื่อชีตในไฟล์ Google Sheet (ค่าเริ่มต้นคือ Sheet1)
-    const sheetName = "Sheet1"; 
-    
-    // URL สำหรับเรียก Google Sheets API
-    const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${wewin-case}/values/${"ฐานข้อมูลสถานะคดีปกครอง"}!${A:M}?key=${AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw}`;
+    /**
+     * แปลงข้อมูลที่ได้จาก Google Sheets API (Array of Arrays) 
+     * ให้เป็น Array of Objects ที่เข้าถึงด้วยชื่อ Header
+     * @param {Array<Array<string>>} data - ข้อมูลแถวและคอลัมน์
+     * @returns {Array<Object>} Array of case objects
+     */
+    function arrayToObjects(data) {
+        if (!data || data.length === 0) return [];
+        
+        const headers = data[0].map(h => h.trim()); // แถวแรกคือ Header
+        const cases = [];
 
-    // ฟังก์ชันแสดงข้อความผิดพลาดบน UI
-    const displayError = (message) => {
-        document.getElementById("statusMessage").innerHTML = `<div class="error-box">⚠️ ${message} </div>`;
-        // ตั้งค่าการ์ดเป็น Error
-        document.getElementById("totalCases").innerText = "---";
-    }
+        for (let i = 1; i < data.length; i++) {
+            const row = data[i];
+            // ตรวจสอบว่าแถวไม่ว่างเปล่า
+            if (row.filter(cell => cell.trim() !== '').length === 0) continue; 
 
-    // ตรวจสอบ API Key Placeholder
-    if (apiKey === API_KEY_PLACEHOLDER) {
-        displayError("กรุณาแทนที่ 'YOUR_API_KEY_HERE' ด้วย API Key จริงของคุณ");
-    } else {
-        fetchDataAndRenderDashboard();
-    }
+            const item = {};
+            headers.forEach((header, j) => {
+                item[header] = row[j] || ''; // Map ข้อมูลคอลัมน์เข้ากับชื่อ Header
+            });
+            cases.push(item);
+        }
+        return cases;
+    }
 
-    // ฟังก์ชันหลักในการดึงข้อมูลและแสดงผล
-    function fetchDataAndRenderDashboard() {
-        // console.log("Attempting to fetch data from URL:", sheetUrl);
+    /**
+     * ดึงข้อมูลจาก Google Sheets และอัปเดต Dashboard
+     */
+    async function fetchGoogleSheetData() {
+        try {
+            const response = await fetch(API_URL);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Google Sheets API Error: ${response.status} - ${errorText}`);
+            }
 
-        // ฟังก์ชันสำหรับคำนวณสรุปข้อมูล
-        const calculateCaseSummary = (cases) => {
-            const statusMap = {
-                // ใช้ toUpperCase() เพื่อความมั่นใจในการเปรียบเทียบ
-                firstCourtCases: (status) => status && status.includes("ชั้นต้น") && !status.includes("สูงสุด") && !status.includes("ถึงที่สุด"),
-                supremeCourtCases: (status) => status && status.includes("สูงสุด") && !status.includes("ถึงที่สุด") && !status.includes("บังคับคดี"),
-                finalJudgementCases: (status) => status && status.includes("ถึงที่สุด") && !status.includes("บังคับคดี"),
-                enforcementInProgressCases: (status) => status && status.includes("ระหว่างบังคับคดี") && !status.includes("เสร็จสิ้น"),
-                enforcementCompleteCases: (status) => status && status.includes("บังคับคดีเสร็จสิ้น")
-            };
+            const result = await response.json();
+            
+            // ตรวจสอบว่ามีข้อมูล values หรือไม่
+            if (!result.values) {
+                throw new Error("ไม่พบข้อมูล 'values' ในการตอบกลับจาก Google Sheet API อาจเกิดจาก Range หรือ Sheet Name ไม่ถูกต้อง");
+            }
 
-            const summary = { totalCases: cases.length };
+            const cases = arrayToObjects(result.values);
 
-            for (const key in statusMap) {
-                summary[key] = cases.filter(c => {
-                    const status = c["สถานะคดี"] ? c["สถานะคดี"].toLowerCase() : "";
-                    return statusMap[key](status);
-                }).length;
-            }
-            return summary;
-        }
-        
-        // ฟังก์ชันอัปเดต Dashboard (KPI Cards)
-        const updateDashboard = (summary) => {
-            document.getElementById("totalCases").innerText = summary.totalCases;
-            document.getElementById("firstCourtCases").innerText = summary.firstCourtCases;
-            document.getElementById("supremeCourtCases").innerText = summary.supremeCourtCases;
-            document.getElementById("finalJudgementCases").innerText = summary.finalJudgementCases;
-            document.getElementById("enforcementInProgressCases").innerText = summary.enforcementInProgressCases;
-            document.getElementById("enforcementCompleteCases").innerText = summary.enforcementCompleteCases;
-        }
+            // คำนวณสถานะคดีทั้งหมด
+            const totalCases = cases.length;
+            const finalCases = cases.filter(c => c["สถานะคดี"] === "คำพิพากษาถึงที่สุด").length;
+            const firstCourtCases = cases.filter(c => c["สถานะคดี"].includes("ชั้นต้น")).length;
+            const supremeCourtCases = cases.filter(c => c["สถานะคดี"].includes("สูงสุด")).length;
+            const executionCompleteCases = cases.filter(c => c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
+            const inExecutionCases = cases.filter(c => c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี")).length;
 
-        // ฟังก์ชันแสดงกราฟ
-        const renderChart = (summary) => {
-            const ctx = document.getElementById("caseStatusChart");
-            const chartData = {
-              labels: ["พิจารณา (ชั้นต้น)", "พิจารณา (สูงสุด)", "ถึงที่สุดแล้ว", "ระหว่างบังคับคดี", "บังคับคดีเสร็จสิ้น"],
-              datasets: [{
-                label: "จำนวนคดี",
-                data: [
-                  summary.firstCourtCases, 
-                  summary.supremeCourtCases, 
-                  summary.finalJudgementCases, 
-                  summary.enforcementInProgressCases, 
-                  summary.enforcementCompleteCases
-                ],
-                backgroundColor: ["#2196F3", "#FFC107", "#4CAF50", "#FF9800", "#009688"]
-              }]
-            };
-            
-            if (window.caseStatusChart) {
-                window.caseStatusChart.destroy(); 
-            }
+            // อัปเดตตัวเลขในการ์ด
+            document.getElementById("totalCases").innerText = totalCases;
+            document.getElementById("finalCases").innerText = finalCases;
+            document.getElementById("firstCourtCases").innerText = firstCourtCases;
+            document.getElementById("supremeCourtCases").innerText = supremeCourtCases;
+            document.getElementById("executionCompleteCases").innerText = executionCompleteCases;
+            document.getElementById("inExecutionCases").innerText = inExecutionCases;
 
-            window.caseStatusChart = new Chart(ctx, {
-              type: "bar",
-              data: chartData,
-              options: { 
-                responsive: true, 
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-              }
-            });
-        }
+            // แสดงกราฟ
+            const ctx = document.getElementById("caseStatusChart");
+            if (ctx.chart) {
+                ctx.chart.destroy();
+            }
 
-        // เริ่มต้นดึงข้อมูล
-        fetch(sheetUrl)
-          .then(res => {
-            if (!res.ok) {
-                // อ่านข้อความผิดพลาดจาก body เพื่อให้ข้อความละเอียดขึ้น
-                return res.json().then(error => {
-                    const errorMessage = error.error?.message || `HTTP Status: ${res.status}`;
-                    throw new Error(errorMessage);
-                });
-            }
-            return res.json();
-          })
-          .then(data => {
-            const rows = data.values;
-            if (!rows || rows.length < 2) {
-                displayError("ไม่พบข้อมูล หรือมีข้อมูลไม่เพียงพอ โปรดตรวจสอบช่วงข้อมูล (Range)");
-                return;
-            }
-            if (!rows[0].includes("สถานะคดี") || !rows[0].includes("เลขคดีดำ")) {
-                displayError("โครงสร้างข้อมูลผิดพลาด: ตรวจสอบว่ามีหัวข้อ 'สถานะคดี', 'เลขคดีดำ' ในแถวแรก");
-                return;
-            }
+            const chartData = {
+              labels: ["ถึงที่สุด", "ชั้นต้น", "สูงสุด"],
+              datasets: [{
+                label: "จำนวนคดี",
+                data: [finalCases, firstCourtCases, supremeCourtCases],
+                backgroundColor: ["#4CAF50", "#2196F3", "#FFC107"],
+                borderColor: "white",
+                borderWidth: 1
+              }]
+            };
+            
+            ctx.chart = new Chart(ctx, {
+              type: "bar",
+              data: chartData,
+              options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        titleFont: { family: "Sarabun", size: 14 },
+                        bodyFont: { family: "Sarabun", size: 12 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
+                    }
+                }
+              }
+            });
 
-            const headers = rows[0];
-            // เปลี่ยนชื่อตัวแปร 'cases' เป็น 'caseRecords' เพื่อหลีกเลี่ยง Syntax Error 'Unexpected token case'
-            const caseRecords = rows.slice(1)
-              .filter(r => r.some(cell => cell)) // กรองแถวที่ว่างทั้งหมด
-              .map(r => Object.fromEntries(headers.map((h, i) => [h, r[i]])));
-            
-            const caseSummary = calculateCaseSummary(caseRecords);
-            
-            updateDashboard(caseSummary);
-            renderChart(caseSummary);
+            // ตารางคดีล่าสุด (10 คดีล่าสุด)
+            const tbody = document.querySelector("#casesTable tbody");
+            tbody.innerHTML = ''; 
+            
+            cases.slice(-10).reverse().forEach(c => {
+              const row = `<tr>
+                <td>${c["เลขคดีดำ"] || "-"}</td>
+                <td>${c["ศาล"] || "-"}</td>
+                <td>${c["ผู้ฟ้องคดี"] || "-"}</td>
+                <td>${c["สถานะคดี"] || "-"}</td>
+              </tr>`;
+              tbody.insertAdjacentHTML("beforeend", row);
+            });
 
-            // ตารางคดีล่าสุด (10 คดีสุดท้าย)
-            const tbody = document.querySelector("#casesTable tbody");
-            tbody.innerHTML = "";
-            caseRecords.slice(-10).reverse().forEach(c => {
-              const row = `<tr>
-                <td>${c["เลขคดีดำ"] || "-"}</td>
-                <td>${c["ศาล"] || "-"}</td>
-                <td>${c["ผู้ฟ้องคดี"] || "-"}</td>
-                <td>${c["สถานะคดี"] || "-"}</td>
-              </tr>`;
-              tbody.insertAdjacentHTML("beforeend", row);
-            });
-          })
-          .catch(err => {
-              console.error("Fetch Data Failed:", err);
-              displayError(`การเชื่อมต่อล้มเหลว: ${err.message}. โปรดตรวจสอบ Console Log (F12) เพื่อดูรายละเอียด`);
-          });
-    }
-  </script>
+            // ซ่อนข้อความโหลดและแสดง Dashboard
+            loadingMessage.style.display = 'none';
+            mainDashboard.style.display = 'grid';
+            mainContent.style.display = 'grid';
+
+        } catch (error) {
+            console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลจาก Google Sheet:", error);
+            loadingMessage.innerText = `การโหลดข้อมูลล้มเหลว: ${error.message}. โปรดตรวจสอบ Spreadsheet ID, API Key, และชื่อ Sheet ('Sheet1') ว่าถูกต้องและเปิดการเข้าถึง API แล้ว`;
+            loadingMessage.style.color = 'red';
+            mainDashboard.style.display = 'none';
+            mainContent.style.display = 'none';
+        }
+    }
+
+    // เริ่มโหลดข้อมูลเมื่อ Script โหลดเสร็จ
+    fetchGoogleSheetData();
+  </script>
 </body>
 </html>

@@ -12,6 +12,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
+        /* Global Reset for better responsiveness */
+        * {
+            box-sizing: border-box;
+        }
+
         :root {
             --primary-color: #1b365d; /* น้ำเงินเข้ม */
             --secondary-color: #007bff; /* น้ำเงินสว่าง */
@@ -23,10 +28,22 @@
             font-family: "Sarabun", sans-serif;
             background-color: var(--background-color);
             margin: 0;
-            padding: 20px;
+            padding: 0; /* REMOVED PADDING FROM BODY */
             color: #333;
         }
-        @media (max-width: 600px) { body { padding: 10px; } }
+
+        /* NEW: App Container for centering and max-width */
+        #app-container {
+            max-width: 1200px;
+            margin: 0 auto; /* Center the entire content area */
+            padding: 20px; /* Apply padding here instead of body */
+        }
+        /* Mobile Padding Adjustment */
+        @media (max-width: 600px) { 
+            #app-container { 
+                padding: 10px; 
+            } 
+        }
 
         h1 {
             color: var(--primary-color);
@@ -44,7 +61,7 @@
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin: 50px auto 0 auto; /* Center the form */
+            margin: 50px auto 0 auto; /* Center the form within the #app-container */
             text-align: center;
         }
         #login-container h2 {
@@ -107,11 +124,11 @@
             background-color: #c82333;
         }
         
-        /* New: Responsive adjustments for Login Container on small screens */
+        /* Responsive adjustments for Login Container on small screens */
         @media (max-width: 480px) { 
             #login-container {
-                padding: 20px; /* ลด padding ลง */
-                margin-top: 30px; /* ลด margin-top ลง */
+                padding: 20px; 
+                margin-top: 30px;
             }
         }
         /* --- END LOGIN FORM STYLES --- */
@@ -428,11 +445,11 @@
                     sessionStorage.setItem(AUTH_KEY, password);
                 }
 
-                // ** FIX: ใช้ setTimeout เพื่อให้เบราว์เซอร์มีเวลาเรนเดอร์ UI ที่แสดงก่อน Chart.js จะทำงาน **
+                // FIX: ใช้ setTimeout เพื่อให้เบราว์เซอร์มีเวลาเรนเดอร์ UI ที่แสดงก่อน Chart.js จะทำงาน 
                 setTimeout(() => {
                     processAndRenderDashboard(data.values); 
                     showDashboard(); // แสดง Dashboard
-                }, 50); // 50ms ก็เพียงพอ
+                }, 50); 
 
                 
             } catch (error) {
@@ -550,7 +567,7 @@
                     plugins: { 
                         legend: { 
                             display: true, 
-                            position: 'right', // Legend อยู่ด้านขวา
+                            position: 'right', 
                             labels: { font: { family: "Sarabun" } }
                         },
                         tooltip: {

@@ -1,322 +1,247 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>สถานะคดีปกครองโครงการเราชนะ</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --primary-color: #1b365d;
-      --secondary-color: #007bff;
-      --background-color: #f7f9fb;
-      --card-bg: #fff;
-    }
-
-    body {
-      font-family: "Sarabun", sans-serif;
-      background-color: var(--background-color);
-      margin: 0;
-      padding: 20px;
-      color: #333;
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--primary-color);
-      margin-bottom: 30px;
-      font-weight: 600;
-    }
-
-    /* Dashboard cards */
-    .dashboard {
-      display: grid;
-      /* ✅ DESKTOP (3x2): ค่าเริ่มต้นให้แสดง 3 คอลัมน์ */
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-      text-align: center;
-      transition: transform 0.2s;
-    }
-
-    .card:hover { transform: translateY(-4px); }
-    .card h2 { color: var(--primary-color); font-size: 1rem; margin-bottom: 10px; }
-    .card p { font-size: 2rem; font-weight: 700; color: var(--secondary-color); margin: 0; }
-
-    /* Color by type */
-    .card-total p { color: #5cb85c; }
-    .card-first p { color: #2196f3; }
-    .card-final p { color: #4caf50; }
-    .card-supreme p { color: #ffc107; }
-    .card-enforcement p { color: #ff8c00; }
-    .card-complete p { color: #008080; }
-
-    /* Layout */
-    .content-area {
-      display: grid;
-      grid-template-columns: 1fr 2fr;
-      gap: 20px;
-    }
-
-    /* ✅ MOBILE (2x3): เมื่อหน้าจอแคบลง */
-    @media (max-width: 900px) { 
-        .content-area { 
-            grid-template-columns: 1fr; /* Content area เป็น 1 คอลัมน์ */
-        } 
-        
-        .dashboard {
-            grid-template-columns: repeat(2, 1fr); /* Dashboard เป็น 2 คอลัมน์ */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeWin: ระบบตรวจสอบสถานะคดี</title>
+    <!-- โหลด Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- กำหนด Font Inter -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
         }
-    }
-
-    /* MOBILE (1x6): เมื่อหน้าจอแคบมาก ๆ */
-    @media (max-width: 550px) {
-        .dashboard {
-            grid-template-columns: 1fr; /* Dashboard เป็น 1 คอลัมน์ */
-        }
-    }
-    
-    .chart-container, .table-container {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    }
-
-    .chart-container h2, .table-container h2 {
-      color: var(--primary-color);
-      border-bottom: 2px solid #eee;
-      padding-bottom: 10px;
-      font-size: 1.3rem;
-      margin-top: 0;
-    }
-
-    #loadingMessage {
-      text-align: center;
-      color: var(--primary-color);
-      font-weight: 600;
-      margin-top: 40px;
-    }
-
-    /* Search bar */
-    .search-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    .search-bar input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-
-    /* Table */
-    .table-container { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      min-width: 700px;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-    }
-
-    th {
-      background: #f0f4f8;
-      color: var(--primary-color);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    tr:hover { background-color: #f5f5f5; }
-  </style>
+    </style>
 </head>
-
 <body>
-  <h1>สถานะคดีปกครองโครงการเราชนะ</h1>
 
-  <div id="loadingMessage">⏳ กำลังโหลดข้อมูล...</div>
+    <div id="app-container" class="min-h-screen flex flex-col items-center justify-start pt-10 px-4">
+        <h1 class="text-3xl font-extrabold text-indigo-700 mb-6 rounded-lg bg-white p-3 shadow-lg">
+            ระบบตรวจสอบสถานะคดี
+        </h1>
+        <p class="text-gray-600 mb-8 text-center max-w-lg">
+            กรุณาเข้าสู่ระบบเพื่อดูข้อมูลสถานะคดี
+        </p>
 
-  <div class="dashboard" id="mainDashboard" style="display:none;">
-    <div class="card card-total"><h2>คดีทั้งหมด</h2><p id="totalCases">0</p></div>
-    <div class="card card-first"><h2>อยู่ระหว่างพิจารณาของศาลปกครองชั้นต้น</h2><p id="firstCourtCases">0</p></div>
-    <div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
-    <div class="card card-supreme"><h2>อยู่ระหว่างพิจารณาของศาลปกครองสูงสุด</h2><p id="supremeCourtCases">0</p></div>
-    <div class="card card-enforcement"><h2>อยู่ในขั้นตอนบังคับคดี</h2><p id="inExecutionCases">0</p></div>
-    <div class="card card-complete"><h2>บังคับคดีเสร็จสิ้น</h2><p id="executionCompleteCases">0</p></div>
-  </div>
+        <!-- Login Form (แสดงเมื่อยังไม่ได้ล็อกอิน) -->
+        <div id="login-container" class="w-full max-w-sm bg-white p-6 rounded-xl shadow-2xl transition duration-300">
+            <h2 class="text-xl font-bold mb-5 text-gray-800">เข้าสู่ระบบ</h2>
+            <div id="login-error-message" class="text-sm text-red-600 mb-3 hidden bg-red-100 p-2 rounded-lg border border-red-300"></div>
+            
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="password-input" class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่านสำหรับเข้าถึงข้อมูล</label>
+                    <input type="password" id="password-input" required 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+                           placeholder="กรอกรหัสผ่าน">
+                </div>
+                <button type="submit" id="login-button" 
+                        class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-150 font-semibold shadow-md disabled:bg-indigo-400">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
 
-  <div class="content-area" id="mainContent" style="display:none;">
-    <div class="chart-container">
-      <h2>สัดส่วนสถานะคดีทั้งหมด</h2>
-      <canvas id="caseStatusChart" width="400" height="400"></canvas>
+        <!-- Data Display (แสดงเมื่อล็อกอินสำเร็จ) -->
+        <div id="data-container" class="hidden w-full max-w-4xl mt-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-700">รายการสถานะคดี</h2>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-600 transition duration-150 shadow-sm">
+                    ออกจากระบบ
+                </button>
+            </div>
+            
+            <div id="data-table-container" class="bg-white p-4 rounded-xl shadow-lg overflow-x-auto">
+                <p id="loading-message" class="text-center text-gray-500 p-8">กำลังโหลดข้อมูล...</p>
+                <table id="case-table" class="min-w-full divide-y divide-gray-200 hidden">
+                    <thead class="bg-gray-50">
+                        <!-- ส่วนหัวตารางจะถูกเพิ่มด้วย JavaScript -->
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- ข้อมูลจะถูกเพิ่มด้วย JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="table-container">
-      <h2 id="tableTitle">10 คดีล่าสุด</h2>
-      <div class="search-bar">
-        <label for="caseSearch">ค้นหาเลขคดีดำ:</label>
-        <input type="text" id="caseSearch" placeholder="พิมพ์เลขคดีดำ..." />
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>เลขคดีดำ</th>
-            <th>ปีคดีดำ</th>
-            <th>ผู้ฟ้องคดี</th>
-            <th>ผลของคำพิพากษา</th>
-            <th>สถานะคดี</th>
-          </tr>
-        </thead>
-        <tbody id="casesTableBody"></tbody>
-      </table>
-    </div>
-  </div>
+    <script>
+        // ✅ **สำคัญ:** นี่คือ URL สำหรับเรียก API Endpoint ของคุณ
+        const API_URL = 'https://wewin-case-api.onrender.com/api/casestatus';
+        const AUTH_KEY = 'Wewin_Auth_Key'; // Key สำหรับเก็บรหัสผ่านใน sessionStorage
 
-  <script>
-    const API_URL = `https://wewin-case-api.onrender.com/api/casestatus`;
+        const loginContainer = document.getElementById('login-container');
+        const dataContainer = document.getElementById('data-container');
+        const loginForm = document.getElementById('login-form');
+        const passwordInput = document.getElementById('password-input');
+        const loginButton = document.getElementById('login-button');
+        const loginError = document.getElementById('login-error-message');
+        const loadingMessage = document.getElementById('loading-message');
+        const caseTable = document.getElementById('case-table');
 
-    const el = {
-      loading: document.getElementById("loadingMessage"),
-      dashboard: document.getElementById("mainDashboard"),
-      content: document.getElementById("mainContent"),
-      tableBody: document.getElementById("casesTableBody"),
-      tableTitle: document.getElementById("tableTitle"),
-      search: document.getElementById("caseSearch"),
-    };
+        // ----------------------------------------------------
+        // 1. Logic การจัดการการล็อกอิน
+        // ----------------------------------------------------
 
-    let allCases = [];
-
-    // 🔹 แปลงข้อมูลเป็น Object
-    const arrayToObjects = (data) => {
-      const headers = data[0];
-      return data.slice(1).map((row) => {
-        const obj = {};
-        headers.forEach((h, i) => (obj[h] = row[i] || ""));
-        return obj;
-      });
-    };
-
-    // 🔹 แสดงข้อมูลตาราง
-    function renderTable(cases) {
-      el.tableBody.innerHTML = "";
-      if (cases.length === 0) {
-        el.tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">ไม่พบข้อมูล</td></tr>`;
-        return;
-      }
-      cases.forEach((c) => {
-        el.tableBody.insertAdjacentHTML(
-          "beforeend",
-          `<tr>
-            <td>${c["เลขคดีดำ"] || "-"}</td>
-            <td>${c["ปีคดีดำ"] || "-"}</td>
-            <td>${c["ผู้ฟ้องคดี"] || "-"}</td>
-            <td>${c["ผลของคำพิพากษา"] || "-"}</td>
-            <td>${c["สถานะคดี"] || "-"}</td>
-          </tr>`
-        );
-      });
-    }
-
-    // 🔹 กรองข้อมูลจากช่องค้นหา
-    function filterCases() {
-      const term = el.search.value.trim();
-      let filtered = [];
-      if (term === "") {
-        // แสดง 10 คดีล่าสุด
-        filtered = allCases.slice(-10).reverse();
-        el.tableTitle.innerText = "10 คดีล่าสุด";
-      } else {
-        // ค้นหาตามเลขคดีดำ
-        filtered = allCases.filter((c) =>
-          (c["เลขคดีดำ"] || "").toString().includes(term)
-        );
-        el.tableTitle.innerText = `ผลการค้นหา "${term}"`;
-      }
-      renderTable(filtered);
-    }
-
-    el.search.addEventListener("input", filterCases);
-
-    // 🔹 โหลดข้อมูลจาก Google Sheets
-    async function loadData() {
-      try {
-        const res = await fetch(API_URL);
-        const json = await res.json();
-        if (!json.values) throw new Error("ไม่พบข้อมูลในชีต");
-
-        allCases = arrayToObjects(json.values);
-
-        // คำนวณจำนวนคดีตามสถานะ
-        const total = allCases.length;
-        const first = allCases.filter((x) => x["สถานะคดี"].includes("ชั้นต้น")).length;
-        const supreme = allCases.filter((x) => x["สถานะคดี"].includes("สูงสุด")).length;
-        const final = allCases.filter((x) => x["สถานะคดี"].includes("ถึงที่สุด")).length;
-        const exec = allCases.filter((x) => x["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี")).length;
-        const done = allCases.filter((x) => x["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
-
-        // อัปเดตตัวเลขบน Dashboard
-        document.getElementById("totalCases").innerText = total;
-        document.getElementById("firstCourtCases").innerText = first;
-        document.getElementById("supremeCourtCases").innerText = supreme;
-        document.getElementById("finalCases").innerText = final;
-        document.getElementById("inExecutionCases").innerText = exec;
-        document.getElementById("executionCompleteCases").innerText = done;
-
-        // สร้างแผนภูมิวงกลม
-        const ctx = document.getElementById("caseStatusChart").getContext("2d");
-        new Chart(ctx, {
-          type: "pie",
-          data: {
-            labels: [
-              "คำพิพากษาถึงที่สุด",
-              "อยู่ระหว่างพิจารณาชั้นต้น",
-              "อยู่ระหว่างพิจารณาสูงสุด",
-              "อยู่ในขั้นตอนบังคับคดี",
-              "บังคับคดีเสร็จสิ้น",
-            ],
-            datasets: [
-              {
-                data: [final, first, supreme, exec, done],
-                backgroundColor: ["#4caf50", "#2196f3", "#ffc107", "#ff8c00", "#008080"],
-              },
-            ],
-          },
-          options: { plugins: { legend: { position: "right" } } },
+        // ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedPassword = sessionStorage.getItem(AUTH_KEY);
+            if (storedPassword) {
+                // ถ้ามีรหัสผ่านใน sessionStorage ให้ลองดึงข้อมูลทันที
+                showLoading();
+                loadData(storedPassword);
+            } else {
+                // ถ้าไม่มีรหัสผ่าน ให้แสดงหน้าล็อกอิน
+                showLogin();
+            }
         });
 
-        // ซ่อนข้อความโหลด และแสดง Dashboard/Content
-        el.loading.style.display = "none";
-        el.dashboard.style.display = "grid";
-        el.content.style.display = "grid";
-        filterCases();
-      } catch (err) {
-        console.error(err);
-        el.loading.innerText = `⚠️ เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err.message}`;
-        el.loading.style.color = "red";
-      }
-    }
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = passwordInput.value;
+            
+            loginButton.disabled = true;
+            loginButton.textContent = 'กำลังตรวจสอบ...';
+            loginError.classList.add('hidden');
+            
+            // เมื่อผู้ใช้กรอกรหัสผ่าน ให้ลองดึงข้อมูลทันที (ใช้ Backend ตรวจสอบ)
+            loadData(password, true); 
+        });
 
-    loadData();
-  </script>
+        function showLogin(message = '') {
+            dataContainer.classList.add('hidden');
+            loginContainer.classList.remove('hidden');
+            passwordInput.value = '';
+            loginButton.disabled = false;
+            loginButton.textContent = 'เข้าสู่ระบบ';
+            loadingMessage.classList.add('hidden');
+            
+            if (message) {
+                loginError.textContent = message;
+                loginError.classList.remove('hidden');
+            }
+        }
+        
+        function showLoading() {
+            loginContainer.classList.add('hidden');
+            dataContainer.classList.remove('hidden');
+            loadingMessage.classList.remove('hidden');
+            caseTable.classList.add('hidden');
+        }
+
+        function showData() {
+            loadingMessage.classList.add('hidden');
+            caseTable.classList.remove('hidden');
+        }
+
+        function logout() {
+            sessionStorage.removeItem(AUTH_KEY);
+            showLogin("ออกจากระบบแล้ว กรุณาเข้าสู่ระบบอีกครั้ง");
+        }
+
+        // ----------------------------------------------------
+        // 2. Logic การดึงข้อมูล
+        // ----------------------------------------------------
+
+        async function loadData(password, isLoginAttempt = false) {
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${password}`, // ส่งรหัสผ่านผ่าน Header
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (res.status === 401) {
+                    // รหัสผ่านผิด (Unauthorized)
+                    sessionStorage.removeItem(AUTH_KEY);
+                    showLogin("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");
+                    return;
+                }
+                
+                if (!res.ok) {
+                    // Server Error อื่น ๆ (เช่น 500)
+                    sessionStorage.removeItem(AUTH_KEY);
+                    showLogin(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${res.status} ${res.statusText}`);
+                    return;
+                }
+
+                const data = await res.json();
+
+                if (isLoginAttempt) {
+                    // ถ้าเป็นการล็อกอินครั้งแรกและสำเร็จ ให้บันทึกรหัสผ่านไว้
+                    sessionStorage.setItem(AUTH_KEY, password);
+                }
+
+                renderTable(data.values);
+                showData();
+                
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                sessionStorage.removeItem(AUTH_KEY);
+                showLogin(`ไม่สามารถเชื่อมต่อกับ Server ได้ กรุณาตรวจสอบ Console Log.`);
+            }
+        }
+
+        // ----------------------------------------------------
+        // 3. Logic การแสดงผลตาราง
+        // ----------------------------------------------------
+
+        function renderTable(values) {
+            if (!values || values.length === 0) {
+                loadingMessage.textContent = 'ไม่พบข้อมูลสถานะคดี';
+                loadingMessage.classList.remove('hidden');
+                caseTable.classList.add('hidden');
+                return;
+            }
+
+            const [header, ...rows] = values;
+            const thead = caseTable.querySelector('thead');
+            const tbody = caseTable.querySelector('tbody');
+
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            // สร้าง Header
+            const headerRow = document.createElement('tr');
+            header.forEach(text => {
+                const th = document.createElement('th');
+                th.textContent = text;
+                th.classList.add('px-6', 'py-3', 'text-left', 'text-xs', 'font-medium', 'text-gray-500', 'uppercase', 'tracking-wider');
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            // สร้าง Rows
+            rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.classList.add('hover:bg-gray-50');
+                
+                row.forEach((text, index) => {
+                    const td = document.createElement('td');
+                    td.textContent = text;
+                    td.classList.add('px-6', 'py-4', 'whitespace-nowrap', 'text-sm', 'text-gray-900');
+                    
+                    // เน้นสถานะ (สมมติว่าเป็นคอลัมน์สุดท้าย)
+                    if (index === header.length - 1) {
+                         // ตัวอย่างการเปลี่ยนสีตามสถานะ: 
+                         // ถ้ามีคำว่า "สำเร็จ" ให้เป็นสีเขียว
+                        if (text.includes('สำเร็จ') || text.includes('เรียบร้อย')) {
+                            td.classList.add('bg-green-100', 'text-green-800', 'font-semibold', 'rounded-full', 'px-3');
+                        } else if (text.includes('รอ') || text.includes('กำลัง')) {
+                            td.classList.add('bg-yellow-100', 'text-yellow-800', 'font-semibold', 'rounded-full', 'px-3');
+                        } else {
+                            td.classList.add('bg-gray-100', 'text-gray-800');
+                        }
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
 </body>
 </html>

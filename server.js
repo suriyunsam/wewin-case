@@ -17,7 +17,7 @@ app.use((req, res, next) => {
     const allowedOrigins = [
         'http://localhost:8080', 
         'http://127.0.0.1', 
-        'https://your-github-username.github.io' // Domain ของ GitHub Pages หรือ Custom Domain
+        'https://suriyunsam.github.io/' // Domain ของ GitHub Pages หรือ Custom Domain
     ]; 
     const origin = req.headers.origin;
     

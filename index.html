@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard สถานะคดีปกครอง</title>
+  <title>สถานะคดีปกครองโครงการเราชนะ</title>
   <!-- Chart.js สำหรับการแสดงแผนภูมิ -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- นำเข้าฟอนต์ Sarabun สำหรับการแสดงผลภาษาไทย -->
@@ -174,9 +174,9 @@
   </style>
 </head>
 <body>
-  <h1>Dashboard สถานะคดีปกครอง [Image of Scales of justice]</h1>
+  <h1>สถานะคดีปกครองโครงการเราชนะ</h1>
   
-  <div id="loadingMessage">กำลังโหลดข้อมูลจาก Google Sheet...</div>
+  <div id="loadingMessage">กำลังโหลดข้อมูล...</div>
 
   <div class="dashboard" id="mainDashboard" style="display: none;">
     <!-- 1. คดีทั้งหมด -->
@@ -241,7 +241,7 @@
   <script type="module">
     // --- กำหนดค่า API ---
     // หมายเหตุ: ID ที่ให้มาดูผิดปกติ (สั้นเกินไป) หากการโหลดล้มเหลว โปรดตรวจสอบให้แน่ใจว่าเป็น ID ที่ถูกต้อง
-    const SPREADSHEET_ID = 'wewin-case'; 
+    const SPREADSHEET_ID = '1xkexhCplurn2koS1Gj8ahzpFs2wRfIWUFbFypmGcm3g'; 
     const API_KEY = 'AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw';
     // ใช้ Range 'Sheet1!A:Z' โดยสมมติว่าชีตแรกมีชื่อว่า 'Sheet1'
     const RANGE = 'Sheet1!A:Z'; 

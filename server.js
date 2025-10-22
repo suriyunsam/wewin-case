@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const express = require('express');
 const axios = require('axios');
-const cors = require('cors'); // ✅ เพิ่ม: Import cors package
+const cors = require('cors'); 
 const app = express();
 
 // Render/Heroku จะกำหนด PORT ให้เอง
@@ -21,11 +21,11 @@ app.get('/', (req, res) => {
     });
 });
 
-// 1. CORS Middleware: ใช้ cors package เพื่อจัดการ Header และ Pre-flight Request 
+// 1. CORS Middleware: กำหนด Origin ที่อนุญาต
 const allowedOrigins = [
     'http://localhost:8080', 
     'http://127.0.0.1', 
-    'https://suriyunsam.github.io' // 👈 โดเมน GitHub Pages ที่ปลอดภัยของคุณ
+    'https://suriyunsam.github.io' // โดเมน GitHub Pages ที่ปลอดภัยของคุณ
 ]; 
 
 const corsOptions = {
@@ -38,11 +38,11 @@ const corsOptions = {
         }
     },
     methods: 'GET',
-    allowedHeaders: ['Content-Type'],
+    allowedHeaders: ['Content-Type', 'Authorization'], // ✅ สำคัญ: ต้องอนุญาต Header Authorization
     optionsSuccessStatus: 200 // สำหรับ Legacy Browsers
 };
 
-app.use(cors(corsOptions)); // ✅ ใช้ cors package แทน Middleware ที่เขียนเอง
+app.use(cors(corsOptions)); 
 
 // 2. API Endpoint: สำหรับดึงข้อมูลสถานะคดี
 app.get('/api/casestatus', async (req, res) => {
@@ -52,6 +52,27 @@ app.get('/api/casestatus', async (req, res) => {
     const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
     const SHEET_RANGE = process.env.SHEET_RANGE;
     
+    // ดึงรหัสผ่านสำหรับเข้าถึงข้อมูลจาก Environment Variables
+    const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD; 
+    
+    // 2.1 ✅ ตรวจสอบรหัสผ่านที่ส่งมากับ Authorization Header
+    const providedAuthHeader = req.headers.authorization;
+    
+    let providedPassword = null;
+    
+    if (providedAuthHeader && providedAuthHeader.startsWith('Bearer ')) {
+        // ดึงค่า Token/รหัสผ่านจริงออกมาจาก 'Bearer XXXX'
+        providedPassword = providedAuthHeader.substring(7);
+    }
+
+    // 2.2 ตรวจสอบรหัสผ่าน: ถ้ามีการตั้ง ACCESS_PASSWORD ไว้ใน ENV 
+    //     และรหัสผ่านที่ส่งมาไม่ตรงกัน จะตอบกลับ 401 Unauthorized
+    if (ACCESS_PASSWORD && providedPassword !== ACCESS_PASSWORD) {
+        return res.status(401).json({
+            error: "Unauthorized access. Please provide the correct password in the 'Authorization: Bearer <password>' header."
+        });
+    }
+
     if (!API_KEY || !SPREADSHEET_ID || !SHEET_RANGE) {
         return res.status(500).json({ 
             error: "Server configuration missing. API Key or Spreadsheet info is not set in Environment Variables." 

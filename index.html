@@ -386,6 +386,7 @@
             loginButton.textContent = 'กำลังตรวจสอบ...';
             loginError.style.display = 'none';
             
+            showLoading(); // แสดงหน้าโหลด
             loadData(password, true); 
         });
 
@@ -401,14 +402,12 @@
                 });
 
                 if (res.status === 401) {
-                    // รหัสผ่านผิด (Unauthorized)
                     sessionStorage.removeItem(AUTH_KEY);
                     showLogin("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");
                     return;
                 }
                 
                 if (!res.ok) {
-                    // Server Error อื่น ๆ (เช่น 500)
                     sessionStorage.removeItem(AUTH_KEY);
                     showLogin(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${res.status} ${res.statusText}. โปรดตรวจสอบ Server Log.`);
                     return;
@@ -421,9 +420,12 @@
                     sessionStorage.setItem(AUTH_KEY, password);
                 }
 
-                // **เรียกใช้ Logic Dashboard เดิมของคุณ**
-                processAndRenderDashboard(data.values); 
-                showDashboard(); // แสดง Dashboard
+                // ** FIX: ใช้ setTimeout เพื่อให้เบราว์เซอร์มีเวลาเรนเดอร์ UI ที่แสดงก่อน Chart.js จะทำงาน **
+                setTimeout(() => {
+                    processAndRenderDashboard(data.values); 
+                    showDashboard(); // แสดง Dashboard
+                }, 50); // 50ms ก็เพียงพอ
+
                 
             } catch (error) {
                 console.error("Fetch Error:", error);

@@ -150,7 +150,7 @@
 
     table {
       width: 100%;
-      min-width: 600px; /* กำหนดขนาดขั้นต่ำของตารางเพื่อให้แสดงผลได้ดีบนมือถือเมื่อมีการเลื่อน */
+      min-width: 700px; /* เพิ่มขนาดขั้นต่ำของตารางเพื่อให้รองรับคอลัมน์ที่เพิ่มขึ้น */
       border-collapse: collapse;
     }
 
@@ -225,9 +225,11 @@
       <table id="casesTable">
         <thead>
           <tr>
+            <!-- เพิ่ม 'ปีคดีดำ' และจัดลำดับใหม่เพื่อความชัดเจน -->
             <th>เลขคดีดำ</th>
-            <th>ศาล</th>
+            <th>ปีคดีดำ</th> 
             <th>ผู้ฟ้องคดี</th>
+            <th>ศาล</th>
             <th>สถานะคดี</th>
           </tr>
         </thead>
@@ -239,15 +241,23 @@
   </div>
 
   <script type="module">
-    const SPREADSHEET_ID = '1xkexhCplurn2koS1Gj8ahzpFs2wRfIWUFbFypmGcm3g'; 
+    // *** ค่าการเชื่อมต่อ Google Sheets ***
+    // SPREADSHEET_ID ที่ปรับปรุงแล้ว
+    const SPREADSHEET_ID = '1xkexhCplurn2koS1Gj8ahzpFs2wRfIWUFbFypmGcm3g'; 
+    // API_KEY ที่ยังคงใช้ตัวเดิม (คุณต้องแก้ไข API Key Restriction ภายนอกเพื่อแก้ปัญหา 403)
     const API_KEY = 'AIzaSyCPsgQyhXD28bNQOu-sKPaXxzdoPlyTXHw';
-    const RANGE = 'Sheet1!A:Z'; 
+    const RANGE = 'Sheet1!A:Z'; 
     
     const API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(RANGE)}?key=${API_KEY}`;
     
     const loadingMessage = document.getElementById('loadingMessage');
     const mainDashboard = document.getElementById('mainDashboard');
     const mainContent = document.getElementById('mainContent');
+
+    /**
+     * แปลงข้อมูลที่ได้จาก Google Sheets API (Array of Arrays) 
+     * ให้เป็น Array of Objects ที่เข้าถึงด้วยชื่อ Header
+     */
     function arrayToObjects(data) {
         if (!data || data.length === 0) return [];
         
@@ -261,7 +271,8 @@
 
             const item = {};
             headers.forEach((header, j) => {
-                item[header] = row[j] || ''; // Map ข้อมูลคอลัมน์เข้ากับชื่อ Header
+                // เก็บข้อมูลตามชื่อคอลัมน์
+                item[header] = row[j] || ''; 
             });
             cases.push(item);
         }
@@ -277,7 +288,15 @@
             
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`Google Sheets API Error: ${response.status} - ${errorText}`);
+                // พยายามแยกแยะข้อความ error เพื่อให้ผู้ใช้เห็นชัดเจนขึ้น
+                let errorMessage = `Google Sheets API Error: ${response.status}`;
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage += ` - ${errorJson.error.message}`;
+                } catch (e) {
+                    errorMessage += ` - ${errorText.substring(0, 100)}...`;
+                }
+                throw new Error(errorMessage);
             }
 
             const result = await response.json();
@@ -291,11 +310,12 @@
 
             // คำนวณสถานะคดีทั้งหมด
             const totalCases = cases.length;
-            const finalCases = cases.filter(c => c["สถานะคดี"] === "คำพิพากษาถึงที่สุด").length;
-            const firstCourtCases = cases.filter(c => c["สถานะคดี"].includes("ชั้นต้น")).length;
-            const supremeCourtCases = cases.filter(c => c["สถานะคดี"].includes("สูงสุด")).length;
-            const executionCompleteCases = cases.filter(c => c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
-            const inExecutionCases = cases.filter(c => c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี")).length;
+            // นับสถานะจากคอลัมน์ "สถานะคดี"
+            const finalCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ถึงที่สุด")).length;
+            const firstCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ชั้นต้น")).length;
+            const supremeCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("สูงสุด")).length;
+            const executionCompleteCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
+            const inExecutionCases = cases.filter(c => c["สถานะคดี"] && (c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี"))).length;
 
             // อัปเดตตัวเลขในการ์ด
             document.getElementById("totalCases").innerText = totalCases;
@@ -349,11 +369,19 @@
             tbody.innerHTML = ''; 
             
             cases.slice(-10).reverse().forEach(c => {
+              // ดึงข้อมูลตามคอลัมน์ที่ต้องการแสดง
+              const caseBlackNo = c["เลขคดีดำ"] || "-";
+              const caseBlackYear = c["ปีคดีดำ"] || "-"; // เพิ่มคอลัมน์ปีคดีดำ
+              const plaintiff = c["ผู้ฟ้องคดี"] || "-";
+              const court = c["ศาล"] || "-";
+              const status = c["สถานะคดี"] || "-";
+
               const row = `<tr>
-                <td>${c["เลขคดีดำ"] || "-"}</td>
-                <td>${c["ศาล"] || "-"}</td>
-                <td>${c["ผู้ฟ้องคดี"] || "-"}</td>
-                <td>${c["สถานะคดี"] || "-"}</td>
+                <td>${caseBlackNo}</td>
+                <td>${caseBlackYear}</td>
+                <td>${plaintiff}</td>
+                <td>${court}</td>
+                <td>${status}</td>
               </tr>`;
               tbody.insertAdjacentHTML("beforeend", row);
             });
@@ -365,12 +393,15 @@
 
         } catch (error) {
             console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลจาก Google Sheet:", error);
-            loadingMessage.innerText = `การโหลดข้อมูลล้มเหลว: ${error.message}. โปรดตรวจสอบ Spreadsheet ID, API Key, และชื่อ Sheet ('Sheet1') ว่าถูกต้องและเปิดการเข้าถึง API แล้ว`;
+            // แสดงข้อความ error ที่ชัดเจนขึ้น
+            loadingMessage.innerText = `การโหลดข้อมูลล้มเหลว: ${error.message}. โปรดตรวจสอบ 1. API Key Restriction (ตั้งเป็น None หรือ *) 2. Spreadsheet ID 3. ชื่อ Sheet ('Sheet1') ว่าถูกต้องและเปิดการเข้าถึง API แล้ว`;
             loadingMessage.style.color = 'red';
             mainDashboard.style.display = 'none';
             mainContent.style.display = 'none';
         }
     }
+
+    // เริ่มโหลดข้อมูลเมื่อ Script โหลดเสร็จ
     fetchGoogleSheetData();
   </script>
 </body>

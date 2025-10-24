@@ -1,7 +1,7 @@
 // server.js
 
 // โหลดตัวแปรจากไฟล์ .env เมื่อรันบนเครื่อง Local
-// เมื่อ Deploy บน Render/Heroku จะดึงจาก Environment Variables โดยตรง
+// เมื่อ Deploy บน Render จะดึงจาก Environment Variables โดยตรง
 require('dotenv').config(); 
 
 const express = require('express');
@@ -9,7 +9,7 @@ const axios = require('axios');
 const cors = require('cors'); 
 const app = express();
 
-// Render/Heroku จะกำหนด PORT ให้เอง
+// Render จะกำหนด PORT ให้เอง
 const port = process.env.PORT || 3000; 
 
 // 0. Root Route: ใช้สำหรับทดสอบว่า Server ทำงานได้ (ตอบกลับเป็น JSON)
@@ -31,7 +31,7 @@ const allowedOrigins = [
 
 const corsOptions = {
     origin: (origin, callback) => {
-        // อนุญาต origin ที่อยู่ในรายการ หรืออนุญาตถ้าไม่มี origin (เช่น Postman/Direct Access)
+        // อนุญาต origin ที่อยู่ในรายการ หรืออนุญาตถ้าไม่มี origin 
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -39,7 +39,7 @@ const corsOptions = {
         }
     },
     methods: 'GET',
-    allowedHeaders: ['Content-Type', 'Authorization'], // ✅ สำคัญ: ต้องอนุญาต Header Authorization
+    allowedHeaders: ['Content-Type', 'Authorization'], //  ต้องอนุญาต Header Authorization
     optionsSuccessStatus: 200 // สำหรับ Legacy Browsers
 };
 
@@ -56,7 +56,7 @@ app.get('/api/casestatus', async (req, res) => {
     // ดึงรหัสผ่านสำหรับเข้าถึงข้อมูลจาก Environment Variables
     const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD; 
     
-    // 2.1 ✅ ตรวจสอบรหัสผ่านที่ส่งมากับ Authorization Header
+    // 2.1 ตรวจสอบรหัสผ่านที่ส่งมากับ Authorization Header
     const providedAuthHeader = req.headers.authorization;
     
     let providedPassword = null;

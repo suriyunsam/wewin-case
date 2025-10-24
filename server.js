@@ -25,7 +25,8 @@ app.get('/', (req, res) => {
 const allowedOrigins = [
     'http://localhost:8080', 
     'http://127.0.0.1', 
-    'https://suriyunsam.github.io' // โดเมน GitHub Pages ที่ปลอดภัยของคุณ
+    'https://suriyunsam.github.io',
+    'https://wewin-case.onrender.com'
 ]; 
 
 const corsOptions = {

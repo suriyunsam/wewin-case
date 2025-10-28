@@ -11,241 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <style>
-        /* Global Reset for better responsiveness */
-        * {
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-color: #1b365d; /* น้ำเงินเข้ม */
-            --secondary-color: #007bff; /* น้ำเงินสว่าง */
-            --background-color: #f7f9fb;
-            --card-bg: white;
-        }
-
-        body {
-            font-family: "Sarabun", sans-serif;
-            background-color: var(--background-color);
-            margin: 0;
-            padding: 0; /* REMOVED PADDING FROM BODY */
-            color: #333;
-        }
-
-        /* NEW: App Container for centering and max-width */
-        #app-container {
-            max-width: 1200px;
-            margin: 0 auto; /* Center the entire content area */
-            padding: 20px; /* Apply padding here instead of body */
-        }
-        /* Mobile Padding Adjustment */
-        @media (max-width: 600px) { 
-            #app-container { 
-                padding: 10px; 
-            } 
-        }
-
-        h1 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 600;
-            font-size: 1.8rem;
-        }
-
-        /* --- LOGIN FORM STYLES --- */
-        #login-container {
-            width: 100%;
-            max-width: 400px;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            margin: 50px auto 0 auto; /* Center the form within the #app-container */
-            text-align: center;
-        }
-        #login-container h2 {
-            color: var(--primary-color);
-            font-weight: 600;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-        }
-        #password-input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-        #login-button {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        #login-button:hover:not(:disabled) {
-            background-color: #0069d9;
-        }
-        #login-button:disabled {
-            background-color: #a0c9f5;
-            cursor: not-allowed;
-        }
-        #login-error-message {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-        .logout-button {
-            background-color: #dc3545;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            white-space: nowrap;
-        }
-        .logout-button:hover {
-            background-color: #c82333;
-        }
-        
-        /* Responsive adjustments for Login Container on small screens */
-        @media (max-width: 480px) { 
-            #login-container {
-                padding: 20px; 
-                margin-top: 30px;
-            }
-        }
-        /* --- END LOGIN FORM STYLES --- */
-
-
-        /* Dashboard Grid (Card Section) */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        @media (max-width: 992px) { .dashboard { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 576px) { .dashboard { grid-template-columns: 1fr; } }
-        
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            text-align: center;
-        }
-
-        .card h2 {
-            margin: 5px 0 15px 0;
-            color: var(--primary-color);
-            font-size: 1rem;
-            font-weight: 400;
-            white-space: nowrap;
-        }
-
-        .card p {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--secondary-color);
-        }
-        
-        /* สีของตัวเลขในการ์ด */
-        .card-total p { color: #5cb85c; }
-        .card-final p { color: #4CAF50; }
-        .card-first p { color: #2196F3; }
-        .card-supreme p { color: #FFC107; }
-        .card-complete p { color: #008080; } 
-        .card-enforcement p { color: #FF8C00; } 
-
-        #loading-message {
-            text-align: center;
-            margin-top: 50px;
-            font-size: 1.2rem;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        /* Content Area Grid (Chart + Table) */
-        .content-area {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-        }
-        @media (max-width: 900px) { .content-area { grid-template-columns: 1fr; } }
-
-        .chart-container, .table-container {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-        }
-
-        .chart-container h2, .table-container h2 {
-            color: var(--primary-color);
-            margin-top: 0;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        
-        /* Search Bar Style */
-        .search-bar {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .search-bar label { font-weight: 600; color: var(--primary-color); white-space: nowrap; }
-        .search-bar input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 1rem;
-            font-family: inherit;
-        }
-
-        /* Table Style */
-        .table-container { overflow-x: auto; }
-        table {
-            width: 100%;
-            min-width: 800px; 
-            border-collapse: collapse;
-        }
-
-        table th, table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        table th {
-            background-color: #f0f4f8;
-            color: var(--primary-color);
-            font-weight: 600;
-            white-space: nowrap; 
-        }
-        table tbody tr:hover { background-color: #f5f5f5; }
-        
-    </style>
+    <!-- ✅ NEW: Link to external CSS file -->
+    <link rel="stylesheet" href="styles.css"> 
+    
 </head>
 <body>
     <div id="app-container">
@@ -284,22 +52,22 @@
             <div class="dashboard" id="mainDashboard" style="display: none;">
                 <div class="card card-total"><h2>คดีทั้งหมด</h2><p id="totalCases">0</p></div>
                 <div class="card card-first"><h2>อยู่ระหว่างพิจารณาชั้นต้น</h2><p id="firstCourtCases">0</p></div>
-                <div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
                 <div class="card card-supreme"><h2>อยู่ระหว่างพิจารณาสูงสุด</h2><p id="supremeCourtCases">0</p></div>
                 <div class="card card-enforcement"><h2>อยู่ในขั้นตอนบังคับคดี</h2><p id="inExecutionCases">0</p></div>
                 <div class="card card-complete"><h2>บังคับคดีเสร็จสิ้น</h2><p id="executionCompleteCases">0</p></div>
+                <div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
             </div>
 
             <div class="content-area" id="mainContent" style="display: none; margin-top: 20px;">
                 <div class="chart-container">
                     <h2>สัดส่วนสถานะคดีทั้งหมด</h2>
-                    <div style="max-width: 400px; width: 100%; height: 350px;">
+                    <div class="chart-wrapper">
                         <canvas id="caseStatusChart"></canvas>
                     </div>
                 </div>
                 
                 <div class="table-container">
-                    <h2>ข้อมูลคดี</h2>
+                    <h2 id="tableTitle">10 คดีล่าสุดที่อัปเดต</h2>
                     
                     <div class="search-bar">
                         <label for="caseSearch">ค้นหาเลขคดีดำ:</label>
@@ -325,6 +93,7 @@
     </div>
 
     <script>
+        // --- CONFIGURATION ---
         // ✅ **สำคัญ:** Endpoint ของ Render Server ที่ปลอดภัย
         const API_URL = 'https://wewin-case-api.onrender.com/api/casestatus';
         const AUTH_KEY = 'Wewin_Auth_Key'; // Key สำหรับเก็บรหัสผ่านใน sessionStorage
@@ -343,7 +112,8 @@
         const mainContent = document.getElementById('mainContent');
         const caseSearchInput = document.getElementById('caseSearch');
         const casesTableBody = document.querySelector("#casesTable tbody");
-        const tableTitle = document.querySelector(".table-container h2");
+        const tableTitle = document.getElementById('tableTitle');
+        let chartInstance = null; // เก็บ instance ของ Chart.js
 
         let allCasesData = []; // เก็บข้อมูลคดีทั้งหมดที่ดึงมา
 
@@ -367,7 +137,7 @@
             }
         }
         
-        function showLoading(message = 'กำลังโหลดข้อมูล...') { // รับ parameter message เพื่อแสดงสถานะการโหลด
+        function showLoading(message = 'กำลังโหลดข้อมูล...') {
             loginContainer.style.display = 'none';
             dataDisplayContainer.style.display = 'block';
             loadingMessage.textContent = message;
@@ -378,8 +148,9 @@
 
         function showDashboard() {
             loadingMessage.style.display = 'none';
-            mainDashboard.style.display = 'grid';
-            mainContent.style.display = 'grid';
+            // Use 'grid' for mainDashboard and mainContent as defined in CSS
+            mainDashboard.style.display = 'grid'; 
+            mainContent.style.display = 'grid'; 
         }
 
         function logout() {
@@ -415,9 +186,7 @@
             loadData(password, true); 
         });
 
-        // ----------------------------------------------------
         // 2.1 Core Fetch Logic (แยกจาก Retry Loop)
-        // ----------------------------------------------------
         async function fetchCaseData(password) {
             const res = await fetch(API_URL, {
                 method: 'GET',
@@ -437,7 +206,6 @@
 
             return res.json();
         }
-
 
         // 2.2 Retry Logic (เพื่อจัดการปัญหา Server Cold Start/Network ชั่วคราว)
         async function loadData(password, isLoginAttempt = false) {
@@ -464,10 +232,8 @@
                     }
 
                     // Success: Process data and show dashboard
-                    setTimeout(() => {
-                        processAndRenderDashboard(data.values); 
-                        showDashboard(); 
-                    }, 50); 
+                    processAndRenderDashboard(data.values); 
+                    showDashboard(); 
                     return; // สำเร็จ, ออกจากลูป
                     
                 } catch (error) {
@@ -502,16 +268,20 @@
         // 3. Logic Dashboard 
         // ----------------------------------------------------
 
-        /** แปลงข้อมูลจาก Array of Arrays เป็น Array of Objects */
+        /** * แปลงข้อมูลจาก Array of Arrays เป็น Array of Objects
+         * โดยใช้ชื่อคอลัมน์จากแถวแรกเป็น key
+         */
         function arrayToObjects(data) {
             if (!data || data.length < 2) return [];
-            const headers = data[0].map(h => h.trim());
+            const headers = data[0].map(h => String(h || '').trim());
             const cases = [];
             for (let i = 1; i < data.length; i++) {
                 const row = data[i];
-                if (row.filter(cell => cell.trim() !== '').length === 0) continue;
+                // Skip completely empty rows
+                if (row.filter(cell => String(cell || '').trim() !== '').length === 0) continue; 
+                
                 const item = {};
-                headers.forEach((header, j) => { item[header] = row[j] || ''; });
+                headers.forEach((header, j) => { item[header] = String(row[j] || '').trim(); });
                 cases.push(item);
             }
             return cases;
@@ -540,17 +310,20 @@
 
         /** กรองและแสดงผลคดีตามคำค้นหา */
         function filterAndRenderCases() {
-            const searchTerm = caseSearchInput.value.trim();
+            const searchTerm = caseSearchInput.value.trim().toLowerCase();
             let filteredCases = [];
             
             if (searchTerm.length === 0) {
+                // แสดง 10 คดีล่าสุด (เรียงตามลำดับการเพิ่มใน Google Sheet ซึ่งคือ Index ท้ายๆ)
                 filteredCases = allCasesData.slice(-10).reverse();
                 tableTitle.innerText = "10 คดีล่าสุดที่อัปเดต";
             } else {
                 filteredCases = allCasesData.filter(c => 
-                    c["เลขคดีดำ"] && c["เลขคดีดำ"].toString().includes(searchTerm)
+                    // กรองตาม เลขคดีดำ หรือ ปีคดีดำ (แปลงเป็น string ก่อน)
+                    (c["เลขคดีดำ"] && String(c["เลขคดีดำ"]).toLowerCase().includes(searchTerm)) ||
+                    (c["ปีคดีดำ"] && String(c["ปีคดีดำ"]).toLowerCase().includes(searchTerm))
                 );
-                tableTitle.innerText = `ผลการค้นหาคดี: "${searchTerm}"`;
+                tableTitle.innerText = `ผลการค้นหาคดี: "${caseSearchInput.value.trim()}" (${filteredCases.length} คดี)`;
             }
 
             renderCasesTable(filteredCases);
@@ -568,23 +341,25 @@
 
             // 1. คำนวณสถานะคดี
             const totalCases = cases.length;
-            const finalCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ถึงที่สุด")).length;
-            const firstCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ชั้นต้น")).length;
-            const supremeCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("สูงสุด")).length;
-            const executionCompleteCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
-            const inExecutionCases = cases.filter(c => c["สถานะคดี"] && (c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี"))).length;
+            
+            // คำนวณตามสถานะที่มีใน Data
+            const firstCourtCases = cases.filter(c => c["สถานะคดี"].includes("ชั้นต้น")).length;
+            const supremeCourtCases = cases.filter(c => c["สถานะคดี"].includes("สูงสุด")).length;
+            const inExecutionCases = cases.filter(c => c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี")).length;
+            const executionCompleteCases = cases.filter(c => c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
+            const finalCases = cases.filter(c => c["สถานะคดี"].includes("ถึงที่สุด")).length; // คำพิพากษาถึงที่สุด
 
             // 2. อัปเดตตัวเลขในการ์ด
-            document.getElementById("totalCases").innerText = totalCases;
-            document.getElementById("finalCases").innerText = finalCases;
-            document.getElementById("firstCourtCases").innerText = firstCourtCases;
-            document.getElementById("supremeCourtCases").innerText = supremeCourtCases;
-            document.getElementById("executionCompleteCases").innerText = executionCompleteCases;
-            document.getElementById("inExecutionCases").innerText = inExecutionCases;
+            document.getElementById("totalCases").innerText = totalCases.toLocaleString('th-TH');
+            document.getElementById("finalCases").innerText = finalCases.toLocaleString('th-TH');
+            document.getElementById("firstCourtCases").innerText = firstCourtCases.toLocaleString('th-TH');
+            document.getElementById("supremeCourtCases").innerText = supremeCourtCases.toLocaleString('th-TH');
+            document.getElementById("executionCompleteCases").innerText = executionCompleteCases.toLocaleString('th-TH');
+            document.getElementById("inExecutionCases").innerText = inExecutionCases.toLocaleString('th-TH');
 
             // 3. สร้าง Pie Chart
             const ctx = document.getElementById("caseStatusChart");
-            if (ctx.chart) { ctx.chart.destroy(); }
+            if (chartInstance) { chartInstance.destroy(); } // ทำลาย instance เก่าก่อน
 
             const chartData = {
                 labels: ["คำพิพากษาถึงที่สุด", "อยู่ระหว่างพิจารณาชั้นต้น", "อยู่ระหว่างพิจารณาสูงสุด", "อยู่ในขั้นตอนบังคับคดี", "บังคับคดีเสร็จสิ้น"],
@@ -597,7 +372,7 @@
                 }]
             };
             
-            ctx.chart = new Chart(ctx, {
+            chartInstance = new Chart(ctx, {
                 type: "pie",
                 data: chartData,
                 options: { 
@@ -610,6 +385,18 @@
                             labels: { font: { family: "Sarabun" } }
                         },
                         tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += new Intl.NumberFormat('th-TH').format(context.parsed) + ' คดี';
+                                    }
+                                    return label;
+                                }
+                            },
                             titleFont: { family: "Sarabun", size: 14 },
                             bodyFont: { family: "Sarabun", size: 12 }
                         }

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>สถานะคดีปกครองโครงการเราชนะ</title>
+    
+    <!-- Chart.js สำหรับแผนภูมิ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- ฟอนต์ Sarabun สำหรับภาษาไทย -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- ✅ ลิงก์ไปยังไฟล์ CSS ภายนอก -->
+    <link rel="stylesheet" href="dashboard_styles.css"> 
+</head>
+<body>
+    <div id="app-container">
+        <h1>สถานะคดีปกครองโครงการเราชนะ</h1>
+
+        <!-- ---------------------------------------------------- -->
+        <!-- 1. Login Form (แสดงเมื่อยังไม่ได้ล็อกอิน) -->
+        <!-- ---------------------------------------------------- -->
+        <div id="login-container">
+            <h2>เข้าสู่ระบบเพื่อเข้าถึงข้อมูล</h2>
+            <div id="login-error-message" class="error-message" style="display: none;"></div>
+            
+            <form id="login-form">
+                <div>
+                    <input type="password" id="password-input" required 
+                           placeholder="กรอกรหัสผ่าน">
+                </div>
+                <button type="submit" id="login-button">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
+
+
+        <!-- ---------------------------------------------------- -->
+        <!-- 2. Dashboard Content (แสดงเมื่อล็อกอินสำเร็จ) -->
+        <!-- ---------------------------------------------------- -->
+        <div id="data-display-container" style="display: none;">
+
+            <div class="header-actions">
+                <button onclick="logout()" class="logout-button">ออกจากระบบ</button>
+            </div>
+
+            <p id="loading-message">กำลังโหลดข้อมูล...</p>
+
+            <div class="dashboard" id="mainDashboard" style="display: none;">
+                <!-- Card Elements -->
+                <div class="card card-total"><h2>คดีทั้งหมด</h2><p id="totalCases">0</p></div>
+                <div class="card card-first"><h2>อยู่ระหว่างพิจารณาชั้นต้น</h2><p id="firstCourtCases">0</p></div>
+                <div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
+                <div class="card card-supreme"><h2>อยู่ระหว่างพิจารณาสูงสุด</h2><p id="supremeCourtCases">0</p></div>
+                <div class="card card-enforcement"><h2>อยู่ในขั้นตอนบังคับคดี</h2><p id="inExecutionCases">0</p></div>
+                <div class="card card-complete"><h2>บังคับคดีเสร็จสิ้น</h2><p id="executionCompleteCases">0</p></div>
+            </div>
+
+            <div class="content-area" id="mainContent" style="display: none;">
+                <div class="chart-container">
+                    <h2>สัดส่วนสถานะคดีทั้งหมด</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="caseStatusChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <h2 id="tableTitle">10 คดีล่าสุดที่อัปเดต</h2>
+                    
+                    <div class="search-bar">
+                        <label for="caseSearch">ค้นหาเลขคดีดำ:</label>
+                        <input type="text" id="caseSearch" placeholder="พิมพ์เลขคดีดำที่ต้องการค้นหา..." />
+                    </div>
+                    
+                    <table id="casesTable">
+                        <thead>
+                            <tr>
+                                <th>เลขคดีดำ</th>
+                                <th>ปีคดีดำ</th> 
+                                <th>ผู้ฟ้องคดี</th>
+                                <th>ผลของคำพิพากษา</th>
+                                <th>สถานะคดี</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ✅ ลิงก์ไปยังไฟล์ JavaScript ภายนอก -->
+    <script src="dashboard_logic.js"></script>
+</body>
+</html>

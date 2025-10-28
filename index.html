@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>สถานะคดีปกครองโครงการเราชนะ</title>
+<!-- Chart.js สำหรับแผนภูมิ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- ฟอนต์ Sarabun สำหรับภาษาไทย -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Global Reset for better responsiveness */
+* {
+box-sizing: border-box;
+}
+
+:root {
+--primary-color: #1b365d; /* น้ำเงินเข้ม */
+--secondary-color: #007bff; /* น้ำเงินสว่าง */
+--background-color: #f7f9fb;
+--card-bg: white;
+}
+
+body {
+font-family: "Sarabun", sans-serif;
+background-color: var(--background-color);
+margin: 0;
+padding: 0; /* REMOVED PADDING FROM BODY */
+color: #333;
+}
+
+/* NEW: App Container for centering and max-width */
+#app-container {
+max-width: 1200px;
+margin: 0 auto; /* Center the entire content area */
+padding: 20px; /* Apply padding here instead of body */
+}
+/* Mobile Padding Adjustment */
+@media (max-width: 600px) {
+#app-container {
+padding: 10px;
+}
+}
+
+h1 {
+color: var(--primary-color);
+text-align: center;
+margin-bottom: 30px;
+font-weight: 600;
+font-size: 1.8rem;
+}
+
+/* --- LOGIN FORM STYLES --- */
+#login-container {
+width: 100%;
+max-width: 400px;
+background: var(--card-bg);
+padding: 30px;
+border-radius: 12px;
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+margin: 50px auto 0 auto; /* Center the form within the #app-container */
+text-align: center;
+}
+#login-container h2 {
+color: var(--primary-color);
+font-weight: 600;
+font-size: 1.5rem;
+margin-bottom: 20px;
+}
+#password-input {
+width: 100%;
+padding: 12px;
+margin-bottom: 15px;
+border: 1px solid #ccc;
+border-radius: 8px;
+box-sizing: border-box;
+font-size: 1rem;
+font-family: inherit;
+}
+#login-button {
+width: 100%;
+padding: 12px;
+background-color: var(--secondary-color);
+color: white;
+border: none;
+border-radius: 8px;
+font-size: 1.1rem;
+font-weight: 600;
+cursor: pointer;
+transition: background-color 0.2s;
+}
+#login-button:hover:not(:disabled) {
+background-color: #0069d9;
+}
+#login-button:disabled {
+background-color: #a0c9f5;
+cursor: not-allowed;
+}
+#login-error-message {
+padding: 10px;
+margin-bottom: 15px;
+border-radius: 8px;
+background-color: #f8d7da;
+color: #721c24;
+border: 1px solid #f5c6cb;
+font-size: 0.9rem;
+text-align: center;
+}
+.logout-button {
+background-color: #dc3545;
+color: white;
+padding: 8px 15px;
+border: none;
+border-radius: 8px;
+font-size: 0.9rem;
+cursor: pointer;
+transition: background-color 0.2s;
+white-space: nowrap;
+}
+.logout-button:hover {
+background-color: #c82333;
+}
+/* Responsive adjustments for Login Container on small screens */
+@media (max-width: 480px) {
+#login-container {
+padding: 20px;
+margin-top: 30px;
+}
+}
+/* --- END LOGIN FORM STYLES --- */
+
+
+/* Dashboard Grid (Card Section) */
+.dashboard {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 15px;
+margin-bottom: 30px;
+}
+@media (max-width: 992px) { .dashboard { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 576px) { .dashboard { grid-template-columns: 1fr; } }
+.card {
+background: var(--card-bg);
+padding: 20px;
+border-radius: 12px;
+box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+text-align: center;
+}
+
+.card h2 {
+margin: 5px 0 15px 0;
+color: var(--primary-color);
+font-size: 1rem;
+font-weight: 400;
+white-space: nowrap;
+}
+
+.card p {
+font-size: 2.5rem;
+font-weight: 700;
+color: var(--secondary-color);
+}
+/* สีของตัวเลขในการ์ด */
+.card-total p { color: #5cb85c; }
+.card-final p { color: #4CAF50; }
+.card-first p { color: #2196F3; }
+.card-supreme p { color: #FFC107; }
+.card-complete p { color: #008080; }
+.card-enforcement p { color: #FF8C00; }
+
+#loading-message {
+text-align: center;
+margin-top: 50px;
+font-size: 1.2rem;
+color: var(--primary-color);
+font-weight: 600;
+}
+
+/* Content Area Grid (Chart + Table) */
+.content-area {
+display: grid;
+grid-template-columns: 1fr 2fr;
+gap: 20px;
+}
+@media (max-width: 900px) { .content-area { grid-template-columns: 1fr; } }
+
+.chart-container, .table-container {
+background: var(--card-bg);
+padding: 20px;
+border-radius: 12px;
+box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.chart-container h2, .table-container h2 {
+color: var(--primary-color);
+margin-top: 0;
+border-bottom: 2px solid #eee;
+padding-bottom: 10px;
+font-size: 1.5rem;
+font-weight: 600;
+}
+/* Search Bar Style */
+.search-bar {
+margin-bottom: 15px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.search-bar label { font-weight: 600; color: var(--primary-color); white-space: nowrap; }
+.search-bar input[type="text"] {
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 8px;
+width: 100%;
+font-size: 1rem;
+font-family: inherit;
+}
+
+/* Table Style */
+.table-container { overflow-x: auto; }
+table {
+width: 100%;
+min-width: 800px;
+border-collapse: collapse;
+}
+
+table th, table td {
+padding: 12px 15px;
+text-align: left;
+border-bottom: 1px solid #ddd;
+}
+table th {
+background-color: #f0f4f8;
+color: var(--primary-color);
+font-weight: 600;
+white-space: nowrap;
+}
+table tbody tr:hover { background-color: #f5f5f5; }
+</style>
+</head>
+<body>
+<div id="app-container">
+<h1>สถานะคดีปกครองโครงการเราชนะ</h1>
+
+<!-- ---------------------------------------------------- -->
+<!-- 1. Login Form (แสดงเมื่อยังไม่ได้ล็อกอิน) -->
+<!-- ---------------------------------------------------- -->
+<div id="login-container">
+<h2>เข้าสู่ระบบเพื่อเข้าถึงข้อมูล</h2>
+<div id="login-error-message" class="error-message" style="display: none;"></div>
+<form id="login-form">
+<div>
+<input type="password" id="password-input" required
+placeholder="กรอกรหัสผ่าน">
+</div>
+<button type="submit" id="login-button">
+เข้าสู่ระบบ
+</button>
+</form>
+</div>
+
+
+<!-- ---------------------------------------------------- -->
+<!-- 2. Dashboard Content (แสดงเมื่อล็อกอินสำเร็จ) -->
+<!-- ---------------------------------------------------- -->
+<div id="data-display-container" style="display: none;">
+
+<div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+<button onclick="logout()" class="logout-button">ออกจากระบบ</button>
+</div>
+
+<p id="loading-message">กำลังโหลดข้อมูล...</p>
+
+<div class="dashboard" id="mainDashboard" style="display: none;">
+<div class="card card-total"><h2>คดีทั้งหมด</h2><p id="totalCases">0</p></div>
+<div class="card card-first"><h2>อยู่ระหว่างพิจารณาชั้นต้น</h2><p id="firstCourtCases">0</p></div>
+<div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
+<div class="card card-supreme"><h2>อยู่ระหว่างพิจารณาสูงสุด</h2><p id="supremeCourtCases">0</p></div>
+<div class="card card-enforcement"><h2>อยู่ในขั้นตอนบังคับคดี</h2><p id="inExecutionCases">0</p></div>
+<div class="card card-complete"><h2>บังคับคดีเสร็จสิ้น</h2><p id="executionCompleteCases">0</p></div>
+</div>
+
+<div class="content-area" id="mainContent" style="display: none; margin-top: 20px;">
+<div class="chart-container">
+<h2>สัดส่วนสถานะคดีทั้งหมด</h2>
+<div style="max-width: 400px; width: 100%; height: 350px;">
+<canvas id="caseStatusChart"></canvas>
+</div>
+</div>
+<div class="table-container">
+<h2>ข้อมูลคดี</h2>
+<div class="search-bar">
+<label for="caseSearch">ค้นหาเลขคดีดำ:</label>
+<input type="text" id="caseSearch" placeholder="พิมพ์เลขคดีดำที่ต้องการค้นหา..." />
+</div>
+<table id="casesTable">
+<thead>
+<tr>
+<th>เลขคดีดำ</th>
+<th>ปีคดีดำ</th>
+<th>ผู้ฟ้องคดี</th>
+<th>ผลของคำพิพากษา</th>
+<th>สถานะคดี</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+// ✅ **สำคัญ:** Endpoint ของ Render Server ที่ปลอดภัย
+const API_URL = 'https://wewin-case-api.onrender.com/api/casestatus';
+const AUTH_KEY = 'Wewin_Auth_Key'; // Key สำหรับเก็บรหัสผ่านใน sessionStorage
+
+// Elements สำหรับ Login
+const loginContainer = document.getElementById('login-container');
+const loginForm = document.getElementById('login-form');
+const passwordInput = document.getElementById('password-input');
+const loginButton = document.getElementById('login-button');
+const loginError = document.getElementById('login-error-message');
+
+// Elements สำหรับ Dashboard
+const dataDisplayContainer = document.getElementById('data-display-container');
+const loadingMessage = document.getElementById('loading-message');
+const mainDashboard = document.getElementById('mainDashboard');
+const mainContent = document.getElementById('mainContent');
+const caseSearchInput = document.getElementById('caseSearch');
+const casesTableBody = document.querySelector("#casesTable tbody");
+const tableTitle = document.querySelector(".table-container h2");
+
+let allCasesData = []; // เก็บข้อมูลคดีทั้งหมดที่ดึงมา
+
+// ----------------------------------------------------
+// 1. Logic การจัดการ UI State (Login/Loading/Data)
+// ----------------------------------------------------
+
+function showLogin(message = '') {
+dataDisplayContainer.style.display = 'none';
+loginContainer.style.display = 'block';
+passwordInput.value = '';
+loginButton.disabled = false;
+loginButton.textContent = 'เข้าสู่ระบบ';
+loadingMessage.style.display = 'none';
+if (message) {
+loginError.textContent = message;
+loginError.style.display = 'block';
+} else {
+loginError.style.display = 'none';
+}
+}
+function showLoading(message = 'กำลังโหลดข้อมูล...') { // รับ parameter message เพื่อแสดงสถานะการโหลด
+loginContainer.style.display = 'none';
+dataDisplayContainer.style.display = 'block';
+loadingMessage.textContent = message;
+loadingMessage.style.display = 'block';
+mainDashboard.style.display = 'none';
+mainContent.style.display = 'none';
+}
+
+function showDashboard() {
+loadingMessage.style.display = 'none';
+mainDashboard.style.display = 'grid';
+mainContent.style.display = 'grid';
+}
+
+function logout() {
+sessionStorage.removeItem(AUTH_KEY);
+showLogin("ออกจากระบบแล้ว กรุณาเข้าสู่ระบบอีกครั้ง");
+}
+
+// ----------------------------------------------------
+// 2. Logic การล็อกอินและการดึงข้อมูล (Secure Fetch)
+// ----------------------------------------------------
+
+// ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
+document.addEventListener('DOMContentLoaded', () => {
+const storedPassword = sessionStorage.getItem(AUTH_KEY);
+if (storedPassword) {
+showLoading();
+loadData(storedPassword);
+} else {
+showLogin();
+}
+});
+
+// ดักจับการ Submit Form
+loginForm.addEventListener('submit', (e) => {
+e.preventDefault();
+const password = passwordInput.value;
+loginButton.disabled = true;
+loginButton.textContent = 'กำลังตรวจสอบ...';
+loginError.style.display = 'none';
+showLoading(); // แสดงหน้าโหลด
+loadData(password, true);
+});
+
+// ----------------------------------------------------
+// 2.1 Core Fetch Logic (แยกจาก Retry Loop)
+// ----------------------------------------------------
+async function fetchCaseData(password) {
+const res = await fetch(API_URL, {
+method: 'GET',
+headers: {
+'Authorization': `Bearer ${password}`, // ส่งรหัสผ่านผ่าน Header
+'Content-Type': 'application/json',
+}
+});
+
+if (res.status === 401) {
+throw new Error("Unauthorized");
+}
+if (!res.ok) {
+throw new Error(`API Error: ${res.status} ${res.statusText}`);
+}
+
+return res.json();
+}
+
+
+// 2.2 Retry Logic (เพื่อจัดการปัญหา Server Cold Start/Network ชั่วคราว)
+async function loadData(password, isLoginAttempt = false) {
+const MAX_RETRIES = 3;
+let attempt = 0;
+
+while (attempt < MAX_RETRIES) {
+attempt++;
+// Exponential backoff delay: 0s (initial), 2s, 4s (if needed)
+const delay = attempt === 1 ? 0 : Math.pow(2, attempt) * 500;
+
+try {
+if (attempt > 1) {
+// หน่วงเวลาตาม backoff และแจ้งสถานะการ retry
+showLoading(`กำลังพยายามเชื่อมต่อใหม่... (ครั้งที่ ${attempt}/${MAX_RETRIES})`);
+await new Promise(resolve => setTimeout(resolve, delay));
+}
+const data = await fetchCaseData(password);
+
+if (isLoginAttempt) {
+// ถ้าเป็นการล็อกอินครั้งแรกและสำเร็จ ให้บันทึกรหัสผ่านไว้
+sessionStorage.setItem(AUTH_KEY, password);
+}
+
+// Success: Process data and show dashboard
+setTimeout(() => {
+processAndRenderDashboard(data.values);
+showDashboard();
+}, 50);
+return; // สำเร็จ, ออกจากลูป
+} catch (error) {
+if (error.message === "Unauthorized") {
+// รหัสผ่านผิดพลาด (401) ไม่ต้อง retry
+sessionStorage.removeItem(AUTH_KEY);
+showLogin("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");
+return;
+}
+if (error.message.startsWith("API Error")) {
+// Server ตอบกลับด้วยโค้ด Error อื่นๆ (เช่น 500) ไม่ต้อง retry
+sessionStorage.removeItem(AUTH_KEY);
+showLogin(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${error.message}. โปรดตรวจสอบ Server Log.`);
+return;
+}
+// Network/Fetch error (e.g., server asleep or temporary network issue)
+console.warn(`Fetch attempt ${attempt} failed (network issue or server cold start). Retrying...`, error);
+
+if (attempt === MAX_RETRIES) {
+// พยายามซ้ำครบจำนวนแล้ว
+console.error("Fetch failed after all retries.");
+sessionStorage.removeItem(AUTH_KEY);
+showLogin(`ไม่สามารถเชื่อมต่อกับ Server ได้ (พยายาม ${MAX_RETRIES} ครั้ง) กรุณาตรวจสอบ Console Log และสถานะ Server.`);
+return;
+}
+}
+}
+}
+
+// ----------------------------------------------------
+// 3. Logic Dashboard
+// ----------------------------------------------------
+
+/** แปลงข้อมูลจาก Array of Arrays เป็น Array of Objects */
+function arrayToObjects(data) {
+if (!data || data.length < 2) return [];
+const headers = data[0].map(h => h.trim());
+const cases = [];
+for (let i = 1; i < data.length; i++) {
+const row = data[i];
+if (row.filter(cell => cell.trim() !== '').length === 0) continue;
+const item = {};
+headers.forEach((header, j) => { item[header] = row[j] || ''; });
+cases.push(item);
+}
+return cases;
+}
+
+/** สร้างแถวตาราง HTML จากข้อมูลคดีที่ถูกกรองแล้ว */
+function renderCasesTable(cases) {
+casesTableBody.innerHTML = '';
+if (cases.length === 0) {
+const noResultsRow = `<tr class="no-results"><td colspan="5" style="text-align: center;">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
+casesTableBody.insertAdjacentHTML("beforeend", noResultsRow);
+return;
+}
+
+cases.forEach(c => {
+const row = `<tr>
+<td>${c["เลขคดีดำ"] || "-"}</td>
+<td>${c["ปีคดีดำ"] || "-"}</td>
+<td>${c["ผู้ฟ้องคดี"] || "-"}</td>
+<td>${c["ผลของคำพิพากษา"] || "-"}</td>
+<td>${c["สถานะคดี"] || "-"}</td>
+</tr>`;
+casesTableBody.insertAdjacentHTML("beforeend", row);
+});
+}
+
+/** กรองและแสดงผลคดีตามคำค้นหา */
+function filterAndRenderCases() {
+const searchTerm = caseSearchInput.value.trim();
+let filteredCases = [];
+if (searchTerm.length === 0) {
+filteredCases = allCasesData.slice(-10).reverse();
+tableTitle.innerText = "10 คดีล่าสุดที่อัปเดต";
+} else {
+filteredCases = allCasesData.filter(c =>
+c["เลขคดีดำ"] && c["เลขคดีดำ"].toString().includes(searchTerm)
+);
+tableTitle.innerText = `ผลการค้นหาคดี: "${searchTerm}"`;
+}
+
+renderCasesTable(filteredCases);
+}
+caseSearchInput.addEventListener('input', filterAndRenderCases);
+
+
+/** ประมวลผลและแสดงผล Dashboard ทั้งหมด */
+function processAndRenderDashboard(values) {
+if (!values) return;
+
+const cases = arrayToObjects(values);
+allCasesData = cases;
+
+// 1. คำนวณสถานะคดี
+const totalCases = cases.length;
+const finalCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ถึงที่สุด")).length;
+const firstCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("ชั้นต้น")).length;
+const supremeCourtCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("สูงสุด")).length;
+const executionCompleteCases = cases.filter(c => c["สถานะคดี"] && c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
+const inExecutionCases = cases.filter(c => c["สถานะคดี"] && (c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี"))).length;
+
+// 2. อัปเดตตัวเลขในการ์ด
+document.getElementById("totalCases").innerText = totalCases;
+document.getElementById("finalCases").innerText = finalCases;
+document.getElementById("firstCourtCases").innerText = firstCourtCases;
+document.getElementById("supremeCourtCases").innerText = supremeCourtCases;
+document.getElementById("executionCompleteCases").innerText = executionCompleteCases;
+document.getElementById("inExecutionCases").innerText = inExecutionCases;
+
+// 3. สร้าง Pie Chart
+const ctx = document.getElementById("caseStatusChart");
+if (ctx.chart) { ctx.chart.destroy(); }
+
+const chartData = {
+labels: ["คำพิพากษาถึงที่สุด", "อยู่ระหว่างพิจารณาชั้นต้น", "อยู่ระหว่างพิจารณาสูงสุด", "อยู่ในขั้นตอนบังคับคดี", "บังคับคดีเสร็จสิ้น"],
+datasets: [{
+label: "จำนวนคดี",
+data: [finalCases, firstCourtCases, supremeCourtCases, inExecutionCases, executionCompleteCases],
+backgroundColor: ["#4CAF50", "#2196F3", "#FFC107", "#FF8C00", "#008080"],
+borderColor: "white",
+borderWidth: 2
+}]
+};
+ctx.chart = new Chart(ctx, {
+type: "pie",
+data: chartData,
+options: {
+responsive: true,
+maintainAspectRatio: false,
+plugins: {
+legend: {
+display: true,
+position: 'right',
+labels: { font: { family: "Sarabun" } }
+},
+tooltip: {
+titleFont: { family: "Sarabun", size: 14 },
+bodyFont: { family: "Sarabun", size: 12 }
+}
+},
+}
+});
+
+// 4. แสดงผลตารางเริ่มต้น
+filterAndRenderCases();
+}
+
+</script>
+</body>
+</html>

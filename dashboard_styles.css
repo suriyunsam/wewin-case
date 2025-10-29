@@ -258,16 +258,19 @@ table th {
     white-space: normal; 
 }
 
-/* FIX: บังคับให้ข้อความในเซลล์ขึ้นบรรทัดใหม่และตัดคำภาษาไทยอย่างเหมาะสม */
+/* FIX: บังคับให้ข้อความในเซลล์ขึ้นบรรทัดใหม่โดยเน้นการตัดคำตามหลักภาษาไทย */
 table td {
-    /* Use standard and fallback properties for forced wrapping */
-    overflow-wrap: break-word; /* Standard modern property for long words */
+    /* Use standard properties for better word-aware wrapping */
+    overflow-wrap: break-word; /* Allows breaking long strings if they overflow */
     word-wrap: break-word; /* Fallback for older browsers */
     
-    /* FIX: ใช้ break-all เพื่อให้เบราว์เซอร์ตัดคำภาษาไทยที่ไม่มีช่องว่างได้ดีขึ้น */
-    word-break: break-all; 
+    /* FIX: เปลี่ยนกลับเป็น normal เพื่อให้เบราว์เซอร์พยายามตัดคำที่ขอบเขตคำ (ดีกว่า break-all) */
+    word-break: normal; 
     
-    white-space: normal; /* ตรวจสอบให้แน่ใจว่าไม่ได้ถูกตั้งค่าเป็น nowrap */
+    white-space: normal;
+    
+    /* เพิ่ม: เปิดใช้งาน Hyphenation เพื่อช่วยในการตัดคำภาษาไทย (ต้องใช้คู่กับ lang="th" ใน HTML) */
+    hyphens: auto; 
 }
 
 
@@ -333,11 +336,16 @@ table tbody tr:hover { background-color: #f5f5f5; }
         display: block;
         text-align: right; /* Align value to the right */
         padding: 10px 15px;
-        /* FIX: ลด padding-left เพื่อให้เนื้อหามีพื้นที่มากขึ้น (จาก 50% เป็น 45% เป็น 40%) */
-        padding-left: 45%; 
+        /* FIX: ปรับ padding-left ให้ข้อมูลมีพื้นที่แสดงผลมากขึ้น (40% -> 35%) */
+        padding-left: 35%; 
         position: relative;
         border-bottom: 1px solid #eee; /* Light divider between fields */
         font-size: 0.95rem;
+        
+        /* Ensure mobile cells also use word-aware wrapping */
+        overflow-wrap: break-word; 
+        word-break: normal; /* เปลี่ยนกลับเป็น normal */
+        hyphens: auto;
     }
 
     /* Add the data label as a pseudo-element (header text) */
@@ -349,8 +357,8 @@ table tbody tr:hover { background-color: #f5f5f5; }
         height: 100%;
         /* FIX: ปรับ line-height ให้สั้นลงเพื่อให้สอดคล้องกับการลดพื้นที่ */
         line-height: 2.5; 
-        /* FIX: ลดความกว้าง label จาก 50% เป็น 40% เพื่อให้ value มีพื้นที่มากขึ้น */
-        width: 40%; 
+        /* FIX: ลดความกว้าง label จาก 35% เป็น 30% เพื่อให้ value มีพื้นที่มากขึ้น */
+        width: 30%; 
         padding-left: 15px;
         white-space: nowrap;
         text-align: left;

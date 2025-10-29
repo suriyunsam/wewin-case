@@ -6,9 +6,9 @@
     <title>สถานะคดีปกครองโครงการเราชนะ</title>
     
     <!-- Chart.js สำหรับแผนภูมิ -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <!-- เพิ่ม: ปลั๊กอินสำหรับแสดง Data Labels บนชิ้นส่วนวงกลม/แท่ง -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     
     <!-- ฟอนต์ Sarabun สำหรับภาษาไทย -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -92,11 +92,12 @@
                                 <th>ผู้ฟ้องคดี</th>
                                 <th>ผลของคำพิพากษา</th>
                                 <th>ข้อกฎหมายที่ศาลใช้</th>
-                                <th>ตุลาการเจ้าของสำนวน</th> <!-- คอลัมน์ที่เพิ่มกลับมา -->
+                                <th>ตุลาการเจ้าของสำนวน</th>
                                 <th>สถานะคดี</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="casesTableBody">
+                            <!-- Case data will be inserted here by JavaScript -->
                         </tbody>
                     </table>
                 </div>

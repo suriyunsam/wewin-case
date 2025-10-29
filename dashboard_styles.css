@@ -93,6 +93,7 @@ h1 {
     cursor: not-allowed;
 }
 #login-error-message {
+    display: none; /* เริ่มต้นซ่อนไว้ */
     padding: 10px;
     margin-bottom: 15px;
     border-radius: 8px;
@@ -184,6 +185,7 @@ h1 {
     font-size: 1.2rem;
     color: var(--primary-color);
     font-weight: 600;
+    display: none;
 }
 
 /* Content Area (Chart Section) */
@@ -230,7 +232,7 @@ h1 {
     font-family: inherit;
 }
 
-/* Table Style */
+/* Table Style (Desktop Default) */
 .table-container { overflow-x: auto; }
 table {
     width: 100%;
@@ -265,3 +267,66 @@ table tbody tr:hover { background-color: #f5f5f5; }
     /* กำหนดความสูงเพื่อให้มีพื้นที่แสดง Bar Chart ที่ยาวพอดี */
     height: 400px; 
 }
+
+/* --- MOBILE TABLE STYLES (CARD VIEW) --- */
+@media (max-width: 600px) {
+    /* Remove fixed min-width for table */
+    table {
+        min-width: auto;
+    }
+
+    /* Hide the original table header on mobile */
+    #casesTable thead {
+        display: none;
+    }
+    
+    /* Make table, tbody, and rows display as blocks/cards */
+    #casesTable, #casesTable tbody, #casesTable tr {
+        display: block;
+        width: 100%;
+    }
+
+    /* Style the row as a card with margin */
+    #casesTable tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 12px; /* Increased border radius for card look */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        overflow: hidden; /* important for border-radius to work with content */
+    }
+    
+    /* Make cells display as block to stack vertically */
+    #casesTable td {
+        display: block;
+        text-align: right; /* Align value to the right */
+        padding: 10px 15px;
+        padding-left: 50%; /* Make room for the pseudo-element label */
+        position: relative;
+        border-bottom: 1px solid #eee; /* Light divider between fields */
+        font-size: 0.95rem;
+    }
+
+    /* Add the data label as a pseudo-element (header text) */
+    #casesTable td::before {
+        content: attr(data-label); /* ดึงค่าหัวตารางจาก data-label attribute */
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        line-height: 2.8; /* Align with cell content */
+        width: 50%; /* Header takes up left half */
+        padding-left: 15px;
+        white-space: nowrap;
+        text-align: left;
+        font-weight: 600;
+        color: var(--primary-color);
+        background-color: #f8f8f8; /* Background for the label part */
+        border-right: 1px solid #eee;
+    }
+    
+    /* Remove border from the last cell in the row */
+    #casesTable td:last-child {
+        border-bottom: none;
+    }
+}
+/* --- END MOBILE TABLE STYLES --- */

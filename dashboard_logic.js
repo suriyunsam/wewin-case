@@ -17,7 +17,7 @@ const dataDisplayContainer = document.getElementById('data-display-container');
 const loadingMessage = document.getElementById('loading-message');
 const mainDashboard = document.getElementById('mainDashboard');
 const mainContent = document.getElementById('mainContent');
-const tableSection = document.getElementById('tableSection'); // New element reference
+const tableSection = document.getElementById('tableSection'); 
 const caseSearchInput = document.getElementById('caseSearch');
 const casesTableBody = document.querySelector("#casesTable tbody");
 const tableTitle = document.getElementById('tableTitle');
@@ -53,16 +53,15 @@ function showLoading(message = 'กำลังโหลดข้อมูล...
     loadingMessage.style.display = 'block';
     mainDashboard.style.display = 'none';
     mainContent.style.display = 'none';
-    tableSection.style.display = 'none'; // Hide new table section
+    tableSection.style.display = 'none'; 
 }
 
 /** แสดง Dashboard หลัก */
 function showDashboard() {
     loadingMessage.style.display = 'none';
-    // ใช้ 'grid' ตามที่กำหนดใน CSS
     mainDashboard.style.display = 'grid'; 
-    mainContent.style.display = 'block'; // Changed to 'block'
-    tableSection.style.display = 'block'; // Show new table section
+    mainContent.style.display = 'block'; 
+    tableSection.style.display = 'block'; 
 }
 
 /** ล้าง Session และกลับไปหน้า Login */
@@ -186,7 +185,7 @@ function arrayToObjects(data) {
     
     // สร้าง headers จากแถวแรก และ trim space ออก (สำคัญมากสำหรับการเทียบ key)
     const headers = data[0].map(h => String(h || '').trim());
-    console.log("DEBUG: Actual API Headers used as keys:", headers); // LOG 1: ตรวจสอบหัวตารางที่ได้จาก API
+    console.log("DEBUG: Actual API Headers used as keys:", headers); 
     
     const cases = [];
     for (let i = 1; i < data.length; i++) {
@@ -213,22 +212,22 @@ function renderCasesTable(cases) {
         return;
     }
 
-    // DEBUG LOG 2: ตรวจสอบ key ของ data object แรก
-    if (cases.length > 0) {
-        console.log("DEBUG: Keys available in first case data object:", Object.keys(cases[0]));
-        console.log("DEBUG: First case data object:", cases[0]);
-    }
+    // กำหนดหัวตารางตามลำดับที่แสดงใน HTML
+    const headers = [
+        "เลขคดีดำ", "ปีคดีดำ", "ผู้ฟ้องคดี", "ผลของคำพิพากษา", 
+        "ข้อกฎหมายที่ศาลใช้", "ตุลาการเจ้าของสำนวน", "สถานะคดี"
+    ];
 
     cases.forEach(c => {
-        // **สำคัญ:** การเข้าถึงข้อมูลใช้ชื่อคอลัมน์ที่คาดว่าตรงกับ API
+        // ใช้ data-label attribute เพื่อให้ CSS สามารถดึงไปแสดงผลเป็นหัวตารางใน Card View ได้บนมือถือ
         const row = `<tr>
-            <td>${c["เลขคดีดำ"] || "-"}</td>
-            <td>${c["ปีคดีดำ"] || "-"}</td>
-            <td>${c["ผู้ฟ้องคดี"] || "-"}</td>
-            <td>${c["ผลของคำพิพากษา"] || "-"}</td>
-            <td>${c["ข้อกฎหมายที่ศาลใช้"] || "-"}</td> 
-            <td>${c["ตุลาการเจ้าของสำนวน"] || "-"}</td> 
-            <td>${c["สถานะคดี"] || "-"}</td>
+            <td data-label="${headers[0]}">${c["เลขคดีดำ"] || "-"}</td>
+            <td data-label="${headers[1]}">${c["ปีคดีดำ"] || "-"}</td>
+            <td data-label="${headers[2]}">${c["ผู้ฟ้องคดี"] || "-"}</td>
+            <td data-label="${headers[3]}">${c["ผลของคำพิพากษา"] || "-"}</td>
+            <td data-label="${headers[4]}">${c["ข้อกฎหมายที่ศาลใช้"] || "-"}</td> 
+            <td data-label="${headers[5]}">${c["ตุลาการเจ้าของสำนวน"] || "-"}</td> 
+            <td data-label="${headers[6]}">${c["สถานะคดี"] || "-"}</td>
         </tr>`;
         casesTableBody.insertAdjacentHTML("beforeend", row);
     });

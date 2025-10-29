@@ -186,14 +186,16 @@ h1 {
     font-weight: 600;
 }
 
-/* Content Area Grid (Chart + Table) */
+/* Content Area (Chart Section) */
 .content-area {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 20px;
+    /* Removed grid-template-columns, now it's just a container for the chart */
     margin-top: 20px;
 }
-@media (max-width: 900px) { .content-area { grid-template-columns: 1fr; } }
+
+/* New Table Section (Same card styling as chart, with top margin) */
+.table-section {
+    margin-top: 20px;
+}
 
 .chart-container, .table-container {
     background: var(--card-bg);
@@ -233,7 +235,8 @@ h1 {
 .table-container { overflow-x: auto; }
 table {
     width: 100%;
-    min-width: 800px; 
+    /* ปรับ min-width ให้รองรับ 7 คอลัมน์ */
+    min-width: 1000px; 
     border-collapse: collapse;
 }
 

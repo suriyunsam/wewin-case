@@ -17,6 +17,7 @@ const dataDisplayContainer = document.getElementById('data-display-container');
 const loadingMessage = document.getElementById('loading-message');
 const mainDashboard = document.getElementById('mainDashboard');
 const mainContent = document.getElementById('mainContent');
+const tableSection = document.getElementById('tableSection'); // New element reference
 const caseSearchInput = document.getElementById('caseSearch');
 const casesTableBody = document.querySelector("#casesTable tbody");
 const tableTitle = document.getElementById('tableTitle');
@@ -52,6 +53,7 @@ function showLoading(message = 'กำลังโหลดข้อมูล...
     loadingMessage.style.display = 'block';
     mainDashboard.style.display = 'none';
     mainContent.style.display = 'none';
+    tableSection.style.display = 'none'; // Hide new table section
 }
 
 /** แสดง Dashboard หลัก */
@@ -59,7 +61,8 @@ function showDashboard() {
     loadingMessage.style.display = 'none';
     // ใช้ 'grid' ตามที่กำหนดใน CSS
     mainDashboard.style.display = 'grid'; 
-    mainContent.style.display = 'grid'; 
+    mainContent.style.display = 'block'; // Changed to 'block' since it's no longer a grid container for the chart/table
+    tableSection.style.display = 'block'; // Show new table section
 }
 
 /** ล้าง Session และกลับไปหน้า Login */
@@ -197,7 +200,8 @@ function arrayToObjects(data) {
 function renderCasesTable(cases) {
     casesTableBody.innerHTML = ''; 
     if (cases.length === 0) {
-        const noResultsRow = `<tr class="no-results"><td colspan="5" style="text-align: center;">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
+        // Updated colspan to 7 to match the current table structure
+        const noResultsRow = `<tr class="no-results"><td colspan="7" style="text-align: center;">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
         casesTableBody.insertAdjacentHTML("beforeend", noResultsRow);
         return;
     }
@@ -286,6 +290,26 @@ function processAndRenderDashboard(values) {
             responsive: true, 
             maintainAspectRatio: false,
             plugins: { 
+                // ✅ Configuration for datalabels plugin
+                datalabels: {
+                    formatter: (value, context) => {
+                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1) + '%';
+                        const count = new Intl.NumberFormat('th-TH').format(value);
+                        // แสดงเปอร์เซ็นต์และจำนวนคดีจริง
+                        return `${percentage}\n(${count})`; 
+                    },
+                    color: '#fff', // สีข้อความเป็นสีขาว
+                    font: {
+                        weight: 'bold',
+                        size: 14,
+                        family: "Sarabun"
+                    },
+                    textAlign: 'center',
+                    // เพิ่มเงาข้อความเพื่อให้ตัดกับสีพื้นหลัง
+                    textShadowBlur: 5,
+                    textShadowColor: 'rgba(0, 0, 0, 0.7)' 
+                },
                 legend: { 
                     display: true, 
                     position: 'right', 

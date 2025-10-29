@@ -232,13 +232,16 @@ h1 {
     font-family: inherit;
 }
 
-/* Table Style (Desktop Default) */
+/* ---------------------------------------------------------------- */
+/* --- TABLE STYLES (DESKTOP FIXES) --- */
+/* ---------------------------------------------------------------- */
 .table-container { overflow-x: auto; }
 table {
     width: 100%;
-    /* ปรับ min-width ให้รองรับ 7 คอลัมน์ได้ดี */
+    /* ปรับ min-width ให้รองรับ 7 คอลัมน์ได้ดี (อนุญาตให้เกิด Scrollbar ได้ถ้าจำเป็น) */
     min-width: 1050px; 
     border-collapse: collapse;
+    table-layout: fixed; /* <-- FIX: บังคับให้ใช้ Layout แบบคงที่เพื่อควบคุมความกว้างคอลัมน์ */
 }
 
 table th, table td {
@@ -247,13 +250,42 @@ table th, table td {
     border-bottom: 1px solid #ddd;
 }
 
+/* FIX: อนุญาตให้หัวตารางขึ้นบรรทัดใหม่ได้ */
 table th {
     background-color: #f0f4f8;
     color: var(--primary-color);
     font-weight: 600;
-    white-space: nowrap; 
+    white-space: normal; 
 }
+
+/* FIX: บังคับให้ข้อความในเซลล์ขึ้นบรรทัดใหม่และตัดคำภาษาไทยอย่างเหมาะสม */
+table td {
+    /* Use standard and fallback properties for forced wrapping */
+    overflow-wrap: break-word; /* Standard modern property for long words */
+    word-wrap: break-word; /* Fallback for older browsers */
+    
+    /* FIX: ใช้ break-all เพื่อให้เบราว์เซอร์ตัดคำภาษาไทยที่ไม่มีช่องว่างได้ดีขึ้น */
+    word-break: break-all; 
+    
+    white-space: normal; /* ตรวจสอบให้แน่ใจว่าไม่ได้ถูกตั้งค่าเป็น nowrap */
+}
+
+
 table tbody tr:hover { background-color: #f5f5f5; }
+
+/* FIX: กำหนดความกว้างคอลัมน์เมื่อใช้ table-layout: fixed เพื่อให้การตัดคำทำงานได้ผล */
+#casesTable thead th:nth-child(1) { width: 10%; } /* เลขคดีดำ */
+#casesTable thead th:nth-child(2) { width: 8%; }  /* ปีคดีดำ */
+#casesTable thead th:nth-child(3) { width: 18%; } /* ผู้ฟ้องคดี */
+#casesTable thead th:nth-child(4) { width: 20%; } /* ผลของคำพิพากษา */
+#casesTable thead th:nth-child(5) { width: 18%; } /* ข้อกฎหมายที่ศาลใช้ */
+#casesTable thead th:nth-child(6) { width: 16%; } /* ตุลาการเจ้าของสำนวน */
+#casesTable thead th:nth-child(7) { width: 10%; } /* สถานะคดี */
+
+/* ---------------------------------------------------------------- */
+/* --- END TABLE STYLES (DESKTOP FIXES) --- */
+/* ---------------------------------------------------------------- */
+
 
 /* Chart container height: Remove fixed height for Bar Chart and make it responsive */
 .chart-wrapper {
@@ -273,6 +305,7 @@ table tbody tr:hover { background-color: #f5f5f5; }
     /* Remove fixed min-width for table */
     table {
         min-width: auto;
+        table-layout: auto; /* Revert to auto layout on mobile */
     }
 
     /* Hide the original table header on mobile */

@@ -336,8 +336,8 @@ table tbody tr:hover { background-color: #f5f5f5; }
         display: block;
         text-align: right; /* Align value to the right */
         padding: 10px 15px;
-        /* FIX: ปรับ padding-left ให้ข้อมูลมีพื้นที่แสดงผลมากขึ้น (40% -> 35%) */
-        padding-left: 35%; 
+        /* FIX: ปรับ padding-left ให้ข้อมูลมีพื้นที่แสดงผลมากขึ้น (35% -> 30%) */
+        padding-left: 30%; 
         position: relative;
         border-bottom: 1px solid #eee; /* Light divider between fields */
         font-size: 0.95rem;
@@ -355,12 +355,21 @@ table tbody tr:hover { background-color: #f5f5f5; }
         top: 0;
         left: 0;
         height: 100%;
-        /* FIX: ปรับ line-height ให้สั้นลงเพื่อให้สอดคล้องกับการลดพื้นที่ */
-        line-height: 2.5; 
-        /* FIX: ลดความกว้าง label จาก 35% เป็น 30% เพื่อให้ value มีพื้นที่มากขึ้น */
-        width: 30%; 
+        
+        /* FIX: ใช้ Flexbox แทน line-height เพื่อจัดตำแหน่งแนวตั้ง แม้ข้อความจะตัดบรรทัด */
+        display: flex; 
+        align-items: center; 
+        
+        /* FIX: ลดความกว้าง label จาก 30% เป็น 25% เพื่อให้ value มีพื้นที่มากขึ้น */
+        width: 25%; 
         padding-left: 15px;
-        white-space: nowrap;
+        
+        /* FIX: เปลี่ยน white-space เป็น normal เพื่ออนุญาตให้ข้อความตัดบรรทัดได้ */
+        white-space: normal; 
+        overflow-wrap: break-word; 
+        word-break: normal;
+        hyphens: auto;
+        
         text-align: left;
         font-weight: 600;
         color: var(--primary-color);

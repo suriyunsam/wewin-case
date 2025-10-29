@@ -224,9 +224,9 @@ function renderCasesTable(cases) {
             <td data-label="${headers[0]}">${c["เลขคดีดำ"] || "-"}</td>
             <td data-label="${headers[1]}">${c["ปีคดีดำ"] || "-"}</td>
             <td data-label="${headers[2]}">${c["ผู้ฟ้องคดี"] || "-"}</td>
-            <td data-label="${headers[3]}">${c["ผลของคำพิพากษา"] || "-"}</td>
-            <td data-label="${headers[4]}">${c["ข้อกฎหมายที่ศาลใช้"] || "-"}</td> 
-            <td data-label="${headers[5]}">${c["ตุลาการเจ้าของสำนวน"] || "-"}</td> 
+            <td data-label="${headers[3]}">${c["คำพิพากษา"] || "-"}</td>
+            <td data-label="${headers[4]}">${c["ข้อกฎหมาย"] || "-"}</td> 
+            <td data-label="${headers[5]}">${c["ตุลาการ"] || "-"}</td> 
             <td data-label="${headers[6]}">${c["สถานะคดี"] || "-"}</td>
         </tr>`;
         casesTableBody.insertAdjacentHTML("beforeend", row);

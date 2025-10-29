@@ -201,16 +201,27 @@ function updateCaseStatusChart(cases) {
  * จัดการการแสดงผลเมื่อล็อกอินสำเร็จ
  */
 function showDashboardContent() {
-    document.getElementById('login-container').style.display = 'none';
-    document.getElementById('data-display-container').style.display = 'block';
-    document.getElementById('loading-message').style.display = 'block';
+    // ซ่อนฟอร์มและแสดงแดชบอร์ด
+    const loginContainer = document.getElementById('login-container');
+    const dataDisplayContainer = document.getElementById('data-display-container');
+    const loadingMessage = document.getElementById('loading-message');
+    
+    if (loginContainer) loginContainer.style.display = 'none';
+    if (dataDisplayContainer) dataDisplayContainer.style.display = 'block';
+    if (loadingMessage) loadingMessage.style.display = 'block';
 
     // Mock data fetching to simulate real data loading
     setTimeout(() => {
-        document.getElementById('loading-message').style.display = 'none';
-        document.getElementById('mainDashboard').style.display = 'grid';
-        document.getElementById('mainContent').style.display = 'block';
-        document.getElementById('tableSection').style.display = 'block';
+        if (loadingMessage) loadingMessage.style.display = 'none';
+        
+        // แสดงส่วนหลักของแดชบอร์ด
+        const mainDashboard = document.getElementById('mainDashboard');
+        const mainContent = document.getElementById('mainContent');
+        const tableSection = document.getElementById('tableSection');
+
+        if (mainDashboard) mainDashboard.style.display = 'grid';
+        if (mainContent) mainContent.style.display = 'block';
+        if (tableSection) tableSection.style.display = 'block';
         
         // Render data with correct data-labels
         updateDashboardCards(MOCK_CASES);
@@ -223,13 +234,18 @@ function showDashboardContent() {
  * จัดการการแสดงผลเมื่อยังไม่ได้ล็อกอิน
  */
 function showLoginForm() {
-    document.getElementById('login-container').style.display = 'block';
-    document.getElementById('data-display-container').style.display = 'none';
-    document.getElementById('login-error-message').style.display = 'none';
+    const loginContainer = document.getElementById('login-container');
+    const dataDisplayContainer = document.getElementById('data-display-container');
+    const errorMessageElement = document.getElementById('login-error-message');
+
+    if (loginContainer) loginContainer.style.display = 'block';
+    if (dataDisplayContainer) dataDisplayContainer.style.display = 'none';
+    if (errorMessageElement) errorMessageElement.style.display = 'none';
 }
 
 /**
  * จำลองการล็อกอินด้วยรหัสผ่าน (ควรเปลี่ยนไปใช้ Firebase Authentication จริง)
+ * FIX: เปลี่ยนเป็น synchronous เพื่อความน่าเชื่อถือในการจัดการ UI/State
  * @param {string} password - รหัสผ่านที่ผู้ใช้กรอก
  */
 function attemptLogin(password) {
@@ -237,31 +253,43 @@ function attemptLogin(password) {
     const errorMessageElement = document.getElementById('login-error-message');
     const loginButton = document.getElementById('login-button');
 
-    loginButton.disabled = true;
-    errorMessageElement.style.display = 'none';
+    // ปิดปุ่มก่อน
+    if (loginButton) loginButton.disabled = true;
+    if (errorMessageElement) errorMessageElement.style.display = 'none';
 
-    // Simulate login check
-    setTimeout(() => {
-        if (password === LOGIN_PASSWORD) {
-            // ในสถานการณ์จริง: ทำการ sign in ด้วย Firebase (ใช้ signInWithEmailAndPassword หรือ custom token)
-            showDashboardContent();
-            
-        } else {
+    // *** ตรรกะการตรวจสอบรหัสผ่าน (Synchronous Check) ***
+    if (password === LOGIN_PASSWORD) {
+        // หากรหัสผ่านถูกต้อง ให้แสดง Dashboard ทันที
+        console.log("Password verified. Showing dashboard content.");
+        showDashboardContent();
+        
+    } else {
+        // หากรหัสผ่านผิด ให้แสดงข้อผิดพลาดและเปิดปุ่ม
+        if (errorMessageElement) {
             errorMessageElement.textContent = 'รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง';
             errorMessageElement.style.display = 'block';
-            loginButton.disabled = false;
         }
-    }, 500);
+        console.warn("Login failed: Incorrect password.");
+    }
+    
+    // หากตรวจสอบผิดพลาดหรือตรวจสอบเสร็จแล้ว ให้ปลดปุ่ม (ในกรณีที่ผิดพลาด)
+    if (password !== LOGIN_PASSWORD && loginButton) {
+         loginButton.disabled = false;
+    }
 }
 
 /**
  * ลงชื่อออกจากระบบ (Logout)
  */
 window.logout = function() {
+    // ใช้ Firebase sign out เพื่อจัดการ token/session
     auth.signOut().then(() => {
+        // จากนั้นกลับไปหน้า Login Form
         showLoginForm();
     }).catch(error => {
         console.error("Logout Error:", error);
+        // Fallback: แสดงฟอร์ม login แม้ sign out จะล้มเหลว (เพื่อความต่อเนื่องของ UI)
+        showLoginForm(); 
     });
 };
 
@@ -270,16 +298,22 @@ window.logout = function() {
  */
 document.getElementById('login-form')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    const password = document.getElementById('password-input').value;
-    attemptLogin(password);
+    // ใช้ ? เพื่อป้องกันข้อผิดพลาดหาก element หายไป
+    const password = document.getElementById('password-input')?.value;
+    if (password) {
+        attemptLogin(password);
+    }
 });
 
 /**
- * ตรวจสอบสถานะการเข้าสู่ระบบ
+ * ตรวจสอบสถานะการเข้าสู่ระบบ Firebase (รันในพื้นหลัง)
+ * NOTE: ส่วนนี้ควรทำให้ผู้ใช้เข้าถึงข้อมูลได้โดยอัตโนมัติหากมี __initial_auth_token
  */
 function setupAuthListener() {
     if (Object.keys(firebaseConfig).length === 0) {
         console.error("Firebase config is missing.");
+        // หากไม่มี config ให้แสดงฟอร์ม login (เพื่อใช้ mock password)
+        showLoginForm(); 
         return;
     }
 
@@ -289,21 +323,27 @@ function setupAuthListener() {
         auth = getAuth(app);
     } catch (e) {
         console.error("Firebase initialization failed:", e);
+        // หาก Firebase init ล้มเหลว ให้แสดงฟอร์ม login (เพื่อใช้ mock password)
+        showLoginForm(); 
         return;
     }
-
+    
+    // ตั้งค่า listener
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             userId = user.uid;
-            showDashboardContent();
+            console.log("Firebase Auth: User signed in (UID:", userId, ")");
+            // **NOTE:** เราปิดการเรียก showDashboardContent() ตรงนี้ เพื่อบังคับให้ใช้ Password Mock
+            // หากคุณต้องการให้เข้าสู่ระบบอัตโนมัติเมื่อ Firebase พร้อม ให้เปิดบรรทัดนี้:
+            // showDashboardContent(); 
         } else {
             userId = null;
-            showLoginForm();
+            console.log("Firebase Auth: User signed out/anonymous.");
         }
         isAuthReady = true;
     });
 
-    // Initial sign-in attempt
+    // Initial sign-in attempt (สำคัญสำหรับ Canvas environment)
     if (initialAuthToken) {
         signInWithCustomToken(auth, initialAuthToken).catch(error => {
             console.warn("Custom token sign-in failed. Falling back to anonymous:", error);
@@ -312,6 +352,9 @@ function setupAuthListener() {
     } else {
         signInAnonymously(auth).catch(e => console.error("Anonymous sign-in failed:", e));
     }
+    
+    // ในกรณีนี้ เรายังคงแสดงฟอร์ม Login ตั้งแต่แรก เพื่อบังคับให้ผู้ใช้กรอกรหัสผ่าน 123
+    showLoginForm();
 }
 
 // -----------------------------------------------------------------

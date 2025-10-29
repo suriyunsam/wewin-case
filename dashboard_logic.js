@@ -185,7 +185,6 @@ function arrayToObjects(data) {
     
     // สร้าง headers จากแถวแรก และ trim space ออก (สำคัญมากสำหรับการเทียบ key)
     const headers = data[0].map(h => String(h || '').trim());
-    console.log("DEBUG: Actual API Headers used as keys:", headers); 
     
     const cases = [];
     for (let i = 1; i < data.length; i++) {

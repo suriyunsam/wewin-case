@@ -183,7 +183,11 @@ async function loadData(password, isLoginAttempt = false) {
 /** แปลงข้อมูลจาก Array of Arrays เป็น Array of Objects */
 function arrayToObjects(data) {
     if (!data || data.length < 2) return [];
+    
+    // สร้าง headers จากแถวแรก และ trim space ออก (สำคัญมากสำหรับการเทียบ key)
     const headers = data[0].map(h => String(h || '').trim());
+    console.log("DEBUG: Actual API Headers used as keys:", headers); // LOG 1: ตรวจสอบหัวตารางที่ได้จาก API
+    
     const cases = [];
     for (let i = 1; i < data.length; i++) {
         const row = data[i];
@@ -203,20 +207,27 @@ function arrayToObjects(data) {
 function renderCasesTable(cases) {
     casesTableBody.innerHTML = ''; 
     if (cases.length === 0) {
-        // Colspan = 7 เนื่องจากมี 7 คอลัมน์ (รวม "ตุลาการเจ้าของสำนวน" กลับมาแล้ว)
+        // Colspan = 7 เนื่องจากมี 7 คอลัมน์ 
         const noResultsRow = `<tr class="no-results"><td colspan="7" style="text-align: center;">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
         casesTableBody.insertAdjacentHTML("beforeend", noResultsRow);
         return;
     }
 
+    // DEBUG LOG 2: ตรวจสอบ key ของ data object แรก
+    if (cases.length > 0) {
+        console.log("DEBUG: Keys available in first case data object:", Object.keys(cases[0]));
+        console.log("DEBUG: First case data object:", cases[0]);
+    }
+
     cases.forEach(c => {
+        // **สำคัญ:** การเข้าถึงข้อมูลใช้ชื่อคอลัมน์ที่คาดว่าตรงกับ API
         const row = `<tr>
             <td>${c["เลขคดีดำ"] || "-"}</td>
             <td>${c["ปีคดีดำ"] || "-"}</td>
             <td>${c["ผู้ฟ้องคดี"] || "-"}</td>
             <td>${c["ผลของคำพิพากษา"] || "-"}</td>
-            <td>${c["ข้อกฎหมายที่ศาลใช้"] || "-"}</td>
-            <td>${c["ตุลาการเจ้าของสำนวน"] || "-"}</td>
+            <td>${c["ข้อกฎหมายที่ศาลใช้"] || "-"}</td> 
+            <td>${c["ตุลาการเจ้าของสำนวน"] || "-"}</td> 
             <td>${c["สถานะคดี"] || "-"}</td>
         </tr>`;
         casesTableBody.insertAdjacentHTML("beforeend", row);

@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- ลิงก์ไปยังไฟล์ CSS -->
+    <!-- ลิงก์ไปยังไฟล์ CSS ภายนอก -->
     <link rel="stylesheet" href="dashboard_styles.css"> 
 </head>
 <body>
@@ -65,8 +65,10 @@
             <div class="content-area" id="mainContent" style="display: none;">
                 <!-- Content Area: Chart (now takes full width) -->
                 <div class="chart-container">
+                    <!-- เปลี่ยนหัวข้อให้เป็นกลางมากขึ้นสำหรับ Bar Chart -->
                     <h2>จำนวนคดีตามสถานะการดำเนินงาน</h2>
                     <div class="chart-wrapper">
+                        <!-- กำหนดความสูงของ Chart Wrapper ใหม่สำหรับ Bar Chart -->
                         <canvas id="caseStatusChart" height="400"></canvas>
                     </div>
                 </div>
@@ -90,7 +92,7 @@
                                 <th>ผู้ฟ้องคดี</th>
                                 <th>ผลของคำพิพากษา</th>
                                 <th>ข้อกฎหมายที่ศาลใช้</th>
-                                <th>ตุลาการเจ้าของสำนวน</th>
+                                <th>ตุลาการเจ้าของสำนวน</th> <!-- คอลัมน์ที่เพิ่มกลับมา -->
                                 <th>สถานะคดี</th>
                             </tr>
                         </thead>

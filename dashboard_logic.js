@@ -61,7 +61,7 @@ function showDashboard() {
     loadingMessage.style.display = 'none';
     // ใช้ 'grid' ตามที่กำหนดใน CSS
     mainDashboard.style.display = 'grid'; 
-    mainContent.style.display = 'block'; // Changed to 'block' since it's no longer a grid container for the chart/table
+    mainContent.style.display = 'block'; // Changed to 'block'
     tableSection.style.display = 'block'; // Show new table section
 }
 
@@ -190,7 +190,10 @@ function arrayToObjects(data) {
         if (row.filter(cell => String(cell || '').trim() !== '').length === 0) continue; 
         
         const item = {};
-        headers.forEach((header, j) => { item[header] = String(row[j] || '').trim(); });
+        headers.forEach((header, j) => { 
+            // ใช้วิธี map โดยอิงตาม header name
+            item[header] = String(row[j] || '').trim(); 
+        });
         cases.push(item);
     }
     return cases;
@@ -200,7 +203,7 @@ function arrayToObjects(data) {
 function renderCasesTable(cases) {
     casesTableBody.innerHTML = ''; 
     if (cases.length === 0) {
-        // Updated colspan to 7 to match the current table structure
+        // Colspan = 7 เนื่องจากมี 7 คอลัมน์ (รวม "ตุลาการเจ้าของสำนวน" กลับมาแล้ว)
         const noResultsRow = `<tr class="no-results"><td colspan="7" style="text-align: center;">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
         casesTableBody.insertAdjacentHTML("beforeend", noResultsRow);
         return;
@@ -268,7 +271,7 @@ function processAndRenderDashboard(values) {
     document.getElementById("executionCompleteCases").innerText = executionCompleteCases.toLocaleString('th-TH');
     document.getElementById("inExecutionCases").innerText = inExecutionCases.toLocaleString('th-TH');
 
-    // 3. สร้าง Pie Chart
+    // 3. สร้าง Bar Chart (แผนภูมิแท่งแนวนอน)
     const ctx = document.getElementById("caseStatusChart");
     if (chartInstance) { chartInstance.destroy(); } // ทำลาย instance เก่าก่อน
 
@@ -279,51 +282,44 @@ function processAndRenderDashboard(values) {
             data: [finalCases, firstCourtCases, supremeCourtCases, inExecutionCases, executionCompleteCases],
             backgroundColor: ["#4CAF50", "#2196F3", "#FFC107", "#FF8C00", "#008080"],
             borderColor: "white",
-            borderWidth: 2
+            borderWidth: 1
         }]
     };
     
     chartInstance = new Chart(ctx, {
-        type: "pie",
+        // เปลี่ยนเป็น Bar Chart
+        type: "bar",
         data: chartData,
         options: { 
+            indexAxis: 'y', // กำหนดให้เป็นแนวนอน
             responsive: true, 
             maintainAspectRatio: false,
             plugins: { 
-                // ✅ Configuration for datalabels plugin
                 datalabels: {
-                    formatter: (value, context) => {
-                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                        const percentage = ((value / total) * 100).toFixed(1) + '%';
-                        const count = new Intl.NumberFormat('th-TH').format(value);
-                        // แสดงเปอร์เซ็นต์และจำนวนคดีจริง
-                        return `${percentage}\n(${count})`; 
+                    formatter: (value) => {
+                        return new Intl.NumberFormat('th-TH').format(value); // แสดงเฉพาะจำนวนคดี
                     },
-                    color: '#fff', // สีข้อความเป็นสีขาว
+                    anchor: 'end', // ตำแหน่งข้อความที่ปลายแท่ง
+                    align: 'right', // จัดชิดขวา
+                    color: '#333', // สีตัวอักษรเป็นสีเข้ม
                     font: {
                         weight: 'bold',
                         size: 14,
                         family: "Sarabun"
-                    },
-                    textAlign: 'center',
-                    // เพิ่มเงาข้อความเพื่อให้ตัดกับสีพื้นหลัง
-                    textShadowBlur: 5,
-                    textShadowColor: 'rgba(0, 0, 0, 0.7)' 
+                    }
                 },
                 legend: { 
-                    display: true, 
-                    position: 'right', 
-                    labels: { font: { family: "Sarabun" } }
+                    display: false, // ปิด Legend เนื่องจากฉลากอยู่บนแกน Y อยู่แล้ว
                 },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            let label = context.label || '';
+                            let label = context.dataset.label || '';
                             if (label) {
                                 label += ': ';
                             }
-                            if (context.parsed !== null) {
-                                label += new Intl.NumberFormat('th-TH').format(context.parsed) + ' คดี';
+                            if (context.parsed.x !== null) {
+                                label += new Intl.NumberFormat('th-TH').format(context.parsed.x) + ' คดี';
                             }
                             return label;
                         }
@@ -332,6 +328,26 @@ function processAndRenderDashboard(values) {
                     bodyFont: { family: "Sarabun", size: 12 }
                 }
             },
+            // ปรับแกน X และ Y
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'จำนวนคดี',
+                        font: { family: "Sarabun", weight: 'bold', size: 14 }
+                    },
+                    ticks: {
+                        callback: function(value) {
+                             return new Intl.NumberFormat('th-TH').format(value);
+                        },
+                        font: { family: "Sarabun" }
+                    }
+                },
+                y: {
+                    font: { family: "Sarabun" }
+                }
+            }
         }
     });
 

@@ -7,7 +7,7 @@
     
     <!-- Chart.js สำหรับแผนภูมิ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- ✅ เพิ่ม: ปลั๊กอินสำหรับแสดง Data Labels บนชิ้นส่วนวงกลม -->
+    <!-- เพิ่ม: ปลั๊กอินสำหรับแสดง Data Labels บนชิ้นส่วนวงกลม/แท่ง -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     
     <!-- ฟอนต์ Sarabun สำหรับภาษาไทย -->
@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- ✅ ลิงก์ไปยังไฟล์ CSS ภายนอก -->
+    <!-- ลิงก์ไปยังไฟล์ CSS -->
     <link rel="stylesheet" href="dashboard_styles.css"> 
 </head>
 <body>
@@ -65,9 +65,9 @@
             <div class="content-area" id="mainContent" style="display: none;">
                 <!-- Content Area: Chart (now takes full width) -->
                 <div class="chart-container">
-                    <h2>สัดส่วนสถานะคดีทั้งหมด</h2>
+                    <h2>จำนวนคดีตามสถานะการดำเนินงาน</h2>
                     <div class="chart-wrapper">
-                        <canvas id="caseStatusChart"></canvas>
+                        <canvas id="caseStatusChart" height="400"></canvas>
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@
         </div>
     </div>
     
-    <!-- ✅ ลิงก์ไปยังไฟล์ JavaScript ภายนอก -->
+    <!-- ลิงก์ไปยังไฟล์ JavaScript -->
     <script src="dashboard_logic.js"></script>
 </body>
 </html>

@@ -208,6 +208,8 @@ function renderCasesTable(cases) {
             <td>${c["ปีคดีดำ"] || "-"}</td>
             <td>${c["ผู้ฟ้องคดี"] || "-"}</td>
             <td>${c["ผลของคำพิพากษา"] || "-"}</td>
+            <td>${c["ข้อกฎหมายที่ศาลใช้"] || "-"}</td>
+             <td>${c["ตุลาการเจ้าของสำนวน"] || "-"}</td>
             <td>${c["สถานะคดี"] || "-"}</td>
         </tr>`;
         casesTableBody.insertAdjacentHTML("beforeend", row);

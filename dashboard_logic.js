@@ -213,8 +213,8 @@ function renderCasesTable(cases) {
 
     // กำหนดหัวตารางตามลำดับที่แสดงใน HTML
     const headers = [
-        "เลขคดีดำ", "ปีคดีดำ", "ผู้ฟ้องคดี", "ผลของคำพิพากษา", 
-        "ข้อกฎหมายที่ศาลใช้", "ตุลาการเจ้าของสำนวน", "สถานะคดี"
+        "เลขคดีดำ", "ปีคดีดำ", "ผู้ฟ้องคดี", "คำพิพากษา", 
+        "ข้อกฎหมาย", "ตุลาการ", "สถานะคดี"
     ];
 
     cases.forEach(c => {
@@ -223,9 +223,9 @@ function renderCasesTable(cases) {
             <td data-label="${headers[0]}">${c["เลขคดีดำ"] || "-"}</td>
             <td data-label="${headers[1]}">${c["ปีคดีดำ"] || "-"}</td>
             <td data-label="${headers[2]}">${c["ผู้ฟ้องคดี"] || "-"}</td>
-            <td data-label="${headers[3]}">${c["ผลของคำพิพากษา"] || "-"}</td>
-            <td data-label="${headers[4]}">${c["ข้อกฎหมายที่ศาลใช้"] || "-"}</td> 
-            <td data-label="${headers[5]}">${c["ตุลาการเจ้าของสำนวน"] || "-"}</td> 
+            <td data-label="${headers[3]}">${c["ผำพิพากษา"] || "-"}</td>
+            <td data-label="${headers[4]}">${c["ข้อกฎหมาย"] || "-"}</td> 
+            <td data-label="${headers[5]}">${c["ตุลาการ"] || "-"}</td> 
             <td data-label="${headers[6]}">${c["สถานะคดี"] || "-"}</td>
         </tr>`;
         casesTableBody.insertAdjacentHTML("beforeend", row);

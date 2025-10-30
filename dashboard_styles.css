@@ -4,9 +4,9 @@
 }
 
 :root {
-    --primary-color: #1b365d; /* น้ำเงินเข้ม */
-    --secondary-color: #007bff; /* น้ำเงินสว่าง */
-    --background-color: #f7f9fb;
+    --primary-color: #1e3a8a; /* น้ำเงินเข้ม */
+    --secondary-color: #3b82f6; /* น้ำเงินสว่าง */
+    --background-color: #f3f4f6;
     --card-bg: white;
 }
 
@@ -18,15 +18,9 @@ body {
     color: #333;
 }
 
-/* App Container for centering and max-width */
-#app-container {
-    max-width: 1200px;
-    margin: 0 auto; 
-    padding: 20px; 
-}
 /* Mobile Padding Adjustment */
 @media (max-width: 600px) { 
-    #app-container { 
+    main { 
         padding: 10px; 
     } 
 }
@@ -40,23 +34,82 @@ h1 {
 }
 
 /* --- HEADER ACTIONS --- */
-.header-actions {
-    display: flex; 
-    justify-content: flex-end; 
-    margin-bottom: 20px;
+
+/* **[แก้ไข] Target the correct ID #app-header** */
+#app-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background-color: var(--primary-color); /* ใช้สีหลัก */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); 
+    color: white; 
+    height: 4rem;
 }
+/* **[แก้ไข] ใช้ Div ภายใน Header เพื่อควบคุม Layout** */
+#app-header > div {
+    max-width: 1280px; 
+    margin: 0 auto; 
+    padding: 0 5rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    height: 100%;
+}
+.header-left { 
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; 
+}
+.header-title { 
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+.flex-grow { 
+    flex-grow: 1; 
+}
+
+/* **[แก้ไข] Logout Button ID** */
+#logout-button {
+    background-color: #ef4444; /* สีแดงสำหรับ Logout */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+#logout-button:hover {
+    background-color: #c82333;
+}
+/* --- END HEADER ACTIONS --- */
 
 /* --- LOGIN FORM STYLES --- */
 #login-container {
+    /* **[แก้ไข] ใช้ Flexbox เพื่อจัดกึ่งกลางระหว่าง Header และ Footer** */
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 120px); /* 100vh - header/footer height (ประมาณ 64px + 30px) */
     width: 100%;
+    
+    /* สไตล์เดิม */
     max-width: 400px;
     background: var(--card-bg);
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    margin: 50px auto 0 auto; 
+    margin: 0px auto; /* ถูก override ด้วย Flexbox */
     text-align: center;
 }
+/* เพิ่ม login-box styling ที่หายไปจาก HTML */
+.login-box {
+    width: 100%;
+    /* ปรับ margin-top ออกเนื่องจากใช้ Flexbox จัดกึ่งกลางแล้ว */
+}
+
 #login-container h2 {
     color: var(--primary-color);
     font-weight: 600;
@@ -103,25 +156,11 @@ h1 {
     font-size: 0.9rem;
     text-align: center;
 }
-.logout-button {
-    background-color: #dc3545;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    white-space: nowrap;
-}
-.logout-button:hover {
-    background-color: #c82333;
-}
 /* Responsive adjustments for Login Container on small screens */
 @media (max-width: 480px) { 
     #login-container {
         padding: 20px; 
-        margin-top: 30px;
+        min-height: calc(100vh - 80px); 
     }
 }
 /* --- END LOGIN FORM STYLES --- */
@@ -133,6 +172,7 @@ h1 {
     grid-template-columns: repeat(3, 1fr); 
     gap: 15px;
     margin-bottom: 30px;
+    padding: 20px; /* **[แก้ไข] เพิ่ม padding** */
 }
 @media (max-width: 992px) { .dashboard { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 576px) { .dashboard { grid-template-columns: 1fr; } }
@@ -161,23 +201,23 @@ h1 {
 }
 
 /* สีของตัวเลขในการ์ด และเส้นขอบด้านล่าง */
-.card-total { border-bottom-color: #5cb85c; } 
-.card-total p { color: #5cb85c; }
+.card-total { border-bottom-color: #f59e0b; } 
+.card-total p { color: #f59e0b; }
 
-.card-final { border-bottom-color: #4CAF50; } 
-.card-final p { color: #4CAF50; }
+.card-final { border-bottom-color: #ef4444; } 
+.card-final p { color: #ef4444; }
 
-.card-first { border-bottom-color: #2196F3; } 
-.card-first p { color: #2196F3; }
+.card-first { border-bottom-color: #10b981; } 
+.card-first p { color: #10b981; }
 
-.card-supreme { border-bottom-color: #FFC107; } 
-.card-supreme p { color: #FFC107; }
+.card-supreme { border-bottom-color: #3b82f6; } 
+.card-supreme p { color: #3b82f6; }
 
-.card-enforcement { border-bottom-color: #FF8C00; } 
-.card-enforcement p { color: #FF8C00; } 
+.card-enforcement { border-bottom-color: #8b5cf6; } 
+.card-enforcement p { color: #8b5cf6; } 
 
-.card-complete { border-bottom-color: #008080; } 
-.card-complete p { color: #008080; } 
+.card-complete { border-bottom-color: #059669; } 
+.card-complete p { color: #059669; } 
 
 #loading-message {
     text-align: center;
@@ -191,11 +231,13 @@ h1 {
 /* Content Area (Chart Section) */
 .content-area {
     margin-top: 20px;
+    padding: 20px; /* **[แก้ไข] เพิ่ม padding** */
 }
 
-/* New Table Section (Same card styling as chart, with top margin) */
+/* New Section for Table */
 .table-section {
     margin-top: 20px;
+    padding: 20px; /* **[แก้ไข] เพิ่ม padding** */
 }
 
 .chart-container, .table-container {
@@ -260,16 +302,10 @@ table th {
 
 /* FIX: บังคับให้ข้อความในเซลล์ขึ้นบรรทัดใหม่โดยเน้นการตัดคำตามหลักภาษาไทย */
 table td {
-    /* Use standard properties for better word-aware wrapping */
     overflow-wrap: break-word; /* Allows breaking long strings if they overflow */
     word-wrap: break-word; /* Fallback for older browsers */
-    
-    /* FIX: เปลี่ยนกลับเป็น normal เพื่อให้เบราว์เซอร์พยายามตัดคำที่ขอบเขตคำ (ดีกว่า break-all) */
     word-break: normal; 
-    
     white-space: normal;
-    
-    /* เพิ่ม: เปิดใช้งาน Hyphenation เพื่อช่วยในการตัดคำภาษาไทย (ต้องใช้คู่กับ lang="th" ใน HTML) */
     hyphens: auto; 
 }
 
@@ -289,6 +325,24 @@ table tbody tr:hover { background-color: #f5f5f5; }
 /* --- END TABLE STYLES (DESKTOP FIXES) --- */
 /* ---------------------------------------------------------------- */
 
+/* **[แก้ไข] Target the correct ID #app-footer** */
+#app-footer { 
+    background-color: #1f2937;
+    color: #9ca3af;
+    font-size: 0.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    margin-top: auto;
+}
+
+.footer-text {
+    color: #6b7280;
+}
+
+.footer-hidden-text {
+    color: #6b7280;
+    display: none;
+}
 
 /* Chart container height: Remove fixed height for Bar Chart and make it responsive */
 .chart-wrapper {
@@ -336,7 +390,6 @@ table tbody tr:hover { background-color: #f5f5f5; }
         display: block;
         text-align: right; /* Align value to the right */
         padding: 10px 15px;
-        /* FIX: ปรับ padding-left ให้ข้อมูลมีพื้นที่แสดงผลมากขึ้น (35% -> 30%) */
         padding-left: 30%; 
         position: relative;
         border-bottom: 1px solid #eee; /* Light divider between fields */
@@ -344,7 +397,7 @@ table tbody tr:hover { background-color: #f5f5f5; }
         
         /* Ensure mobile cells also use word-aware wrapping */
         overflow-wrap: break-word; 
-        word-break: normal; /* เปลี่ยนกลับเป็น normal */
+        word-break: normal; 
         hyphens: auto;
     }
 
@@ -356,15 +409,12 @@ table tbody tr:hover { background-color: #f5f5f5; }
         left: 0;
         height: 100%;
         
-        /* FIX: ใช้ Flexbox แทน line-height เพื่อจัดตำแหน่งแนวตั้ง แม้ข้อความจะตัดบรรทัด */
         display: flex; 
         align-items: center; 
         
-        /* FIX: ลดความกว้าง label จาก 30% เป็น 25% เพื่อให้ value มีพื้นที่มากขึ้น */
         width: 25%; 
         padding-left: 15px;
         
-        /* FIX: เปลี่ยน white-space เป็น normal เพื่ออนุญาตให้ข้อความตัดบรรทัดได้ */
         white-space: normal; 
         overflow-wrap: break-word; 
         word-break: normal;

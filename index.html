@@ -5,55 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>สถานะคดีปกครองโครงการเราชนะ</title>
     
-    <!-- Chart.js สำหรับแผนภูมิ -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
-    <!-- เพิ่ม: ปลั๊กอินสำหรับแสดง Data Labels บนชิ้นส่วนวงกลม/แท่ง -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     
-    <!-- ฟอนต์ Sarabun สำหรับภาษาไทย -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
     
-    <!-- ลิงก์ไปยังไฟล์ CSS ภายนอก -->
     <link rel="stylesheet" href="dashboard_styles.css"> 
 </head>
 <body>
-    <div id="app-container">
-        <h1>สถานะคดีปกครองโครงการเราชนะ</h1>
-
-        <!-- ---------------------------------------------------- -->
-        <!-- 1. Login Form (แสดงเมื่อยังไม่ได้ล็อกอิน) -->
-        <!-- ---------------------------------------------------- -->
-        <div id="login-container">
-            <h2>เข้าสู่ระบบเพื่อเข้าถึงข้อมูล</h2>
-            <div id="login-error-message" class="error-message" style="display: none;"></div>
-            
-            <form id="login-form">
-                <div>
-                    <input type="password" id="password-input" required 
-                           placeholder="กรอกรหัสผ่าน">
-                </div>
-                <button type="submit" id="login-button">
-                    เข้าสู่ระบบ
-                </button>
-            </form>
-        </div>
-
-
-        <!-- ---------------------------------------------------- -->
-        <!-- 2. Dashboard Content (แสดงเมื่อล็อกอินสำเร็จ) -->
-        <!-- ---------------------------------------------------- -->
-        <div id="data-display-container" style="display: none;">
-
-            <div class="header-actions">
-                <button onclick="logout()" class="logout-button">ออกจากระบบ</button>
+    <header id="app-header">
+        <div>
+            <div class="header-left">
+                <span class="header-title">ระบบติดตามสถานะคดีปกครองโครงการเราชนะ</span>
             </div>
-
+            <div class="header-right">
+                <button id="logout-button" style="display:none;">ออกจากระบบ</button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div id="login-container" class="login-container" style="display: none;">
+            <div class="login-box">
+                <h1>เข้าสู่ระบบ</h1>
+                <form id="login-form">
+                    <p id="login-error-message" class="error-message" style="display: none;"></p>
+                    <label for="password-input">รหัสผ่าน:</label>
+                    <input type="password" id="password-input" required />
+                    <button type="submit" id="login-button">เข้าสู่ระบบ</button>
+                </form>
+            </div>
+        </div>
+        <div class="data-display-area" id="data-display-container">
             <p id="loading-message">กำลังโหลดข้อมูล...</p>
 
             <div class="dashboard" id="mainDashboard" style="display: none;">
-                <!-- Card Elements -->
                 <div class="card card-total"><h2>คดีทั้งหมด</h2><p id="totalCases">0</p></div>
                 <div class="card card-first"><h2>อยู่ระหว่างพิจารณาชั้นต้น</h2><p id="firstCourtCases">0</p></div>
                 <div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
@@ -63,18 +50,14 @@
             </div>
 
             <div class="content-area" id="mainContent" style="display: none;">
-                <!-- Content Area: Chart (now takes full width) -->
                 <div class="chart-container">
-                    <!-- เปลี่ยนหัวข้อให้เป็นกลางมากขึ้นสำหรับ Bar Chart -->
                     <h2>จำนวนคดีตามสถานะการดำเนินงาน</h2>
                     <div class="chart-wrapper">
-                        <!-- กำหนดความสูงของ Chart Wrapper ใหม่สำหรับ Bar Chart -->
                         <canvas id="caseStatusChart" height="400"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- New Section for Table -->
             <div class="table-section" id="tableSection" style="display: none;">
                 <div class="table-container">
                     <h2 id="tableTitle">10 คดีล่าสุดที่อัปเดต</h2>
@@ -97,15 +80,21 @@
                             </tr>
                         </thead>
                         <tbody id="casesTableBody">
-                            <!-- Case data will be inserted here by JavaScript -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </div>
-    
-    <!-- ลิงก์ไปยังไฟล์ JavaScript -->
+    </main>
+
+    <footer id="app-footer">
+        <div>
+            <span class="footer-text">&copy; 2025 กองกฎหมาย | สงวนลิขสิทธิ์</span>
+            <span class="footer-hidden-text">
+                Version 0.1 (Static)
+            </span>
+        </div>
+    </footer>
     <script src="dashboard_logic.js"></script>
 </body>
 </html>

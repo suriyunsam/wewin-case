@@ -21,6 +21,10 @@ const tableSection = document.getElementById('tableSection');
 const caseSearchInput = document.getElementById('caseSearch');
 const casesTableBody = document.querySelector("#casesTable tbody");
 const tableTitle = document.getElementById('tableTitle');
+
+// **[START] เพิ่ม Elements สำหรับ Logout (จาก Header)**
+const logoutButton = document.getElementById('logout-button');
+// **[END] เพิ่ม Elements สำหรับ Logout (จาก Header)**
         
 let allCasesData = []; // เก็บข้อมูลคดีทั้งหมดที่ดึงมา
 
@@ -37,6 +41,10 @@ function showLogin(message = '') {
     loginButton.textContent = 'เข้าสู่ระบบ';
     loadingMessage.style.display = 'none';
     
+    // **[START] ซ่อนปุ่ม Logout**
+    logoutButton.style.display = 'none';
+    // **[END] ซ่อนปุ่ม Logout**
+
     if (message) {
         loginError.textContent = message;
         loginError.style.display = 'block';
@@ -62,6 +70,9 @@ function showDashboard() {
     mainDashboard.style.display = 'grid'; 
     mainContent.style.display = 'block'; 
     tableSection.style.display = 'block'; 
+    // **[START] แสดงปุ่ม Logout**
+    logoutButton.style.display = 'inline-block';
+    // **[END] แสดงปุ่ม Logout**
 }
 
 /** ล้าง Session และกลับไปหน้า Login */
@@ -83,6 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         showLogin();
     }
+    
+    // **[START] ผูก Event Listener ให้ปุ่ม Logout**
+    // ผูก Event Listener ให้ปุ่ม Logout ใน Header
+    logoutButton.addEventListener('click', logout);
+    // **[END] ผูก Event Listener ให้ปุ่ม Logout**
 });
 
 // ดักจับการ Submit Form

@@ -18,6 +18,9 @@ body {
     color: #333;
 }
 
+/* App Container for centering and max-width */
+/* ลบ #app-container ออกเพราะใช้ Header/Footer และ main จัดการ layout แทน */
+
 /* Mobile Padding Adjustment */
 @media (max-width: 600px) { 
     main { 
@@ -69,11 +72,11 @@ h1 {
     font-weight: 700;
     letter-spacing: -0.025em;
 }
-/* **[แก้ไข] ปรับ Header Title สำหรับ Mobile (ไม่พอดี)** */
+/* **[Header Mobile FIX]** ปรับ Header Title สำหรับ Mobile */
 @media (max-width: 768px) {
     .header-title {
-        font-size: 1rem; /* ลดขนาดตัวอักษรบน Mobile */
-        white-space: normal; /* อนุญาตให้ตัดบรรทัดได้ถ้าจำเป็น (แต่ 1rem น่าจะพอดีแล้ว) */
+        font-size: 1rem; 
+        white-space: normal; 
     }
 }
 .flex-grow { 
@@ -98,25 +101,23 @@ h1 {
 
 /* --- LOGIN FORM STYLES --- */
 #login-container {
-    /* **[แก้ไข] ส่วน PC: ทำให้คอนเทนเนอร์หลักยืดเต็มที่ (PC)** */
+    /* **[Login Desktop FIX]** ทำให้เป็น Flex Container ที่ยืดเต็มพื้นที่ */
     display: flex; 
-    justify-content: center;
-    align-items: center;
+    justify-content: center; /* จัดกึ่งกลางแนวนอน */
+    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
     min-height: calc(100vh - 120px); 
     width: 100%;
     
-    /* ลบ max-width และ background ออกจาก container บน PC */
-    max-width: none; 
     background: transparent; 
-    padding: 0; /* ลบ padding บน PC */
-
+    padding: 0; 
     text-align: center;
+    max-width: none; 
 }
 
 .login-box {
-    /* **[แก้ไข] ส่วน PC: ย้ายสไตล์ของ Card มาที่ Login Box** */
+    /* **[Login Desktop FIX]** กำหนดขนาดและการ์ดที่นี่สำหรับ PC/Desktop */
     width: 100%;
-    max-width: 400px; /* จำกัดขนาดบน PC */
+    max-width: 400px; 
     background: var(--card-bg);
     padding: 30px;
     border-radius: 12px;
@@ -170,18 +171,18 @@ h1 {
     text-align: center;
 }
 
-/* **[คงเดิมตามคำสั่ง]** Responsive adjustments for Login Container on small screens */
+/* Responsive adjustments for Login Container on small screens (Mobile) */
 @media (max-width: 480px) { 
     #login-container {
-        /* ปรับให้ใช้ความกว้างเต็มที่และไม่มีขอบเงา*/
+        /* ปรับให้ใช้ความกว้างเต็มที่สำหรับ Mobile */
         max-width: 100%; 
         box-shadow: none;
         background: var(--background-color); 
-        padding: 0 15px; /* เพิ่ม padding ด้านข้างสำหรับ Mobile */
+        padding: 0 15px; 
     }
     .login-box {
-        padding: 20px; /* ลด padding ภายในฟอร์ม */
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้ box แทน container */
+        padding: 20px; 
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
         border-radius: 12px;
         background: var(--card-bg);
     }

@@ -35,17 +35,16 @@ h1 {
 
 /* --- HEADER ACTIONS --- */
 
-/* **[แก้ไข] Target the correct ID #app-header** */
 #app-header {
     position: sticky;
     top: 0;
     z-index: 20;
-    background-color: var(--primary-color); /* ใช้สีหลัก */
+    background-color: var(--primary-color); 
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); 
     color: white; 
     height: 4rem;
 }
-/* **[แก้ไข] ใช้ Div ภายใน Header เพื่อควบคุม Layout** */
+
 #app-header > div {
     max-width: 1280px; 
     margin: 0 auto; 
@@ -54,6 +53,11 @@ h1 {
     justify-content: space-between; 
     align-items: center; 
     height: 100%;
+}
+@media (max-width: 768px) {
+    #app-header > div {
+        padding: 0 1rem;
+    }
 }
 .header-left { 
     display: flex;
@@ -69,9 +73,8 @@ h1 {
     flex-grow: 1; 
 }
 
-/* **[แก้ไข] Logout Button ID** */
 #logout-button {
-    background-color: #ef4444; /* สีแดงสำหรับ Logout */
+    background-color: #ef4444; 
     color: white;
     padding: 8px 15px;
     border: none;
@@ -88,26 +91,26 @@ h1 {
 
 /* --- LOGIN FORM STYLES --- */
 #login-container {
-    /* **[แก้ไข] ใช้ Flexbox เพื่อจัดกึ่งกลางระหว่าง Header และ Footer** */
     display: flex; 
     justify-content: center;
     align-items: center;
-    min-height: calc(100vh - 120px); /* 100vh - header/footer height (ประมาณ 64px + 30px) */
+    /* ปรับปรุง min-height */
+    min-height: calc(100vh - 120px); 
     width: 100%;
     
-    /* สไตล์เดิม */
     max-width: 400px;
     background: var(--card-bg);
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    margin: 0px auto; /* ถูก override ด้วย Flexbox */
+    margin: 0px auto; 
     text-align: center;
+    /* **[แก้ไข]: เพิ่ม padding ด้านข้างเพื่อให้ไม่ติดขอบจอ** */
+    padding: 0 15px; 
 }
-/* เพิ่ม login-box styling ที่หายไปจาก HTML */
+
 .login-box {
     width: 100%;
-    /* ปรับ margin-top ออกเนื่องจากใช้ Flexbox จัดกึ่งกลางแล้ว */
 }
 
 #login-container h2 {
@@ -146,7 +149,7 @@ h1 {
     cursor: not-allowed;
 }
 #login-error-message {
-    display: none; /* เริ่มต้นซ่อนไว้ */
+    display: none; 
     padding: 10px;
     margin-bottom: 15px;
     border-radius: 8px;
@@ -156,11 +159,20 @@ h1 {
     font-size: 0.9rem;
     text-align: center;
 }
-/* Responsive adjustments for Login Container on small screens */
+
+/* **[แก้ไข] Responsive adjustments for Login Container on small screens** */
 @media (max-width: 480px) { 
     #login-container {
-        padding: 20px; 
-        min-height: calc(100vh - 80px); 
+        /* ปรับให้ใช้ความกว้างเต็มที่และไม่มีขอบเงา*/
+        max-width: 100%; 
+        box-shadow: none;
+        background: var(--background-color); /* ใช้สีพื้นหลังของ body */
+    }
+    .login-box {
+        padding: 20px; /* ลด padding ภายในฟอร์ม */
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* เพิ่มเงาให้ box แทน container */
+        border-radius: 12px;
+        background: var(--card-bg);
     }
 }
 /* --- END LOGIN FORM STYLES --- */
@@ -172,7 +184,7 @@ h1 {
     grid-template-columns: repeat(3, 1fr); 
     gap: 15px;
     margin-bottom: 30px;
-    padding: 20px; /* **[แก้ไข] เพิ่ม padding** */
+    padding: 20px; 
 }
 @media (max-width: 992px) { .dashboard { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 576px) { .dashboard { grid-template-columns: 1fr; } }
@@ -231,13 +243,13 @@ h1 {
 /* Content Area (Chart Section) */
 .content-area {
     margin-top: 20px;
-    padding: 20px; /* **[แก้ไข] เพิ่ม padding** */
+    padding: 20px; 
 }
 
 /* New Section for Table */
 .table-section {
     margin-top: 20px;
-    padding: 20px; /* **[แก้ไข] เพิ่ม padding** */
+    padding: 20px; 
 }
 
 .chart-container, .table-container {
@@ -280,10 +292,9 @@ h1 {
 .table-container { overflow-x: auto; }
 table {
     width: 100%;
-    /* ปรับ min-width ให้รองรับ 7 คอลัมน์ได้ดี (อนุญาตให้เกิด Scrollbar ได้ถ้าจำเป็น) */
     min-width: 1050px; 
     border-collapse: collapse;
-    table-layout: fixed; /* <-- FIX: บังคับให้ใช้ Layout แบบคงที่เพื่อควบคุมความกว้างคอลัมน์ */
+    table-layout: fixed; 
 }
 
 table th, table td {
@@ -292,7 +303,6 @@ table th, table td {
     border-bottom: 1px solid #ddd;
 }
 
-/* FIX: อนุญาตให้หัวตารางขึ้นบรรทัดใหม่ได้ */
 table th {
     background-color: #f0f4f8;
     color: var(--primary-color);
@@ -300,10 +310,9 @@ table th {
     white-space: normal; 
 }
 
-/* FIX: บังคับให้ข้อความในเซลล์ขึ้นบรรทัดใหม่โดยเน้นการตัดคำตามหลักภาษาไทย */
 table td {
-    overflow-wrap: break-word; /* Allows breaking long strings if they overflow */
-    word-wrap: break-word; /* Fallback for older browsers */
+    overflow-wrap: break-word; 
+    word-wrap: break-word; 
     word-break: normal; 
     white-space: normal;
     hyphens: auto; 
@@ -312,20 +321,18 @@ table td {
 
 table tbody tr:hover { background-color: #f5f5f5; }
 
-/* FIX: ปรับความกว้างคอลัมน์ใหม่เพื่อให้คอลัมน์ที่มีข้อมูลยาวมีพื้นที่ตัดคำมากขึ้น */
-#casesTable thead th:nth-child(1) { width: 10%; } /* เลขคดีดำ (คงที่) */
-#casesTable thead th:nth-child(2) { width: 8%; }  /* ปีคดีดำ (คงที่) */
-#casesTable thead th:nth-child(3) { width: 20%; } /* ผู้ฟ้องคดี (เพิ่มจาก 18% เป็น 20%) */
-#casesTable thead th:nth-child(4) { width: 22%; } /* ผลของคำพิพากษา (เพิ่มจาก 20% เป็น 22%) */
-#casesTable thead th:nth-child(5) { width: 20%; } /* ข้อกฎหมายที่ศาลใช้ (เพิ่มจาก 18% เป็น 20%) */
-#casesTable thead th:nth-child(6) { width: 10%; } /* ตุลาการเจ้าของสำนวน (ลดจาก 16% เป็น 10%) */
-#casesTable thead th:nth-child(7) { width: 10%; } /* สถานะคดี (คงที่) */
+#casesTable thead th:nth-child(1) { width: 10%; } 
+#casesTable thead th:nth-child(2) { width: 8%; }  
+#casesTable thead th:nth-child(3) { width: 20%; } 
+#casesTable thead th:nth-child(4) { width: 22%; } 
+#casesTable thead th:nth-child(5) { width: 20%; } 
+#casesTable thead th:nth-child(6) { width: 10%; } 
+#casesTable thead th:nth-child(7) { width: 10%; } 
 
 /* ---------------------------------------------------------------- */
 /* --- END TABLE STYLES (DESKTOP FIXES) --- */
 /* ---------------------------------------------------------------- */
 
-/* **[แก้ไข] Target the correct ID #app-footer** */
 #app-footer { 
     background-color: #1f2937;
     color: #9ca3af;
@@ -344,66 +351,55 @@ table tbody tr:hover { background-color: #f5f5f5; }
     display: none;
 }
 
-/* Chart container height: Remove fixed height for Bar Chart and make it responsive */
 .chart-wrapper {
-    /* Auto height based on content for Bar Chart */
     max-width: 100%; 
     width: 100%; 
     margin: 0 auto; 
 }
-/* Ensure canvas itself is styled to fit container */
 #caseStatusChart {
-    /* กำหนดความสูงเพื่อให้มีพื้นที่แสดง Bar Chart ที่ยาวพอดี */
     height: 400px; 
 }
 
 /* --- MOBILE TABLE STYLES (CARD VIEW) --- */
 @media (max-width: 600px) {
-    /* Remove fixed min-width for table */
     table {
         min-width: auto;
-        table-layout: auto; /* Revert to auto layout on mobile */
+        table-layout: auto; 
     }
 
-    /* Hide the original table header on mobile */
     #casesTable thead {
         display: none;
     }
     
-    /* Make table, tbody, and rows display as blocks/cards */
     #casesTable, #casesTable tbody, #casesTable tr {
         display: block;
         width: 100%;
     }
 
-    /* Style the row as a card with margin */
     #casesTable tr {
         margin-bottom: 15px;
         border: 1px solid #ddd;
-        border-radius: 12px; /* Increased border radius for card look */
+        border-radius: 12px; 
         box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-        overflow: hidden; /* important for border-radius to work with content */
+        overflow: hidden; 
     }
     
-    /* Make cells display as block to stack vertically */
     #casesTable td {
         display: block;
-        text-align: right; /* Align value to the right */
+        text-align: right; 
         padding: 10px 15px;
         padding-left: 30%; 
         position: relative;
-        border-bottom: 1px solid #eee; /* Light divider between fields */
+        border-bottom: 1px solid #eee; 
         font-size: 0.95rem;
         
-        /* Ensure mobile cells also use word-aware wrapping */
         overflow-wrap: break-word; 
         word-break: normal; 
         hyphens: auto;
     }
 
-    /* Add the data label as a pseudo-element (header text) */
     #casesTable td::before {
-        content: attr(data-label); /* ดึงค่าหัวตารางจาก data-label attribute */
+        content: attr(data-label); 
         position: absolute;
         top: 0;
         left: 0;
@@ -423,11 +419,10 @@ table tbody tr:hover { background-color: #f5f5f5; }
         text-align: left;
         font-weight: 600;
         color: var(--primary-color);
-        background-color: #f8f8f8; /* Background for the label part */
+        background-color: #f8f8f8; 
         border-right: 1px solid #eee;
     }
     
-    /* Remove border from the last cell in the row */
     #casesTable td:last-child {
         border-bottom: none;
     }

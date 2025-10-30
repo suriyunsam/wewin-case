@@ -69,6 +69,13 @@ h1 {
     font-weight: 700;
     letter-spacing: -0.025em;
 }
+/* **[แก้ไข] ปรับ Header Title สำหรับ Mobile (ไม่พอดี)** */
+@media (max-width: 768px) {
+    .header-title {
+        font-size: 1rem; /* ลดขนาดตัวอักษรบน Mobile */
+        white-space: normal; /* อนุญาตให้ตัดบรรทัดได้ถ้าจำเป็น (แต่ 1rem น่าจะพอดีแล้ว) */
+    }
+}
 .flex-grow { 
     flex-grow: 1; 
 }
@@ -91,26 +98,29 @@ h1 {
 
 /* --- LOGIN FORM STYLES --- */
 #login-container {
+    /* **[แก้ไข] ส่วน PC: ทำให้คอนเทนเนอร์หลักยืดเต็มที่ (PC)** */
     display: flex; 
     justify-content: center;
     align-items: center;
-    /* ปรับปรุง min-height */
     min-height: calc(100vh - 120px); 
     width: 100%;
     
-    max-width: 400px;
+    /* ลบ max-width และ background ออกจาก container บน PC */
+    max-width: none; 
+    background: transparent; 
+    padding: 0; /* ลบ padding บน PC */
+
+    text-align: center;
+}
+
+.login-box {
+    /* **[แก้ไข] ส่วน PC: ย้ายสไตล์ของ Card มาที่ Login Box** */
+    width: 100%;
+    max-width: 400px; /* จำกัดขนาดบน PC */
     background: var(--card-bg);
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    margin: 0px auto; 
-    text-align: center;
-    /* **[แก้ไข]: เพิ่ม padding ด้านข้างเพื่อให้ไม่ติดขอบจอ** */
-    padding: 0 15px; 
-}
-
-.login-box {
-    width: 100%;
 }
 
 #login-container h2 {
@@ -160,13 +170,14 @@ h1 {
     text-align: center;
 }
 
-/* **[แก้ไข] Responsive adjustments for Login Container on small screens** */
+/* **[คงเดิมตามคำสั่ง]** Responsive adjustments for Login Container on small screens */
 @media (max-width: 480px) { 
     #login-container {
         /* ปรับให้ใช้ความกว้างเต็มที่และไม่มีขอบเงา*/
         max-width: 100%; 
         box-shadow: none;
-        background: var(--background-color); /* ใช้สีพื้นหลังของ body */
+        background: var(--background-color); 
+        padding: 0 15px; /* เพิ่ม padding ด้านข้างสำหรับ Mobile */
     }
     .login-box {
         padding: 20px; /* ลด padding ภายในฟอร์ม */

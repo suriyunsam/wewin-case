@@ -4,10 +4,12 @@
 }
 
 :root {
-    --primary-color: #1e3a8a; /* น้ำเงินเข้ม */
-    --secondary-color: #3b82f6; /* น้ำเงินสว่าง */
-    --background-color: #f3f4f6;
+    --primary-color: #1e3a8a; /* น้ำเงินเข้ม (Blue-800) */
+    --secondary-color: #3b82f6; /* น้ำเงินสว่าง (Blue-500) */
+    --background-color: #f3f4f6; /* สีพื้นหลังอ่อน (Gray-100) */
     --card-bg: white;
+    --border-color: rgba(0, 0, 0, 0.125); /* Border/Divider Standard */
+    --shadow-color: rgba(0, 0, 0, 0.15); /* Shadow Standard */
 }
 
 body {
@@ -22,11 +24,18 @@ body {
     min-height: 100vh;
 }
 
-/* Mobile Padding Adjustment */
-@media (max-width: 600px) { 
-    main { 
-        padding: 10px; 
-    } 
+/* ---------------------------------------------------------------- */
+/* --- GLOBAL STYLES & LAYOUT --- */
+/* ---------------------------------------------------------------- */
+
+/* Main content area adjustment for padding */
+main {
+    flex-grow: 1;
+    display: flex; 
+    justify-content: center; /* จัดกึ่งกลางแนวนอน */
+    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
+    width: 100%; 
+    padding: 20px; 
 }
 
 h1 {
@@ -44,7 +53,7 @@ h1 {
     top: 0;
     z-index: 20;
     background-color: var(--primary-color); 
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1); 
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1); 
     color: white; 
     height: 4rem;
 }
@@ -62,6 +71,11 @@ h1 {
     #app-header > div {
         padding: 0 1rem;
     }
+    /* **[Mobile Header FIX]** ปรับ Header Title สำหรับ Mobile */
+    .header-title {
+        font-size: 1rem; 
+        white-space: normal; 
+    }
 }
 .header-left { 
     display: flex;
@@ -73,23 +87,13 @@ h1 {
     font-weight: 700;
     letter-spacing: -0.025em;
 }
-/* **[Mobile Header FIX]** ปรับ Header Title สำหรับ Mobile */
-@media (max-width: 768px) {
-    .header-title {
-        font-size: 1rem; 
-        white-space: normal; 
-    }
-}
-.flex-grow { 
-    flex-grow: 1; 
-}
 
 #logout-button {
     background-color: #ef4444; 
     color: white;
     padding: 8px 15px;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -100,47 +104,33 @@ h1 {
 }
 /* --- END HEADER ACTIONS --- */
 
-/* **[FIXED]**: Main ยืดพื้นที่ที่เหลือทั้งหมด และใช้ Flexbox จัดกึ่งกลาง */
-main {
-    flex-grow: 1;
-    display: flex; 
-    justify-content: center; /* จัดกึ่งกลางแนวนอน */
-    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
-    width: 100%; 
-    padding: 20px; 
-}
-
-/* --- LOGIN FORM STYLES --- */
+/* ---------------------------------------------------------------- */
+/* --- LOGIN FORM STYLES (Bootstrap Standard) --- */
+/* ---------------------------------------------------------------- */
 #login-container {
-    /* ใช้พื้นที่ 100% ของ main */
     width: 100%; 
-    
-    /* ลบ Flexbox ภายในออก เพราะ main จัดการให้แล้ว */
     display: block; 
-
     background: transparent; 
     padding: 0; 
     text-align: center;
-    max-width: none; 
 }
 
 .login-box {
-    /* **[Bootstrap Standard Style]**: Card Style */
+    /* **[Standard Card Style]** */
     width: 100%;
-    max-width: 400px; /* ขนาดมาตรฐาน Card */
-    margin: 0 auto; /* ใช้ margin auto เพื่อให้ Card อยู่กึ่งกลางภายใน #login-container */
+    max-width: 400px; 
+    margin: 0 auto; /* CRITICAL: จัดกึ่งกลาง Card ภายใน Container */
     
     background: var(--card-bg);
     padding: 30px; 
     border-radius: 8px; 
     
-    /* **[Standard Shadow]**: เงามาตรฐาน Bootstrap */
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); 
-    border: 1px solid rgba(0, 0, 0, 0.125); /* Border สีอ่อน */
+    box-shadow: 0 0.5rem 1rem var(--shadow-color); /* เงามาตรฐาน */
+    border: 1px solid var(--border-color); 
     transition: box-shadow 0.3s ease; 
 }
 .login-box:hover {
-    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.18); /* เงาที่เข้มขึ้นเมื่อ Hover */
+    box-shadow: 0 0.75rem 1.5rem var(--shadow-color); 
 }
 
 #login-container h2 {
@@ -149,11 +139,12 @@ main {
     font-size: 1.5rem;
     margin-bottom: 20px;
 }
+/* Input Field */
 #password-input {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
-    border: 1px solid #ced4da; /* สี Border Input มาตรฐาน Bootstrap */
+    border: 1px solid #ced4da; 
     border-radius: 6px;
     box-sizing: border-box;
     font-size: 1rem;
@@ -163,16 +154,16 @@ main {
 #password-input:focus {
     border-color: #80bdff;
     outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Focus Ring Standard */
 }
-/* **[Bootstrap Standard Style]** สไตล์ปุ่ม */
+/* Login Button */
 #login-button {
     width: 100%;
     padding: 12px;
     background-color: var(--secondary-color);
     color: white;
     border: none;
-    border-radius: 6px; /* ปรับลดความโค้งปุ่มเล็กน้อย */
+    border-radius: 6px; 
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
@@ -191,22 +182,18 @@ main {
     display: none; 
     padding: 10px;
     margin-bottom: 15px;
-    border-radius: 8px;
-    background-color: #f8d7da;
-    color: #721c24;
+    border-radius: 6px;
+    background-color: #f8d7da; /* Light Red/Danger Background */
+    color: #721c24; /* Dark Red/Danger Text */
     border: 1px solid #f5c6cb;
     font-size: 0.9rem;
     text-align: center;
 }
 
-
-/* Responsive adjustments for Login Container on small screens (Mobile) */
+/* --- Mobile Login Adjustments --- */
 @media (max-width: 480px) { 
     main {
         padding: 10px;
-    }
-    #login-container {
-        padding: 0; 
     }
     .login-box {
         /* Mobile: ลบเงาและเส้นขอบออกเพื่อให้ฟอร์มแนบไปกับหน้าจอ */
@@ -221,24 +208,35 @@ main {
 /* --- END LOGIN FORM STYLES --- */
 
 
+/* ---------------------------------------------------------------- */
+/* --- DASHBOARD STYLES (Cards, Chart, Table) --- */
+/* ---------------------------------------------------------------- */
+
 /* Dashboard Grid (Card Section) */
 .dashboard {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
     gap: 15px;
     margin-bottom: 30px;
-    padding: 20px; 
+    padding: 0 20px; /* Adjust padding for desktop grid */
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
 }
 @media (max-width: 992px) { .dashboard { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 576px) { .dashboard { grid-template-columns: 1fr; } }
+@media (max-width: 576px) { .dashboard { grid-template-columns: 1fr; padding: 0 10px; } }
 
 .card {
     background: var(--card-bg);
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 8px; /* Standard radius */
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Light card shadow */
     text-align: center;
     border-bottom: 5px solid transparent; 
+    transition: box-shadow 0.3s ease;
+}
+.card:hover {
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1); 
 }
 
 .card h2 {
@@ -283,29 +281,29 @@ main {
     display: none;
 }
 
-/* Content Area (Chart Section) */
+/* Content Area (Chart and Table Sections) */
 .content-area {
     margin-top: 20px;
-    padding: 20px; 
+    padding: 0 20px; 
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
 }
+@media (max-width: 576px) { .content-area { padding: 0 10px; } }
 
-/* New Section for Table */
-.table-section {
-    margin-top: 20px;
-    padding: 20px; 
-}
 
 .chart-container, .table-container {
     background: var(--card-bg);
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 20px;
 }
 
 .chart-container h2, .table-container h2 {
     color: var(--primary-color);
     margin-top: 0;
-    border-bottom: 2px solid #eee;
+    border-bottom: 1px solid #dee2e6; /* Divider standard */
     padding-bottom: 10px;
     margin-bottom: 15px; 
     font-size: 1.5rem;
@@ -322,15 +320,21 @@ main {
 .search-bar label { font-weight: 600; color: var(--primary-color); white-space: nowrap; }
 .search-bar input[type="text"] {
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
     width: 100%;
     font-size: 1rem;
     font-family: inherit;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.search-bar input[type="text"]:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 /* ---------------------------------------------------------------- */
-/* --- TABLE STYLES (DESKTOP FIXES) --- */
+/* --- TABLE STYLES (Bootstrap Standard) --- */
 /* ---------------------------------------------------------------- */
 .table-container { overflow-x: auto; }
 table {
@@ -343,14 +347,15 @@ table {
 table th, table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #dee2e6; /* Table divider standard */
 }
 
 table th {
-    background-color: #f0f4f8;
-    color: var(--primary-color);
+    background-color: #e9ecef; /* Table header background standard */
+    color: #495057; /* Header text standard */
     font-weight: 600;
     white-space: normal; 
+    border-top: 1px solid #dee2e6;
 }
 
 table td {
@@ -359,11 +364,13 @@ table td {
     word-break: normal; 
     white-space: normal;
     hyphens: auto; 
+    vertical-align: top;
 }
 
 
-table tbody tr:hover { background-color: #f5f5f5; }
+table tbody tr:hover { background-color: #f8f9fa; } /* Table row hover standard */
 
+/* Column widths (ensure sum is 100%) */
 #casesTable thead th:nth-child(1) { width: 10%; } 
 #casesTable thead th:nth-child(2) { width: 8%; }  
 #casesTable thead th:nth-child(3) { width: 20%; } 
@@ -373,25 +380,51 @@ table tbody tr:hover { background-color: #f5f5f5; }
 #casesTable thead th:nth-child(7) { width: 10%; } 
 
 /* ---------------------------------------------------------------- */
-/* --- END TABLE STYLES (DESKTOP FIXES) --- */
+/* --- FOOTER --- */
 /* ---------------------------------------------------------------- */
 
 #app-footer { 
-    background-color: #1f2937;
-    color: #9ca3af;
+    background-color: #343a40; /* Dark Footer Standard */
+    color: #adb5bd;
     font-size: 0.75rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     margin-top: auto;
+    width: 100%;
 }
 
+#app-footer > div {
+    max-width: 1280px; 
+    margin: 0 auto; 
+    padding: 0 5rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+@media (max-width: 768px) {
+    #app-footer > div {
+        padding: 0 1rem;
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+
 .footer-text {
-    color: #6b7280;
+    color: #ced4da;
 }
 
 .footer-hidden-text {
-    color: #6b7280;
-    display: none;
+    color: #6c757d;
+    display: block; /* Show the version info */
+    font-size: 0.7rem;
+    margin-top: 5px;
+}
+@media (min-width: 769px) {
+    .footer-hidden-text {
+        display: block; 
+        margin-top: 0;
+    }
 }
 
 .chart-wrapper {
@@ -403,7 +436,9 @@ table tbody tr:hover { background-color: #f5f5f5; }
     height: 400px; 
 }
 
-/* --- MOBILE TABLE STYLES (CARD VIEW) --- */
+/* ---------------------------------------------------------------- */
+/* --- MOBILE TABLE STYLES (Card View) --- */
+/* ---------------------------------------------------------------- */
 @media (max-width: 600px) {
     table {
         min-width: auto;
@@ -421,9 +456,9 @@ table tbody tr:hover { background-color: #f5f5f5; }
 
     #casesTable tr {
         margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: 12px; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        border: 1px solid #dee2e6; /* Standard border */
+        border-radius: 8px; 
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         overflow: hidden; 
     }
     
@@ -433,7 +468,7 @@ table tbody tr:hover { background-color: #f5f5f5; }
         padding: 10px 15px;
         padding-left: 30%; 
         position: relative;
-        border-bottom: 1px solid #eee; 
+        border-bottom: 1px solid #f8f9fa; 
         font-size: 0.95rem;
         
         overflow-wrap: break-word; 
@@ -441,6 +476,7 @@ table tbody tr:hover { background-color: #f5f5f5; }
         hyphens: auto;
     }
 
+    /* Add the data label as a pseudo-element (header text) */
     #casesTable td::before {
         content: attr(data-label); 
         position: absolute;
@@ -462,8 +498,8 @@ table tbody tr:hover { background-color: #f5f5f5; }
         text-align: left;
         font-weight: 600;
         color: var(--primary-color);
-        background-color: #f8f8f8; 
-        border-right: 1px solid #eee;
+        background-color: #f8f9fa; 
+        border-right: 1px solid #dee2e6;
     }
     
     #casesTable td:last-child {

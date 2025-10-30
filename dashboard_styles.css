@@ -487,7 +487,7 @@ table tbody tr:hover { background-color: #f8f9fa; } /* Table row hover standard 
         display: flex; 
         align-items: center; 
         
-        width: 25%; 
+        width: 30%; 
         padding-left: 15px;
         
         white-space: normal; 

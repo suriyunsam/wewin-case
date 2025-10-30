@@ -16,7 +16,7 @@ body {
     margin: 0;
     padding: 0; 
     color: #333;
-    /* **[FIX]**: Body setup เพื่อให้ Header/Main/Footer ทำงานร่วมกัน */
+    /* [Bootstrap Standard Layout]: Body setup เพื่อให้ Header/Main/Footer ทำงานร่วมกันและยืดเต็มจอ */
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -104,21 +104,19 @@ h1 {
 main {
     flex-grow: 1;
     display: flex; 
-    justify-content: center;
-    align-items: center; 
+    justify-content: center; /* จัดกึ่งกลางแนวนอน */
+    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
     width: 100%; 
+    padding: 20px; 
 }
 
 /* --- LOGIN FORM STYLES --- */
 #login-container {
-    /* ทำให้ login-container ใช้พื้นที่ 100% ของ main */
-    min-height: 100%; 
-    width: 100%;
+    /* ใช้พื้นที่ 100% ของ main */
+    width: 100%; 
     
-    /* สไตล์ Flexbox ภายใน (แต่ส่วนใหญ่ main จัดการให้แล้ว) */
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
+    /* ลบ Flexbox ภายในออก เพราะ main จัดการให้แล้ว */
+    display: block; 
 
     background: transparent; 
     padding: 0; 
@@ -127,20 +125,22 @@ main {
 }
 
 .login-box {
-    /* กำหนดขนาดของการ์ด */
+    /* **[Bootstrap Standard Style]**: Card Style */
     width: 100%;
-    max-width: 400px; 
+    max-width: 400px; /* ขนาดมาตรฐาน Card */
+    margin: 0 auto; /* ใช้ margin auto เพื่อให้ Card อยู่กึ่งกลางภายใน #login-container */
     
-    /* **[ปรับปรุงสไตล์]** */
     background: var(--card-bg);
-    padding: 40px; /* เพิ่ม padding */
-    border-radius: 16px; /* เพิ่มความโค้งมน */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* เงาเข้มขึ้น */
-    border: 1px solid #e0e0e0; /* เพิ่มเส้นขอบ */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    padding: 30px; 
+    border-radius: 8px; 
+    
+    /* **[Standard Shadow]**: เงามาตรฐาน Bootstrap */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); 
+    border: 1px solid rgba(0, 0, 0, 0.125); /* Border สีอ่อน */
+    transition: box-shadow 0.3s ease; 
 }
 .login-box:hover {
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); 
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.18); /* เงาที่เข้มขึ้นเมื่อ Hover */
 }
 
 #login-container h2 {
@@ -149,14 +149,30 @@ main {
     font-size: 1.5rem;
     margin-bottom: 20px;
 }
-/* **[ปรับปรุง]** สไตล์ปุ่มให้เข้ากับสไตล์เว็บส่วนใหญ่ */
+#password-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da; /* สี Border Input มาตรฐาน Bootstrap */
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+#password-input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+/* **[Bootstrap Standard Style]** สไตล์ปุ่ม */
 #login-button {
     width: 100%;
     padding: 12px;
     background-color: var(--secondary-color);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px; /* ปรับลดความโค้งปุ่มเล็กน้อย */
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
@@ -171,22 +187,35 @@ main {
     cursor: not-allowed;
     transform: none;
 }
-/* ... (สไตล์อื่น ๆ ของ Login) ... */
+#login-error-message {
+    display: none; 
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    font-size: 0.9rem;
+    text-align: center;
+}
 
 
 /* Responsive adjustments for Login Container on small screens (Mobile) */
 @media (max-width: 480px) { 
+    main {
+        padding: 10px;
+    }
     #login-container {
-        max-width: 100%; 
-        box-shadow: none;
-        background: var(--background-color); 
-        padding: 0 15px; 
+        padding: 0; 
     }
     .login-box {
-        padding: 25px; /* ปรับลด padding เล็กน้อยบนมือถือ */
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
-        border-radius: 12px;
-        background: var(--card-bg);
+        /* Mobile: ลบเงาและเส้นขอบออกเพื่อให้ฟอร์มแนบไปกับหน้าจอ */
+        max-width: 100%;
+        padding: 25px 15px; 
+        box-shadow: none; 
+        border-radius: 0;
+        border: none;
+        background: var(--card-bg); 
     }
 }
 /* --- END LOGIN FORM STYLES --- */
@@ -212,7 +241,140 @@ main {
     border-bottom: 5px solid transparent; 
 }
 
-/* ... (สไตล์ส่วนอื่น ๆ ที่ไม่เกี่ยวข้อง) ... */
+.card h2 {
+    margin: 5px 0 15px 0;
+    color: var(--primary-color);
+    font-size: 1rem;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.card p {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+/* สีของตัวเลขในการ์ด และเส้นขอบด้านล่าง */
+.card-total { border-bottom-color: #f59e0b; } 
+.card-total p { color: #f59e0b; }
+
+.card-final { border-bottom-color: #ef4444; } 
+.card-final p { color: #ef4444; }
+
+.card-first { border-bottom-color: #10b981; } 
+.card-first p { color: #10b981; }
+
+.card-supreme { border-bottom-color: #3b82f6; } 
+.card-supreme p { color: #3b82f6; }
+
+.card-enforcement { border-bottom-color: #8b5cf6; } 
+.card-enforcement p { color: #8b5cf6; } 
+
+.card-complete { border-bottom-color: #059669; } 
+.card-complete p { color: #059669; } 
+
+#loading-message {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    display: none;
+}
+
+/* Content Area (Chart Section) */
+.content-area {
+    margin-top: 20px;
+    padding: 20px; 
+}
+
+/* New Section for Table */
+.table-section {
+    margin-top: 20px;
+    padding: 20px; 
+}
+
+.chart-container, .table-container {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.chart-container h2, .table-container h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px; 
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Search Bar Style */
+.search-bar {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.search-bar label { font-weight: 600; color: var(--primary-color); white-space: nowrap; }
+.search-bar input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+/* ---------------------------------------------------------------- */
+/* --- TABLE STYLES (DESKTOP FIXES) --- */
+/* ---------------------------------------------------------------- */
+.table-container { overflow-x: auto; }
+table {
+    width: 100%;
+    min-width: 1050px; 
+    border-collapse: collapse;
+    table-layout: fixed; 
+}
+
+table th, table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f0f4f8;
+    color: var(--primary-color);
+    font-weight: 600;
+    white-space: normal; 
+}
+
+table td {
+    overflow-wrap: break-word; 
+    word-wrap: break-word; 
+    word-break: normal; 
+    white-space: normal;
+    hyphens: auto; 
+}
+
+
+table tbody tr:hover { background-color: #f5f5f5; }
+
+#casesTable thead th:nth-child(1) { width: 10%; } 
+#casesTable thead th:nth-child(2) { width: 8%; }  
+#casesTable thead th:nth-child(3) { width: 20%; } 
+#casesTable thead th:nth-child(4) { width: 22%; } 
+#casesTable thead th:nth-child(5) { width: 20%; } 
+#casesTable thead th:nth-child(6) { width: 10%; } 
+#casesTable thead th:nth-child(7) { width: 10%; } 
+
+/* ---------------------------------------------------------------- */
+/* --- END TABLE STYLES (DESKTOP FIXES) --- */
+/* ---------------------------------------------------------------- */
 
 #app-footer { 
     background-color: #1f2937;
@@ -223,4 +385,89 @@ main {
     margin-top: auto;
 }
 
-/* ... (สไตล์ตารางและ Mobile Table) ... */
+.footer-text {
+    color: #6b7280;
+}
+
+.footer-hidden-text {
+    color: #6b7280;
+    display: none;
+}
+
+.chart-wrapper {
+    max-width: 100%; 
+    width: 100%; 
+    margin: 0 auto; 
+}
+#caseStatusChart {
+    height: 400px; 
+}
+
+/* --- MOBILE TABLE STYLES (CARD VIEW) --- */
+@media (max-width: 600px) {
+    table {
+        min-width: auto;
+        table-layout: auto; 
+    }
+
+    #casesTable thead {
+        display: none;
+    }
+    
+    #casesTable, #casesTable tbody, #casesTable tr {
+        display: block;
+        width: 100%;
+    }
+
+    #casesTable tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 12px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        overflow: hidden; 
+    }
+    
+    #casesTable td {
+        display: block;
+        text-align: right; 
+        padding: 10px 15px;
+        padding-left: 30%; 
+        position: relative;
+        border-bottom: 1px solid #eee; 
+        font-size: 0.95rem;
+        
+        overflow-wrap: break-word; 
+        word-break: normal; 
+        hyphens: auto;
+    }
+
+    #casesTable td::before {
+        content: attr(data-label); 
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        
+        display: flex; 
+        align-items: center; 
+        
+        width: 25%; 
+        padding-left: 15px;
+        
+        white-space: normal; 
+        overflow-wrap: break-word; 
+        word-break: normal;
+        hyphens: auto;
+        
+        text-align: left;
+        font-weight: 600;
+        color: var(--primary-color);
+        background-color: #f8f8f8; 
+        border-right: 1px solid #eee;
+    }
+    
+    #casesTable td:last-child {
+        border-bottom: none;
+    }
+}
+/* --- END MOBILE TABLE STYLES --- */

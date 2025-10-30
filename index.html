@@ -62,14 +62,12 @@
                 <div class="card card-complete"><h2>บังคับคดีเสร็จสิ้น</h2><p id="executionCompleteCases">0</p></div>
             </div>
 
-            <div class="content-area" id="mainContent" style="display: none;">
-                <!-- Content Area: Chart (now takes full width) -->
+            <div class="content-area" id="doughnutContent" style="display: none;">
+                <!-- Chart Area: Doughnut Chart -->
                 <div class="chart-container">
-                    <!-- เปลี่ยนหัวข้อให้เป็นกลางมากขึ้นสำหรับ Bar Chart -->
-                    <h2>จำนวนคดีตามสถานะการดำเนินงาน</h2>
+                    <h2>สัดส่วนสถานะคดีทั้งหมด</h2>
                     <div class="chart-wrapper">
-                        <!-- กำหนดความสูงของ Chart Wrapper ใหม่สำหรับ Bar Chart -->
-                        <canvas id="caseStatusChart" height="400"></canvas>
+                        <canvas id="caseStatusChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -107,5 +105,10 @@
     
     <!-- ลิงก์ไปยังไฟล์ JavaScript -->
     <script src="dashboard_logic.js"></script>
+     <!-- Load Tailwind CSS CDN (สำหรับสไตล์) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js และ Data Labels Plugin (สำหรับแผนภูมิ) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 </body>
 </html>

@@ -1,509 +1,593 @@
-/* Global Reset for better responsiveness */
-* {
+/* ================================================================ */
+/* RESET & ROOT                                                      */
+/* ================================================================ */
+*, *::before, *::after {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 :root {
-    --primary-color: #1e3a8a; /* น้ำเงินเข้ม (Blue-800) */
-    --secondary-color: #3b82f6; /* น้ำเงินสว่าง (Blue-500) */
-    --background-color: #f3f4f6; /* สีพื้นหลังอ่อน (Gray-100) */
-    --card-bg: white;
-    --border-color: rgba(0, 0, 0, 0.125); /* Border/Divider Standard */
-    --shadow-color: rgba(0, 0, 0, 0.15); /* Shadow Standard */
+    --bg:              #f2f2f7;
+    --surface:         #ffffff;
+    --border:          rgba(0,0,0,0.08);
+    --separator:       rgba(0,0,0,0.06);
+    --label:           #1c1c1e;
+    --label-2:         #3a3a3c;
+    --label-3:         #6e6e73;
+    --label-4:         #aeaeb2;
+    --accent:          #0071e3;
+    --accent-soft:     rgba(0,113,227,0.10);
+    --accent-hover:    #0077ed;
+    --green:           #34c759;
+    --orange:          #ff9f0a;
+    --red:             #ff3b30;
+    --purple:          #af52de;
+    --teal:            #5ac8fa;
+    --amber:           #f59e0b;
+    --shadow-sm:       0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md:       0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+    --shadow-lg:       0 12px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+    --radius-sm:       10px;
+    --radius-md:       14px;
+    --radius-lg:       18px;
+    --radius-xl:       26px;
+    --font:            -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Sarabun", sans-serif;
+    --ease:            cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    font-family: "Sarabun", sans-serif;
-    background-color: var(--background-color);
-    margin: 0;
-    padding: 0; 
-    color: #333;
-    /* [Bootstrap Standard Layout]: Body setup เพื่อให้ Header/Main/Footer ทำงานร่วมกันและยืดเต็มจอ */
+    font-family: var(--font);
+    background-color: var(--bg);
+    color: var(--label);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    line-height: 1.5;
 }
 
-/* ---------------------------------------------------------------- */
-/* --- GLOBAL STYLES & LAYOUT --- */
-/* ---------------------------------------------------------------- */
-
-/* Main content area adjustment for padding */
-main {
-    flex-grow: 1;
-    display: flex; 
-    justify-content: center; /* จัดกึ่งกลางแนวนอน */
-    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
-    width: 100%; 
-    padding: 20px; 
-}
-
-h1 {
-    color: var(--primary-color);
-    text-align: center;
-    margin-bottom: 30px;
-    font-weight: 600;
-    font-size: 1.8rem;
-}
-
-/* --- HEADER ACTIONS --- */
-
+/* ================================================================ */
+/* HEADER                                                            */
+/* ================================================================ */
 #app-header {
     position: sticky;
     top: 0;
-    z-index: 20;
-    background-color: var(--primary-color); 
-    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1); 
-    color: white; 
-    height: 4rem;
+    z-index: 100;
+    background: rgba(242,242,247,0.85);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--separator);
+    height: 52px;
 }
 
 #app-header > div {
-    max-width: 1280px; 
-    margin: 0 auto; 
-    padding: 0 5rem; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
     height: 100%;
-}
-@media (max-width: 768px) {
-    #app-header > div {
-        padding: 0 1rem;
-    }
-    /* **[Mobile Header FIX]** ปรับ Header Title สำหรับ Mobile */
-    .header-title {
-        font-size: 1rem; 
-        white-space: normal; 
-    }
-}
-.header-left { 
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.75rem; 
-}
-.header-title { 
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: -0.025em;
 }
 
-#logout-button {
-    background-color: #ef4444; 
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    white-space: nowrap;
-}
-#logout-button:hover {
-    background-color: #c82333;
-}
-/* --- END HEADER ACTIONS --- */
-
-/* ---------------------------------------------------------------- */
-/* --- LOGIN FORM STYLES (Bootstrap Standard) --- */
-/* ---------------------------------------------------------------- */
-#login-container {
-    width: 100%; 
-    display: block; 
-    background: transparent; 
-    padding: 0; 
-    text-align: center;
-}
-
-.login-box {
-    /* **[Standard Card Style]** */
-    width: 100%;
-    max-width: 400px; 
-    margin: 0 auto; /* CRITICAL: จัดกึ่งกลาง Card ภายใน Container */
-    
-    background: var(--card-bg);
-    padding: 30px; 
-    border-radius: 8px; 
-    
-    box-shadow: 0 0.5rem 1rem var(--shadow-color); /* เงามาตรฐาน */
-    border: 1px solid var(--border-color); 
-    transition: box-shadow 0.3s ease; 
-}
-.login-box:hover {
-    box-shadow: 0 0.75rem 1.5rem var(--shadow-color); 
-}
-
-#login-container h2 {
-    color: var(--primary-color);
-    font-weight: 600;
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-}
-/* Input Field */
-#password-input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ced4da; 
-    border-radius: 6px;
-    box-sizing: border-box;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-#password-input:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Focus Ring Standard */
-}
-/* Login Button */
-#login-button {
-    width: 100%;
-    padding: 12px;
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
-    border-radius: 6px; 
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-}
-#login-button:hover:not(:disabled) {
-    background-color: #0069d9;
-    transform: translateY(-1px);
-}
-#login-button:disabled {
-    background-color: #a0c9f5;
-    cursor: not-allowed;
-    transform: none;
-}
-#login-error-message {
-    display: none; 
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    background-color: #f8d7da; /* Light Red/Danger Background */
-    color: #721c24; /* Dark Red/Danger Text */
-    border: 1px solid #f5c6cb;
-    font-size: 0.9rem;
-    text-align: center;
-}
-
-/* --- Mobile Login Adjustments --- */
-@media (max-width: 480px) { 
-    main {
-        padding: 10px;
-    }
-    .login-box {
-        /* Mobile: ลบเงาและเส้นขอบออกเพื่อให้ฟอร์มแนบไปกับหน้าจอ */
-        max-width: 100%;
-        padding: 25px 15px; 
-        box-shadow: none; 
-        border-radius: 0;
-        border: none;
-        background: var(--card-bg); 
-    }
-}
-/* --- END LOGIN FORM STYLES --- */
-
-
-/* ---------------------------------------------------------------- */
-/* --- DASHBOARD STYLES (Cards, Chart, Table) --- */
-/* ---------------------------------------------------------------- */
-
-/* Dashboard Grid (Card Section) */
-.dashboard {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 15px;
-    margin-bottom: 30px;
-    padding: 0 20px; /* Adjust padding for desktop grid */
-    max-width: 1280px;
-    margin-left: auto;
-    margin-right: auto;
-}
-@media (max-width: 992px) { .dashboard { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 576px) { .dashboard { grid-template-columns: 1fr; padding: 0 10px; } }
-
-.card {
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 8px; /* Standard radius */
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Light card shadow */
-    text-align: center;
-    border-bottom: 5px solid transparent; 
-    transition: box-shadow 0.3s ease;
-}
-.card:hover {
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1); 
-}
-
-.card h2 {
-    margin: 5px 0 15px 0;
-    color: var(--primary-color);
-    font-size: 1rem;
-    font-weight: 400;
-    white-space: nowrap;
-}
-
-.card p {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--secondary-color);
-}
-
-/* สีของตัวเลขในการ์ด และเส้นขอบด้านล่าง */
-.card-total { border-bottom-color: #f59e0b; } 
-.card-total p { color: #f59e0b; }
-
-.card-final { border-bottom-color: #ef4444; } 
-.card-final p { color: #ef4444; }
-
-.card-first { border-bottom-color: #10b981; } 
-.card-first p { color: #10b981; }
-
-.card-supreme { border-bottom-color: #3b82f6; } 
-.card-supreme p { color: #3b82f6; }
-
-.card-enforcement { border-bottom-color: #8b5cf6; } 
-.card-enforcement p { color: #8b5cf6; } 
-
-.card-complete { border-bottom-color: #059669; } 
-.card-complete p { color: #059669; } 
-
-#loading-message {
-    text-align: center;
-    margin-top: 50px;
-    font-size: 1.2rem;
-    color: var(--primary-color);
-    font-weight: 600;
-    display: none;
-}
-
-/* Content Area (Chart and Table Sections) */
-.content-area {
-    margin-top: 20px;
-    padding: 0 20px; 
-    max-width: 1280px;
-    margin-left: auto;
-    margin-right: auto;
-}
-@media (max-width: 576px) { .content-area { padding: 0 10px; } }
-
-
-.chart-container, .table-container {
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    margin-bottom: 20px;
-}
-
-.chart-container h2, .table-container h2 {
-    color: var(--primary-color);
-    margin-top: 0;
-    border-bottom: 1px solid #dee2e6; /* Divider standard */
-    padding-bottom: 10px;
-    margin-bottom: 15px; 
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-/* Search Bar Style */
-.search-bar {
-    margin-bottom: 15px;
+.header-left {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-.search-bar label { font-weight: 600; color: var(--primary-color); white-space: nowrap; }
-.search-bar input[type="text"] {
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    width: 100%;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-.search-bar input[type="text"]:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
 
-/* ---------------------------------------------------------------- */
-/* --- TABLE STYLES (Bootstrap Standard) --- */
-/* ---------------------------------------------------------------- */
-.table-container { overflow-x: auto; }
-table {
-    width: 100%;
-    min-width: 1050px; 
-    border-collapse: collapse;
-    table-layout: fixed; 
-}
-
-table th, table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #dee2e6; /* Table divider standard */
-}
-
-table th {
-    background-color: #e9ecef; /* Table header background standard */
-    color: #495057; /* Header text standard */
+.header-title {
+    font-size: 15px;
     font-weight: 600;
-    white-space: normal; 
-    border-top: 1px solid #dee2e6;
+    letter-spacing: -0.2px;
+    color: var(--label);
 }
 
-table td {
-    overflow-wrap: break-word; 
-    word-wrap: break-word; 
-    word-break: normal; 
-    white-space: normal;
-    hyphens: auto; 
-    vertical-align: top;
+#logout-button {
+    background: none;
+    border: 1px solid rgba(0,113,227,0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: var(--font);
+    transition: background 0.2s var(--ease), border-color 0.2s;
+    white-space: nowrap;
+}
+#logout-button:hover {
+    background: var(--accent-soft);
+    border-color: rgba(0,113,227,0.25);
 }
 
-
-table tbody tr:hover { background-color: #f8f9fa; } /* Table row hover standard */
-
-/* Column widths (ensure sum is 100%) */
-#casesTable thead th:nth-child(1) { width: 10%; } 
-#casesTable thead th:nth-child(2) { width: 8%; }  
-#casesTable thead th:nth-child(3) { width: 20%; } 
-#casesTable thead th:nth-child(4) { width: 22%; } 
-#casesTable thead th:nth-child(5) { width: 20%; } 
-#casesTable thead th:nth-child(6) { width: 10%; } 
-#casesTable thead th:nth-child(7) { width: 10%; } 
-
-/* ---------------------------------------------------------------- */
-/* --- FOOTER --- */
-/* ---------------------------------------------------------------- */
-
-#app-footer { 
-    background-color: #343a40; /* Dark Footer Standard */
-    color: #adb5bd;
-    font-size: 0.75rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    margin-top: auto;
-    width: 100%;
-}
-
-#app-footer > div {
-    max-width: 1280px; 
-    margin: 0 auto; 
-    padding: 0 5rem; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-}
 @media (max-width: 768px) {
-    #app-footer > div {
-        padding: 0 1rem;
-        flex-direction: column;
-        text-align: center;
-    }
+    #app-header > div { padding: 0 16px; }
+    .header-title { font-size: 13px; white-space: normal; }
 }
 
-
-.footer-text {
-    color: #ced4da;
+/* ================================================================ */
+/* MAIN                                                              */
+/* ================================================================ */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    padding: 28px 20px;
 }
 
-.footer-hidden-text {
-    color: #6c757d;
-    display: block; /* Show the version info */
-    font-size: 0.7rem;
-    margin-top: 5px;
+.data-display-area {
+    width: 100%;
+    max-width: 1280px;
 }
-@media (min-width: 769px) {
-    .footer-hidden-text {
-        display: block; 
-        margin-top: 0;
-    }
+
+/* ================================================================ */
+/* LOADING MESSAGE                                                   */
+/* ================================================================ */
+#loading-message {
+    text-align: center;
+    padding: 80px 0;
+    font-size: 15px;
+    color: var(--label-3);
+    display: none;
+}
+
+/* ================================================================ */
+/* ANIMATIONS                                                        */
+/* ================================================================ */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================ */
+/* DASHBOARD STAT CARDS                                              */
+/* ================================================================ */
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.5s var(--ease) both;
+}
+
+.card {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 20px 16px 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.card h2 {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--label-3);
+    margin: 0 0 10px;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.card p {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1;
+}
+
+.card:nth-child(1) { animation: fadeUp 0.5s var(--ease) 0ms   both; }
+.card:nth-child(2) { animation: fadeUp 0.5s var(--ease) 50ms  both; }
+.card:nth-child(3) { animation: fadeUp 0.5s var(--ease) 100ms both; }
+.card:nth-child(4) { animation: fadeUp 0.5s var(--ease) 150ms both; }
+.card:nth-child(5) { animation: fadeUp 0.5s var(--ease) 200ms both; }
+.card:nth-child(6) { animation: fadeUp 0.5s var(--ease) 250ms both; }
+
+/* Colors — ตรงกับ class ของ HTML เดิม */
+.card-total::before       { background: var(--amber);  }
+.card-total p             { color: var(--amber);  }
+
+.card-first::before       { background: var(--green);  }
+.card-first p             { color: var(--green);  }
+
+.card-final::before       { background: var(--red);    }
+.card-final p             { color: var(--red);    }
+
+.card-supreme::before     { background: var(--accent); }
+.card-supreme p           { color: var(--accent); }
+
+.card-enforcement::before { background: var(--purple); }
+.card-enforcement p       { color: var(--purple); }
+
+.card-complete::before    { background: var(--teal);   }
+.card-complete p          { color: var(--teal);   }
+
+@media (max-width: 1100px) { .dashboard { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .dashboard { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .dashboard { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+
+/* ================================================================ */
+/* CONTENT AREA                                                      */
+/* ================================================================ */
+.content-area {
+    margin-bottom: 20px;
+    animation: fadeUp 0.5s var(--ease) 0.2s both;
+}
+
+.table-section {
+    animation: fadeUp 0.5s var(--ease) 0.3s both;
+}
+
+.chart-container,
+.table-container {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+.chart-container h2,
+.table-container h2,
+#tableTitle {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--label);
+    margin: 0 0 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--separator);
 }
 
 .chart-wrapper {
-    max-width: 100%; 
-    width: 100%; 
-    margin: 0 auto; 
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
 }
 #caseStatusChart {
-    height: 400px; 
+    height: 400px;
 }
 
-/* ---------------------------------------------------------------- */
-/* --- MOBILE TABLE STYLES (Card View) --- */
-/* ---------------------------------------------------------------- */
+/* ================================================================ */
+/* SEARCH BAR                                                        */
+/* ================================================================ */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.search-bar label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--label-3);
+    white-space: nowrap;
+}
+
+#caseSearch {
+    flex: 1;
+    max-width: 320px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 14px;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--label);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+#caseSearch:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.12);
+}
+
+/* ================================================================ */
+/* TABLE — DESKTOP                                                   */
+/* ================================================================ */
+table {
+    width: 100%;
+    min-width: 1050px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 13.5px;
+}
+
+table th,
+table td {
+    padding: 11px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--separator);
+}
+
+table th {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--label-4);
+    background: transparent;
+    border-top: none;
+    white-space: normal;
+    padding-top: 0;
+}
+
+table td {
+    color: var(--label-2);
+    vertical-align: top;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: normal;
+    white-space: normal;
+    hyphens: auto;
+}
+
+table tbody tr {
+    transition: background 0.15s;
+}
+table tbody tr:last-child td {
+    border-bottom: none;
+}
+table tbody tr:hover {
+    background: rgba(0,113,227,0.03);
+}
+
+table tbody td:first-child {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+/* Column widths — คงเดิมจาก original */
+#casesTable thead th:nth-child(1) { width: 10%; }
+#casesTable thead th:nth-child(2) { width: 8%;  }
+#casesTable thead th:nth-child(3) { width: 20%; }
+#casesTable thead th:nth-child(4) { width: 22%; }
+#casesTable thead th:nth-child(5) { width: 20%; }
+#casesTable thead th:nth-child(6) { width: 10%; }
+#casesTable thead th:nth-child(7) { width: 10%; }
+
+/* ================================================================ */
+/* TABLE — MOBILE CARD VIEW (คงเดิมทุก logic จาก original)          */
+/* ================================================================ */
 @media (max-width: 600px) {
     table {
         min-width: auto;
-        table-layout: auto; 
+        table-layout: auto;
     }
 
-    #casesTable thead {
-        display: none;
-    }
-    
-    #casesTable, #casesTable tbody, #casesTable tr {
+    #casesTable thead { display: none; }
+
+    #casesTable,
+    #casesTable tbody,
+    #casesTable tr {
         display: block;
         width: 100%;
     }
 
     #casesTable tr {
-        margin-bottom: 15px;
-        border: 1px solid #dee2e6; /* Standard border */
-        border-radius: 8px; 
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        overflow: hidden; 
-    }
-    
-    #casesTable td {
-        display: block;
-        text-align: right; 
-        padding: 10px 15px;
-        padding-left: 30%; 
-        position: relative;
-        border-bottom: 1px solid #f8f9fa; 
-        font-size: 0.95rem;
-        
-        overflow-wrap: break-word; 
-        word-break: normal; 
-        hyphens: auto;
+        margin-bottom: 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+        background: var(--surface);
     }
 
-    /* Add the data label as a pseudo-element (header text) */
+    #casesTable td {
+        display: block;
+        text-align: right;
+        padding: 10px 14px;
+        padding-left: 32%;
+        position: relative;
+        border-bottom: 1px solid var(--separator);
+        font-size: 13px;
+        overflow-wrap: break-word;
+        word-break: normal;
+        hyphens: auto;
+        color: var(--label-2);
+    }
+
     #casesTable td::before {
-        content: attr(data-label); 
+        content: attr(data-label);
         position: absolute;
         top: 0;
         left: 0;
         height: 100%;
-        
-        display: flex; 
-        align-items: center; 
-        
-        width: 27%; 
-        padding-left: 15px;
-        
-        white-space: normal; 
-        overflow-wrap: break-word; 
+        width: 29%;
+        padding-left: 14px;
+        display: flex;
+        align-items: center;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--label-3);
+        background: var(--bg);
+        border-right: 1px solid var(--separator);
+        overflow-wrap: break-word;
         word-break: normal;
         hyphens: auto;
-        
-        text-align: left;
-        font-weight: 600;
-        color: var(--primary-color);
-        background-color: #f8f9fa; 
-        border-right: 1px solid #dee2e6;
+        white-space: normal;
     }
-    
-    #casesTable td:last-child {
-        border-bottom: none;
+
+    #casesTable td:first-child { color: var(--accent); font-weight: 600; }
+    #casesTable td:last-child  { border-bottom: none; }
+
+    .search-bar { flex-wrap: wrap; }
+    #caseSearch { max-width: 100%; }
+
+    .chart-container,
+    .table-container { padding: 16px; }
+}
+
+/* ================================================================ */
+/* LOGIN                                                             */
+/* ================================================================ */
+#login-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    min-height: calc(100vh - 52px - 48px);
+}
+
+.login-box {
+    width: 100%;
+    max-width: 400px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    padding: 44px 40px;
+    text-align: center;
+    animation: fadeUp 0.4s var(--ease) both;
+}
+
+.login-box h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    color: var(--label);
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.login-box label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--label-3);
+    text-align: left;
+    margin-bottom: 6px;
+}
+
+#password-input {
+    width: 100%;
+    padding: 11px 16px;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--label);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+#password-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.14);
+}
+
+#login-button {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+#login-button:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+#login-button:active { transform: scale(0.98); }
+#login-button:disabled {
+    background: rgba(0,113,227,0.4);
+    cursor: not-allowed;
+    transform: none;
+}
+
+#login-error-message {
+    display: none;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,59,48,0.08);
+    color: var(--red);
+    border: 1px solid rgba(255,59,48,0.2);
+    font-size: 13px;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    main { padding: 10px; }
+    .login-box {
+        max-width: 100%;
+        padding: 28px 20px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
     }
 }
-/* --- END MOBILE TABLE STYLES --- */
+
+/* ================================================================ */
+/* FOOTER                                                            */
+/* ================================================================ */
+#app-footer {
+    background: transparent;
+    border-top: 1px solid var(--separator);
+    margin-top: auto;
+    width: 100%;
+}
+
+#app-footer > div {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-text {
+    font-size: 12px;
+    color: var(--label-4);
+}
+
+.footer-hidden-text {
+    font-size: 11px;
+    color: var(--label-4);
+    opacity: 0.5;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    #app-footer > div {
+        padding: 12px 16px;
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+    }
+}

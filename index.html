@@ -7,10 +7,10 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="dashboard_styles.css"> 
 </head>
@@ -18,37 +18,61 @@
     <header id="app-header">
         <div>
             <div class="header-left">
-                <span class="header-title">ระบบติดตามสถานะคดีปกครองโครงการเราชนะ</span>
+                <span class="header-title">ระบบติดตามสถานะคดีปกครอง — โครงการเราชนะ</span>
             </div>
             <div class="header-right">
                 <button id="logout-button" style="display:none;">ออกจากระบบ</button>
             </div>
         </div>
     </header>
+
     <main>
+        <!-- LOGIN -->
         <div id="login-container" class="login-container" style="display: none;">
             <div class="login-box">
                 <h1>เข้าสู่ระบบ</h1>
                 <form id="login-form">
                     <p id="login-error-message" class="error-message" style="display: none;"></p>
-                    <label for="password-input">รหัสผ่าน:</label>
-                    <input type="password" id="password-input" required />
+                    <label for="password-input">รหัสผ่าน</label>
+                    <input type="password" id="password-input" placeholder="กรอกรหัสผ่าน" required />
                     <button type="submit" id="login-button">เข้าสู่ระบบ</button>
                 </form>
             </div>
         </div>
+
+        <!-- DATA -->
         <div class="data-display-area" id="data-display-container">
             <p id="loading-message">กำลังโหลดข้อมูล...</p>
 
+            <!-- STAT CARDS -->
             <div class="dashboard" id="mainDashboard" style="display: none;">
-                <div class="card card-total"><h2>คดีทั้งหมด</h2><p id="totalCases">0</p></div>
-                <div class="card card-first"><h2>อยู่ระหว่างพิจารณาชั้นต้น</h2><p id="firstCourtCases">0</p></div>
-                <div class="card card-final"><h2>คำพิพากษาถึงที่สุด</h2><p id="finalCases">0</p></div>
-                <div class="card card-supreme"><h2>อยู่ระหว่างพิจารณาสูงสุด</h2><p id="supremeCourtCases">0</p></div>
-                <div class="card card-enforcement"><h2>อยู่ในขั้นตอนบังคับคดี</h2><p id="inExecutionCases">0</p></div>
-                <div class="card card-complete"><h2>บังคับคดีเสร็จสิ้น</h2><p id="executionCompleteCases">0</p></div>
+                <div class="card card-total">
+                    <h2>คดีทั้งหมด</h2>
+                    <p id="totalCases">0</p>
+                </div>
+                <div class="card card-first">
+                    <h2>อยู่ระหว่างพิจารณาชั้นต้น</h2>
+                    <p id="firstCourtCases">0</p>
+                </div>
+                <div class="card card-final">
+                    <h2>คำพิพากษาถึงที่สุด</h2>
+                    <p id="finalCases">0</p>
+                </div>
+                <div class="card card-supreme">
+                    <h2>อยู่ระหว่างพิจารณาสูงสุด</h2>
+                    <p id="supremeCourtCases">0</p>
+                </div>
+                <div class="card card-enforcement">
+                    <h2>อยู่ในขั้นตอนบังคับคดี</h2>
+                    <p id="inExecutionCases">0</p>
+                </div>
+                <div class="card card-complete">
+                    <h2>บังคับคดีเสร็จสิ้น</h2>
+                    <p id="executionCompleteCases">0</p>
+                </div>
             </div>
 
+            <!-- CHART -->
             <div class="content-area" id="mainContent" style="display: none;">
                 <div class="chart-container">
                     <h2>จำนวนคดีตามสถานะการดำเนินงาน</h2>
@@ -58,20 +82,21 @@
                 </div>
             </div>
 
+            <!-- TABLE -->
             <div class="table-section" id="tableSection" style="display: none;">
                 <div class="table-container">
                     <h2 id="tableTitle">10 คดีล่าสุดที่อัปเดต</h2>
                     
                     <div class="search-bar">
-                        <label for="caseSearch">ค้นหาเลขคดีดำ:</label>
-                        <input type="text" id="caseSearch" placeholder="พิมพ์เลขคดีดำที่ต้องการค้นหา..." />
+                        <label for="caseSearch">ค้นหาเลขคดีดำ</label>
+                        <input type="text" id="caseSearch" placeholder="ค้นหาเลขคดีดำ…" />
                     </div>
                     
                     <table id="casesTable">
                         <thead>
                             <tr>
                                 <th>เลขคดีดำ</th>
-                                <th>ปีคดีดำ</th> 
+                                <th>ปีคดีดำ</th>
                                 <th>ผู้ฟ้องคดี</th>
                                 <th>คำพิพากษา</th>
                                 <th>ข้อกฎหมาย</th>
@@ -79,8 +104,7 @@
                                 <th>สถานะคดี</th>
                             </tr>
                         </thead>
-                        <tbody id="casesTableBody">
-                            </tbody>
+                        <tbody id="casesTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -95,6 +119,7 @@
             </span>
         </div>
     </footer>
+
     <script src="dashboard_logic.js"></script>
 </body>
 </html>

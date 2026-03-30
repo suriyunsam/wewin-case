@@ -1,9 +1,13 @@
+// dashboard_logic.js
+
 // เก็บ instance ของ Chart.js
 let chartInstance = null; 
 
 // --- CONFIGURATION ---
-const API_URL = 'https://wewin-case-api.onrender.com/api/casestatus';
-const AUTH_KEY = 'Wewin_Auth_Key'; 
+const API_BASE_URL = 'https://wewin-case-api.onrender.com';
+const API_URL = `${API_BASE_URL}/api/casestatus`;
+const LOGIN_URL = `${API_BASE_URL}/api/login`;
+const AUTH_KEY = 'Wewin_JWT_Token'; // เก็บ JWT แทนรหัสผ่านจริง
 
 // Elements สำหรับ Login
 const loginContainer = document.getElementById('login-container');
@@ -21,18 +25,14 @@ const tableSection = document.getElementById('tableSection');
 const caseSearchInput = document.getElementById('caseSearch');
 const casesTableBody = document.querySelector("#casesTable tbody");
 const tableTitle = document.getElementById('tableTitle');
-
-// **[START] เพิ่ม Elements สำหรับ Logout (จาก Header)**
 const logoutButton = document.getElementById('logout-button');
-// **[END] เพิ่ม Elements สำหรับ Logout (จาก Header)**
         
-let allCasesData = []; // เก็บข้อมูลคดีทั้งหมดที่ดึงมา
+let allCasesData = []; 
 
 // ----------------------------------------------------
-// 1. Logic การจัดการ UI State (Login/Loading/Data)
+// 1. Logic การจัดการ UI State
 // ----------------------------------------------------
 
-/** แสดงหน้า Login และซ่อน Dashboard */
 function showLogin(message = '') {
     dataDisplayContainer.style.display = 'none';
     loginContainer.style.display = 'block';
@@ -40,10 +40,7 @@ function showLogin(message = '') {
     loginButton.disabled = false;
     loginButton.textContent = 'เข้าสู่ระบบ';
     loadingMessage.style.display = 'none';
-    
-    // **[START] ซ่อนปุ่ม Logout**
     logoutButton.style.display = 'none';
-    // **[END] ซ่อนปุ่ม Logout**
 
     if (message) {
         loginError.textContent = message;
@@ -53,7 +50,6 @@ function showLogin(message = '') {
     }
 }
 
-/** แสดงหน้า Loading และซ่อนส่วนอื่นๆ */
 function showLoading(message = 'กำลังโหลดข้อมูล...') {
     loginContainer.style.display = 'none';
     dataDisplayContainer.style.display = 'block';
@@ -64,45 +60,35 @@ function showLoading(message = 'กำลังโหลดข้อมูล...
     tableSection.style.display = 'none'; 
 }
 
-/** แสดง Dashboard หลัก */
 function showDashboard() {
     loadingMessage.style.display = 'none';
     mainDashboard.style.display = 'grid'; 
     mainContent.style.display = 'block'; 
     tableSection.style.display = 'block'; 
-    // **[START] แสดงปุ่ม Logout**
     logoutButton.style.display = 'inline-block';
-    // **[END] แสดงปุ่ม Logout**
 }
 
-/** ล้าง Session และกลับไปหน้า Login */
 function logout() {
     sessionStorage.removeItem(AUTH_KEY);
-    showLogin("ออกจากระบบแล้ว กรุณาเข้าสู่ระบบอีกครั้ง");
+    showLogin("ออกจากระบบแล้ว");
 }
 
 // ----------------------------------------------------
 // 2. Logic การล็อกอินและการดึงข้อมูล (Secure Fetch)
 // ----------------------------------------------------
 
-// ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
 document.addEventListener('DOMContentLoaded', () => {
-    const storedPassword = sessionStorage.getItem(AUTH_KEY);
-    if (storedPassword) {
+    const token = sessionStorage.getItem(AUTH_KEY);
+    if (token) {
         showLoading();
-        loadData(storedPassword);
+        loadData(token);
     } else {
         showLogin();
     }
-    
-    // **[START] ผูก Event Listener ให้ปุ่ม Logout**
-    // ผูก Event Listener ให้ปุ่ม Logout ใน Header
     logoutButton.addEventListener('click', logout);
-    // **[END] ผูก Event Listener ให้ปุ่ม Logout**
 });
 
-// ดักจับการ Submit Form
-loginForm.addEventListener('submit', (e) => {
+loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const password = passwordInput.value;
     
@@ -110,106 +96,75 @@ loginForm.addEventListener('submit', (e) => {
     loginButton.textContent = 'กำลังตรวจสอบ...';
     loginError.style.display = 'none';
     
-    showLoading(); 
-    loadData(password, true); 
+    try {
+        const res = await fetch(LOGIN_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok && data.token) {
+            sessionStorage.setItem(AUTH_KEY, data.token);
+            showLoading();
+            loadData(data.token);
+        } else {
+            showLogin(data.error || "รหัสผ่านไม่ถูกต้อง");
+        }
+    } catch (err) {
+        showLogin("ไม่สามารถเชื่อมต่อกับ Server ได้");
+    }
 });
 
-/** ดึงข้อมูลจาก API */
-async function fetchCaseData(password) {
+async function fetchCaseData(token) {
     const res = await fetch(API_URL, {
         method: 'GET',
         headers: {
-            // ส่งรหัสผ่านผ่าน Header เพื่อความปลอดภัย
-            'Authorization': `Bearer ${password}`, 
+            'Authorization': `Bearer ${token}`, 
             'Content-Type': 'application/json',
         }
     });
 
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
         throw new Error("Unauthorized");
     }
     
     if (!res.ok) {
-        throw new Error(`API Error: ${res.status} ${res.statusText}`);
+        throw new Error(`API Error: ${res.status}`);
     }
 
     return res.json();
 }
 
-/** Logic การ Retry เพื่อจัดการปัญหา Server Cold Start */
-async function loadData(password, isLoginAttempt = false) {
-    const MAX_RETRIES = 3;
-    let attempt = 0;
-
-    while (attempt < MAX_RETRIES) {
-        attempt++;
-        // Exponential backoff delay: 0s (initial), 2s, 4s
-        const delay = attempt === 1 ? 0 : Math.pow(2, attempt) * 500; 
-
-        try {
-            if (attempt > 1) {
-                 showLoading(`กำลังพยายามเชื่อมต่อใหม่... (ครั้งที่ ${attempt}/${MAX_RETRIES})`);
-                 await new Promise(resolve => setTimeout(resolve, delay));
-            }
-            
-            const data = await fetchCaseData(password);
-
-            if (isLoginAttempt) {
-                // ถ้าเป็นการล็อกอินครั้งแรกและสำเร็จ ให้บันทึกรหัสผ่านไว้
-                sessionStorage.setItem(AUTH_KEY, password);
-            }
-
-            // Success: Process data and show dashboard
-            setTimeout(() => {
-                processAndRenderDashboard(data.values); 
-                showDashboard(); 
-            }, 50);
-
-            return; 
-            
-        } catch (error) {
-            if (error.message === "Unauthorized") {
-                sessionStorage.removeItem(AUTH_KEY);
-                showLogin("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่");
-                return;
-            }
-            
-            if (error.message.startsWith("API Error")) {
-                sessionStorage.removeItem(AUTH_KEY);
-                showLogin(`เกิดข้อผิดพลาดในการดึงข้อมูล: ${error.message}.`);
-                return;
-            }
-            
-            console.warn(`Fetch attempt ${attempt} failed. Retrying...`, error);
-
-            if (attempt === MAX_RETRIES) {
-                sessionStorage.removeItem(AUTH_KEY);
-                showLogin(`ไม่สามารถเชื่อมต่อกับ Server ได้ (พยายาม ${MAX_RETRIES} ครั้ง)`);
-                return;
-            }
+async function loadData(token) {
+    try {
+        const data = await fetchCaseData(token);
+        processAndRenderDashboard(data.values); 
+        showDashboard(); 
+    } catch (error) {
+        sessionStorage.removeItem(AUTH_KEY);
+        if (error.message === "Unauthorized") {
+            showLogin("เซสชันหมดอายุหรือรหัสผ่านไม่ถูกต้อง");
+        } else {
+            showLogin(`เกิดข้อผิดพลาด: ${error.message}`);
         }
     }
 }
 
 // ----------------------------------------------------
-// 3. Logic Dashboard 
+// 3. Logic Dashboard (Anti-XSS Rendering)
 // ----------------------------------------------------
 
-/** แปลงข้อมูลจาก Array of Arrays เป็น Array of Objects */
 function arrayToObjects(data) {
     if (!data || data.length < 2) return [];
-    
-    // สร้าง headers จากแถวแรก และ trim space ออก (สำคัญมากสำหรับการเทียบ key)
     const headers = data[0].map(h => String(h || '').trim());
-    
     const cases = [];
     for (let i = 1; i < data.length; i++) {
         const row = data[i];
         if (row.filter(cell => String(cell || '').trim() !== '').length === 0) continue; 
-        
         const item = {};
         headers.forEach((header, j) => { 
-            // ใช้วิธี map โดยอิงตาม header name
             item[header] = String(row[j] || '').trim(); 
         });
         cases.push(item);
@@ -217,165 +172,111 @@ function arrayToObjects(data) {
     return cases;
 }
 
-/** สร้างแถวตาราง HTML จากข้อมูลคดีที่ถูกกรองแล้ว */
+/** 
+ * ป้องกัน XSS: ใช้ textContent แทน insertAdjacentHTML 
+ * เพื่อให้แน่ใจว่าข้อมูลจาก Google Sheets จะไม่ถูกประมวลผลเป็น HTML
+ */
 function renderCasesTable(cases) {
     casesTableBody.innerHTML = ''; 
     if (cases.length === 0) {
-        // Colspan = 7 เนื่องจากมี 7 คอลัมน์ 
-        const noResultsRow = `<tr class="no-results"><td colspan="7" style="text-align: center;">ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา</td></tr>`;
-        casesTableBody.insertAdjacentHTML("beforeend", noResultsRow);
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 7;
+        td.style.textAlign = 'center';
+        td.textContent = 'ไม่พบข้อมูลคดีที่ตรงกับคำค้นหา';
+        tr.appendChild(td);
+        casesTableBody.appendChild(tr);
         return;
     }
 
-    // กำหนดหัวตารางตามลำดับที่แสดงใน HTML
-    const headers = [
-        "เลขคดีดำ", "ปีคดีดำ", "ผู้ฟ้องคดี", "คำพิพากษา", 
-        "ข้อกฎหมาย", "ตุลาการ", "สถานะคดี"
-    ];
+    const headers = ["เลขคดีดำ", "ปีคดีดำ", "ผู้ฟ้องคดี", "คำพิพากษา", "ข้อกฎหมาย", "ตุลาการ", "สถานะคดี"];
 
     cases.forEach(c => {
-        // ใช้ data-label attribute เพื่อให้ CSS สามารถดึงไปแสดงผลเป็นหัวตารางใน Card View ได้บนมือถือ
-        const row = `<tr>
-            <td data-label="${headers[0]}">${c["เลขคดีดำ"] || "-"}</td>
-            <td data-label="${headers[1]}">${c["ปีคดีดำ"] || "-"}</td>
-            <td data-label="${headers[2]}">${c["ผู้ฟ้องคดี"] || "-"}</td>
-            <td data-label="${headers[3]}">${c["คำพิพากษา"] || "-"}</td>
-            <td data-label="${headers[4]}">${c["ข้อกฎหมาย"] || "-"}</td> 
-            <td data-label="${headers[5]}">${c["ตุลาการ"] || "-"}</td> 
-            <td data-label="${headers[6]}">${c["สถานะคดี"] || "-"}</td>
-        </tr>`;
-        casesTableBody.insertAdjacentHTML("beforeend", row);
+        const tr = document.createElement('tr');
+        headers.forEach(header => {
+            const td = document.createElement('td');
+            td.setAttribute('data-label', header);
+            td.textContent = c[header] || "-"; // ปลอดภัย 100% จาก XSS
+            tr.appendChild(td);
+        });
+        casesTableBody.appendChild(tr);
     });
 }
 
-/** กรองและแสดงผลคดีตามคำค้นหา */
 function filterAndRenderCases() {
     const searchTerm = caseSearchInput.value.trim().toLowerCase();
     let filteredCases = [];
-    
     if (searchTerm.length === 0) {
-        // แสดง 10 คดีล่าสุด
         filteredCases = allCasesData.slice(-10).reverse();
         tableTitle.innerText = "10 คดีล่าสุดที่อัปเดต";
     } else {
         filteredCases = allCasesData.filter(c =>
-            // กรองตาม เลขคดีดำ หรือ ปีคดีดำ 
             (c["เลขคดีดำ"] && String(c["เลขคดีดำ"]).toLowerCase().includes(searchTerm)) ||
             (c["ปีคดีดำ"] && String(c["ปีคดีดำ"]).toLowerCase().includes(searchTerm))
         );
-        tableTitle.innerText = `ผลการค้นหาคดี: "${caseSearchInput.value.trim()}" (${filteredCases.length} คดี)`;
+        tableTitle.innerText = `ผลการค้นหา: "${caseSearchInput.value.trim()}" (${filteredCases.length} คดี)`;
     }
-
     renderCasesTable(filteredCases);
 }
 
-// ผูก Event Listener
 caseSearchInput.addEventListener('input', filterAndRenderCases);
 
-
-/** ประมวลผลและแสดงผล Dashboard ทั้งหมด */
 function processAndRenderDashboard(values) {
     if (!values) return;
-
     const cases = arrayToObjects(values);
     allCasesData = cases; 
 
-    // 1. คำนวณสถานะคดี
-    const totalCases = cases.length;
-    const firstCourtCases = cases.filter(c => c["สถานะคดี"].includes("ชั้นต้น")).length;
-    const supremeCourtCases = cases.filter(c => c["สถานะคดี"].includes("สูงสุด")).length;
-    const inExecutionCases = cases.filter(c => c["สถานะคดี"].includes("อยู่ในขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี")).length;
-    const executionCompleteCases = cases.filter(c => c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length;
-    const finalCases = cases.filter(c => c["สถานะคดี"].includes("ถึงที่สุด")).length; 
-
-    // 2. อัปเดตตัวเลขในการ์ด
-    document.getElementById("totalCases").innerText = totalCases.toLocaleString('th-TH');
-    document.getElementById("finalCases").innerText = finalCases.toLocaleString('th-TH');
-    document.getElementById("firstCourtCases").innerText = firstCourtCases.toLocaleString('th-TH');
-    document.getElementById("supremeCourtCases").innerText = supremeCourtCases.toLocaleString('th-TH');
-    document.getElementById("executionCompleteCases").innerText = executionCompleteCases.toLocaleString('th-TH');
-    document.getElementById("inExecutionCases").innerText = inExecutionCases.toLocaleString('th-TH');
-
-    // 3. สร้าง Bar Chart (แผนภูมิแท่งแนวนอน)
-    const ctx = document.getElementById("caseStatusChart");
-    if (chartInstance) { chartInstance.destroy(); } // ทำลาย instance เก่าก่อน
-
-    const chartData = {
-        labels: ["คำพิพากษาถึงที่สุด", "อยู่ระหว่างพิจารณาชั้นต้น", "อยู่ระหว่างพิจารณาสูงสุด", "อยู่ในขั้นตอนบังคับคดี", "บังคับคดีเสร็จสิ้น"],
-        datasets: [{
-            label: "จำนวนคดี",
-            data: [finalCases, firstCourtCases, supremeCourtCases, inExecutionCases, executionCompleteCases],
-            backgroundColor: ["#4CAF50", "#2196F3", "#FFC107", "#FF8C00", "#008080"],
-            borderColor: "white",
-            borderWidth: 1
-        }]
+    const stats = {
+        total: cases.length,
+        first: cases.filter(c => c["สถานะคดี"].includes("ชั้นต้น")).length,
+        supreme: cases.filter(c => c["สถานะคดี"].includes("สูงสุด")).length,
+        inExec: cases.filter(c => c["สถานะคดี"].includes("ขั้นตอนบังคับคดี") || c["สถานะคดี"].includes("ระหว่างบังคับคดี")).length,
+        execComp: cases.filter(c => c["สถานะคดี"].includes("บังคับคดีเสร็จสิ้น")).length,
+        final: cases.filter(c => c["สถานะคดี"].includes("ถึงที่สุด")).length
     };
-    
+
+    document.getElementById("totalCases").innerText = stats.total.toLocaleString('th-TH');
+    document.getElementById("finalCases").innerText = stats.final.toLocaleString('th-TH');
+    document.getElementById("firstCourtCases").innerText = stats.first.toLocaleString('th-TH');
+    document.getElementById("supremeCourtCases").innerText = stats.supreme.toLocaleString('th-TH');
+    document.getElementById("executionCompleteCases").innerText = stats.execComp.toLocaleString('th-TH');
+    document.getElementById("inExecutionCases").innerText = stats.inExec.toLocaleString('th-TH');
+
+    renderChart(stats);
+    filterAndRenderCases(); 
+}
+
+function renderChart(stats) {
+    const ctx = document.getElementById("caseStatusChart");
+    if (chartInstance) { chartInstance.destroy(); }
+
     chartInstance = new Chart(ctx, {
-        // เปลี่ยนเป็น Bar Chart
         type: "bar",
-        data: chartData,
+        data: {
+            labels: ["ถึงที่สุด", "ชั้นต้น", "สูงสุด", "ระหว่างบังคับคดี", "บังคับคดีเสร็จ"],
+            datasets: [{
+                data: [stats.final, stats.first, stats.supreme, stats.inExec, stats.execComp],
+                backgroundColor: ["#4CAF50", "#2196F3", "#FFC107", "#FF8C00", "#008080"],
+                borderWidth: 1
+            }]
+        },
         options: { 
-            indexAxis: 'y', // กำหนดให้เป็นแนวนอน
+            indexAxis: 'y',
             responsive: true, 
             maintainAspectRatio: false,
             plugins: { 
+                legend: { display: false },
                 datalabels: {
-                    formatter: (value) => {
-                        return new Intl.NumberFormat('th-TH').format(value); // แสดงเฉพาะจำนวนคดี
-                    },
-                    anchor: 'end', // ตำแหน่งข้อความที่ปลายแท่ง
-                    align: 'right', // จัดชิดขวา
-                    color: '#333', // สีตัวอักษรเป็นสีเข้ม
-                    font: {
-                        weight: 'bold',
-                        size: 14,
-                        family: "Sarabun"
-                    }
-                },
-                legend: { 
-                    display: false, // ปิด Legend เนื่องจากฉลากอยู่บนแกน Y อยู่แล้ว
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed.x !== null) {
-                                label += new Intl.NumberFormat('th-TH').format(context.parsed.x) + ' คดี';
-                            }
-                            return label;
-                        }
-                    },
-                    titleFont: { family: "Sarabun", size: 14 },
-                    bodyFont: { family: "Sarabun", size: 12 }
+                    anchor: 'end',
+                    align: 'right',
+                    color: '#333',
+                    font: { weight: 'bold', family: "Sarabun" }
                 }
             },
-            // ปรับแกน X และ Y
             scales: {
-                x: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'จำนวนคดี',
-                        font: { family: "Sarabun", weight: 'bold', size: 14 }
-                    },
-                    ticks: {
-                        callback: function(value) {
-                             return new Intl.NumberFormat('th-TH').format(value);
-                        },
-                        font: { family: "Sarabun" }
-                    }
-                },
-                y: {
-                    font: { family: "Sarabun" }
-                }
+                x: { beginAtZero: true },
+                y: { ticks: { font: { family: "Sarabun" } } }
             }
         }
     });
-
-    // 4. แสดงผลตารางเริ่มต้น
-    filterAndRenderCases(); 
 }

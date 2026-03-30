@@ -1,27 +1,45 @@
 // server.js
 
-// โหลดตัวแปรจากไฟล์ .env เมื่อรันบนเครื่อง Local
-// เมื่อ Deploy บน Render จะดึงจาก Environment Variables โดยตรง
 require('dotenv').config(); 
 
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors'); 
-const app = express();
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const jwt = require('jsonwebtoken');
 
-// Render จะกำหนด PORT ให้เอง
+const app = express();
 const port = process.env.PORT || 3000; 
 
-// 0. Root Route: ใช้สำหรับทดสอบว่า Server ทำงานได้ (ตอบกลับเป็น JSON)
-app.get('/', (req, res) => {
-    res.json({ 
-        status: 'WeWin Case Status API is running!', 
-        message: 'Access the data at /api/casestatus endpoint.',
-        data_endpoint: '/api/casestatus'
-    });
+// 1. Security Headers: ป้องกัน XSS, Clickjacking และอื่นๆ
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": ["'self'", "https://cdn.jsdelivr.net", "https://www.googletagmanager.com"], 
+            "style-src": ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
+            "font-src": ["'self'", "https://fonts.gstatic.com"],
+            "img-src": ["'self'", "data:"],
+            "connect-src": ["'self'", "https://wewin-case-api.onrender.com"]
+        },
+    },
+}));
+
+// 2. Rate Limiting: ป้องกัน Brute-force Attacks
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 นาที
+    max: 100, // จำกัด 100 requests ต่อ IP ต่อ window
+    message: { error: "Too many requests from this IP, please try again later." }
 });
 
-// 1. CORS Middleware: กำหนด Origin ที่อนุญาต
+// ใช้ rate limit กับทุก API endpoint
+app.use('/api/', apiLimiter);
+
+// Parse JSON body
+app.use(express.json());
+
+// 3. CORS Middleware
 const allowedOrigins = [
     'http://localhost:8080', 
     'http://127.0.0.1', 
@@ -31,76 +49,80 @@ const allowedOrigins = [
 
 const corsOptions = {
     origin: (origin, callback) => {
-        // อนุญาต origin ที่อยู่ในรายการ หรืออนุญาตถ้าไม่มี origin 
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'), false);
         }
     },
-    methods: 'GET',
-    allowedHeaders: ['Content-Type', 'Authorization'], //  ต้องอนุญาต Header Authorization
-    optionsSuccessStatus: 200 // สำหรับ Legacy Browsers
+    methods: 'GET,POST',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions)); 
 
-// 2. API Endpoint: สำหรับดึงข้อมูลสถานะคดี
-app.get('/api/casestatus', async (req, res) => {
+// --- AUTH LOGIC ---
+const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD;
+const JWT_SECRET = process.env.JWT_SECRET || 'wewin_super_secret_key_change_me';
+
+/** Endpoint สำหรับ Login เพื่อรับ Token */
+app.post('/api/login', (req, res) => {
+    const { password } = req.body;
     
-    // ดึงค่า API Key และ ID จาก Environment Variables
+    if (ACCESS_PASSWORD && password === ACCESS_PASSWORD) {
+        // สร้าง Token ที่มีอายุ 4 ชั่วโมง
+        const token = jwt.sign({ authorized: true }, JWT_SECRET, { expiresIn: '4h' });
+        return res.json({ token });
+    }
+    
+    res.status(401).json({ error: "Invalid password" });
+});
+
+/** Middleware ตรวจสอบ JWT */
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(401).json({ error: "Missing token" });
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: "Invalid or expired token" });
+        req.user = user;
+        next();
+    });
+};
+
+// 4. API Endpoints
+app.get('/', (req, res) => {
+    res.json({ 
+        status: 'WeWin Case Status API is running securely!', 
+        message: 'Access protected data at /api/casestatus'
+    });
+});
+
+app.get('/api/casestatus', authenticateToken, async (req, res) => {
     const API_KEY = process.env.GOOGLE_SHEETS_API_KEY;
     const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
     const SHEET_RANGE = process.env.SHEET_RANGE;
-    
-    // ดึงรหัสผ่านสำหรับเข้าถึงข้อมูลจาก Environment Variables
-    const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD; 
-    
-    // 2.1 ตรวจสอบรหัสผ่านที่ส่งมากับ Authorization Header
-    const providedAuthHeader = req.headers.authorization;
-    
-    let providedPassword = null;
-    
-    if (providedAuthHeader && providedAuthHeader.startsWith('Bearer ')) {
-        // ดึงค่า Token/รหัสผ่านจริงออกมาจาก 'Bearer XXXX'
-        providedPassword = providedAuthHeader.substring(7);
-    }
-
-    // 2.2 ตรวจสอบรหัสผ่าน: ถ้ามีการตั้ง ACCESS_PASSWORD ไว้ใน ENV 
-    //     และรหัสผ่านที่ส่งมาไม่ตรงกัน จะตอบกลับ 401 Unauthorized
-    if (ACCESS_PASSWORD && providedPassword !== ACCESS_PASSWORD) {
-        return res.status(401).json({
-            error: "Unauthorized access. Please provide the correct password in the 'Authorization: Bearer <password>' header."
-        });
-    }
 
     if (!API_KEY || !SPREADSHEET_ID || !SHEET_RANGE) {
-        return res.status(500).json({ 
-            error: "Server configuration missing. API Key or Spreadsheet info is not set in Environment Variables." 
-        });
+        return res.status(500).json({ error: "Server configuration missing." });
     }
 
-    // สร้าง URL สำหรับเรียก Google Sheets API
     const encodedRange = encodeURIComponent(SHEET_RANGE);
-    const GOOGLE_API_URL = 
-        `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodedRange}?key=${API_KEY}`;
+    const GOOGLE_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodedRange}?key=${API_KEY}`;
 
     try {
-        // ใช้ axios เรียกข้อมูลจาก Google Sheets (ใช้ Key ที่ซ่อนอยู่)
         const response = await axios.get(GOOGLE_API_URL);
-        
-        // ส่งข้อมูลที่ได้รับกลับไปยัง Frontend
         res.json(response.data); 
-
     } catch (error) {
-        // บันทึก Error เต็มรูปแบบใน Log ของ Render
-        console.error("Google Sheets API Error:", error.response?.data || error.message);
-        // ส่งข้อความ Error ทั่วไปกลับไป Frontend
-        res.status(500).json({ error: "Failed to fetch data from Google Sheets API." });
+        // ปรับปรุงการ Log: ไม่ส่งข้อมูลละเอียดกลับไปที่ Client
+        console.error("Google Sheets API Error Status:", error.response?.status || error.message);
+        res.status(500).json({ error: "Failed to fetch data from source." });
     }
 });
 
-// 3. เริ่ม Server
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`Server running securely on port ${port}`);
 });

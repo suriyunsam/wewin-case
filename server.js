@@ -39,6 +39,9 @@ app.use('/api/', apiLimiter);
 // Parse JSON body
 app.use(express.json());
 
+// Serve Static Files (index.html, dashboard_styles.css, etc.)
+app.use(express.static(__dirname));
+
 // 3. CORS Middleware
 const allowedOrigins = [
     'http://localhost:8080', 

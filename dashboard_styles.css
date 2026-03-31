@@ -118,14 +118,14 @@ main {
     flex: 1;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: stretch;
     width: 100%;
-    padding: 28px 20px;
 }
 
 .data-display-area {
     width: 100%;
     max-width: 1280px;
+    padding: 28px 20px;
 }
 
 /* ================================================================ */
@@ -455,7 +455,6 @@ table tbody td:first-child {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    min-height: calc(100vh - 52px - 48px);
 }
 
 .login-box {

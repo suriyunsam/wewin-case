@@ -35,7 +35,7 @@ let allCasesData = [];
 
 function showLogin(message = '') {
     dataDisplayContainer.style.display = 'none';
-    loginContainer.style.display = 'block';
+    loginContainer.style.display = 'flex';
     passwordInput.value = '';
     loginButton.disabled = false;
     loginButton.textContent = 'เข้าสู่ระบบ';

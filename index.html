@@ -20,8 +20,10 @@
         <div>
             <div class="header-left">
                 <span class="header-title">ระบบติดตามสถานะคดีปกครอง — โครงการเราชนะ</span>
+                <span class="last-updated-badge" id="last-updated" style="display:none;"></span>
             </div>
             <div class="header-right">
+                <button id="export-button" style="display:none;">↓ Export CSV</button>
                 <button id="logout-button" style="display:none;">ออกจากระบบ</button>
             </div>
         </div>
@@ -50,63 +52,86 @@
                 <div class="card card-total">
                     <h2>คดีทั้งหมด</h2>
                     <p id="totalCases">0</p>
+                    <p class="stat-pct" id="totalPct"></p>
                 </div>
                 <div class="card card-first">
                     <h2>อยู่ระหว่างพิจารณาชั้นต้น</h2>
                     <p id="firstCourtCases">0</p>
+                    <p class="stat-pct" id="firstPct"></p>
                 </div>
                 <div class="card card-final">
                     <h2>คำพิพากษาถึงที่สุด</h2>
                     <p id="finalCases">0</p>
+                    <p class="stat-pct" id="finalPct"></p>
                 </div>
                 <div class="card card-supreme">
                     <h2>อยู่ระหว่างพิจารณาสูงสุด</h2>
                     <p id="supremeCourtCases">0</p>
+                    <p class="stat-pct" id="supremePct"></p>
                 </div>
                 <div class="card card-enforcement">
                     <h2>อยู่ในขั้นตอนบังคับคดี</h2>
                     <p id="inExecutionCases">0</p>
+                    <p class="stat-pct" id="inExecPct"></p>
                 </div>
                 <div class="card card-complete">
                     <h2>บังคับคดีเสร็จสิ้น</h2>
                     <p id="executionCompleteCases">0</p>
+                    <p class="stat-pct" id="execCompPct"></p>
                 </div>
             </div>
 
-            <!-- CHART -->
+            <!-- CHARTS -->
             <div class="content-area" id="mainContent" style="display: none;">
-                <div class="chart-container">
-                    <h2>จำนวนคดีตามสถานะการดำเนินงาน</h2>
-                    <div class="chart-wrapper">
-                        <canvas id="caseStatusChart" height="400"></canvas>
+                <div class="charts-row">
+                    <div class="chart-container">
+                        <h2>จำนวนคดีตามสถานะการดำเนินงาน</h2>
+                        <div class="chart-wrapper">
+                            <canvas id="caseStatusChart" height="340"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-container chart-donut-container">
+                        <h2>สัดส่วนคดีตามสถานะ</h2>
+                        <div class="donut-wrapper">
+                            <canvas id="caseDonutChart"></canvas>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- FILTER BAR -->
+            <div class="filter-bar-section" id="filterBar" style="display: none;">
+                <div class="filter-chips">
+                    <span class="filter-label">กรองสถานะ:</span>
+                    <button class="chip active" data-filter="all">ทั้งหมด</button>
+                    <button class="chip" data-filter="ชั้นต้น">ชั้นต้น</button>
+                    <button class="chip" data-filter="ถึงที่สุด">ถึงที่สุด</button>
+                    <button class="chip" data-filter="สูงสุด">สูงสุด</button>
+                    <button class="chip" data-filter="บังคับคดี">บังคับคดี</button>
+                    <button class="chip" data-filter="บังคับเสร็จ">บังคับเสร็จ</button>
+                </div>
+                <input type="text" id="caseSearch" placeholder="🔍  ค้นหาเลขคดี, ผู้ฟ้อง, ตุลาการ…" />
             </div>
 
             <!-- TABLE -->
             <div class="table-section" id="tableSection" style="display: none;">
                 <div class="table-container">
-                    <h2 id="tableTitle">10 คดีล่าสุดที่อัปเดต</h2>
-                    
-                    <div class="search-bar">
-                        <label for="caseSearch">ค้นหาเลขคดีดำ</label>
-                        <input type="text" id="caseSearch" placeholder="ค้นหาเลขคดีดำ…" />
-                    </div>
-                    
+                    <h2 id="tableTitle">คดีทั้งหมด</h2>
                     <table id="casesTable">
                         <thead>
                             <tr>
-                                <th>เลขคดีดำ</th>
-                                <th>ปีคดีดำ</th>
-                                <th>ผู้ฟ้องคดี</th>
-                                <th>คำพิพากษา</th>
-                                <th>ข้อกฎหมาย</th>
-                                <th>ตุลาการ</th>
-                                <th>สถานะคดี</th>
+                                <th data-col="เลขคดีดำ">เลขคดีดำ <span class="sort-icon"></span></th>
+                                <th data-col="ปีคดีดำ">ปีคดีดำ <span class="sort-icon"></span></th>
+                                <th data-col="ผู้ฟ้องคดี">ผู้ฟ้องคดี <span class="sort-icon"></span></th>
+                                <th data-col="คำพิพากษา">คำพิพากษา <span class="sort-icon"></span></th>
+                                <th data-col="ข้อกฎหมาย">ข้อกฎหมาย <span class="sort-icon"></span></th>
+                                <th data-col="ตุลาการ">ตุลาการ <span class="sort-icon"></span></th>
+                                <th data-col="สถานะคดี">สถานะคดี <span class="sort-icon"></span></th>
                             </tr>
                         </thead>
                         <tbody id="casesTableBody"></tbody>
                     </table>
+                    <div class="pagination" id="pagination"></div>
                 </div>
             </div>
         </div>

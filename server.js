@@ -84,10 +84,12 @@ app.use(express.static(__dirname));
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:8080',
+    'http://127.0.0.1',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:8080',
     'https://suriyunsam.github.io',
-    'https://wewin-case.onrender.com'
+    'https://wewin-case.onrender.com',
+    'https://wewin-case-api.onrender.com'
 ];
 
 const corsOptions = {

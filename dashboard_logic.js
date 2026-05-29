@@ -208,13 +208,13 @@ function filterAndRenderCases() {
     let filteredCases = [];
     if (searchTerm.length === 0) {
         filteredCases = allCasesData.slice(-10).reverse();
-        tableTitle.innerText = "10 คดีล่าสุดที่อัปเดต";
+        tableTitle.textContent = "10 คดีล่าสุดที่อัปเดต";
     } else {
         filteredCases = allCasesData.filter(c =>
             (c["เลขคดีดำ"] && String(c["เลขคดีดำ"]).toLowerCase().includes(searchTerm)) ||
             (c["ปีคดีดำ"] && String(c["ปีคดีดำ"]).toLowerCase().includes(searchTerm))
         );
-        tableTitle.innerText = `ผลการค้นหา: "${caseSearchInput.value.trim()}" (${filteredCases.length} คดี)`;
+        tableTitle.textContent = `ผลการค้นหา: "${caseSearchInput.value.trim()}" (${filteredCases.length} คดี)`;
     }
     renderCasesTable(filteredCases);
 }
@@ -222,7 +222,11 @@ function filterAndRenderCases() {
 caseSearchInput.addEventListener('input', filterAndRenderCases);
 
 function processAndRenderDashboard(values) {
-    if (!values) return;
+    if (!values || !Array.isArray(values) || values.length === 0) {
+        loadingMessage.textContent = 'ไม่พบข้อมูลในแหล่งข้อมูล';
+        loadingMessage.style.display = 'block';
+        return;
+    }
     const cases = arrayToObjects(values);
     allCasesData = cases; 
 
@@ -235,12 +239,12 @@ function processAndRenderDashboard(values) {
         final: cases.filter(c => c["สถานะคดี"].includes("ถึงที่สุด")).length
     };
 
-    document.getElementById("totalCases").innerText = stats.total.toLocaleString('th-TH');
-    document.getElementById("finalCases").innerText = stats.final.toLocaleString('th-TH');
-    document.getElementById("firstCourtCases").innerText = stats.first.toLocaleString('th-TH');
-    document.getElementById("supremeCourtCases").innerText = stats.supreme.toLocaleString('th-TH');
-    document.getElementById("executionCompleteCases").innerText = stats.execComp.toLocaleString('th-TH');
-    document.getElementById("inExecutionCases").innerText = stats.inExec.toLocaleString('th-TH');
+    document.getElementById("totalCases").textContent = stats.total.toLocaleString('th-TH');
+    document.getElementById("finalCases").textContent = stats.final.toLocaleString('th-TH');
+    document.getElementById("firstCourtCases").textContent = stats.first.toLocaleString('th-TH');
+    document.getElementById("supremeCourtCases").textContent = stats.supreme.toLocaleString('th-TH');
+    document.getElementById("executionCompleteCases").textContent = stats.execComp.toLocaleString('th-TH');
+    document.getElementById("inExecutionCases").textContent = stats.inExec.toLocaleString('th-TH');
 
     renderChart(stats);
     filterAndRenderCases(); 
